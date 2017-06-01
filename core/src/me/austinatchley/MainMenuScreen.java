@@ -28,19 +28,20 @@ public class MainMenuScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        Gdx.gl.glClearColor(0, 0, 0.2f, 1);
+        Gdx.gl.glClearColor(0.4f, 0.6f, 1f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
         game.batch.setProjectionMatrix(camera.combined);
 
         game.batch.begin();
-        game.font.draw(game.batch, "JANUARY SKY", SCREEN_X / 2, 2 * SCREEN_Y / 3);
-        game.font.draw(game.batch, "TAP ANYWHERE TO BEGIN", SCREEN_X / 2, 2 * SCREEN_Y / 3 - 50);
+        game.font.setColor(0,0,0,1);
+        game.font.draw(game.batch, "JANUARY SKY", SCREEN_X / 2 - 200, 2 * SCREEN_Y / 3);
+        game.font.draw(game.batch, "TAP ANYWHERE TO BEGIN", SCREEN_X / 2 - 400,
+                2 * SCREEN_Y / 3 - 100);
         game.batch.end();
 
         if (Gdx.input.isTouched()) {
-            Gdx.app.log("state", "touch registered");
             game.setScreen(new GameScreen(game));
             dispose();
         }
