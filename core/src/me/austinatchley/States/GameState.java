@@ -50,7 +50,7 @@ public class GameState extends State {
         rocketImage = new Texture("rocket.png");
         asteroidImage = new Texture("asteroid.png");
 
-        world = new World(new Vector2(0, -98f), true);
+        world = new World(new Vector2(0, -120f), true);
 
         BodyDef rocketBodyDef = new BodyDef();
         rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
@@ -167,7 +167,7 @@ public class GameState extends State {
         asteroidBodyDef.position.set(MathUtils.random(0, WIDTH - 90), HEIGHT);
 
         Body asteroid = world.createBody(asteroidBodyDef);
-//        asteroid.applyForceToCenter(o, MathUtils.random(1f,100f), false);
+        asteroid.setLinearDamping(MathUtils.random(0f,3f));
 
         CircleShape asteroidShape = new CircleShape();
         asteroidShape.setRadius(45f);
