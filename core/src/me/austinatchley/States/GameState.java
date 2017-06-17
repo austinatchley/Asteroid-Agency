@@ -6,8 +6,10 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -24,6 +26,7 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.sun.java.accessibility.util.java.awt.TextComponentTranslator;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -32,14 +35,19 @@ import me.austinatchley.GameStateManager;
 import me.austinatchley.RocketGame;
 
 public class GameState extends State {
-    private final int VERTICAL_OFF = 20;
+    private static final int VERTICAL_OFF = 20;
+    private static final int NUM_ASTEROID_SPRITES = 64;
 
     private World world;
-
     private Body rocket;
     private ArrayList<Body> obstacles;
     private Texture rocketImage;
     private Texture asteroidImage;
+
+    private Animation<TextureRegion> asteroidAnimation;
+    private Texture asteroidSheet;
+    private float stateTime;
+
     private int score;
     private long lastDropTime;
 
@@ -49,27 +57,26 @@ public class GameState extends State {
 
         rocketImage = new Texture("rocket.png");
         asteroidImage = new Texture("asteroid.png");
+        asteroidSheet = new Texture("asteroidSheet.png");
+
+        TextureRegion[][] tmpFrames = TextureRegion.split(asteroidSheet,
+                asteroidSheet.getWidth() / NUM_ASTEROID_SPRITES, asteroidSheet.getHeight());
+
+        TextureRegion[] spinFrames = new TextureRegion[NUM_ASTEROID_SPRITES];
+        int index = 0;
+        for(int i = 0; i < tmpFrames.length; i++)
+            for(int j = 0; j < tmpFrames[0].length; j++)
+                spinFrames[index++] = tmpFrames[i][j];
+
+        asteroidAnimation = new Animation<TextureRegion>(.06f, spinFrames);
+        stateTime = 0f;
 
         world = new World(new Vector2(0, -120f), true);
 
-        BodyDef rocketBodyDef = new BodyDef();
-        rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
-        rocketBodyDef.position.set((WIDTH - rocketImage.getWidth())/ 2, VERTICAL_OFF);
-        rocket = world.createBody(rocketBodyDef);
-        MassData rocketMassData = new MassData();
-        rocketMassData.mass = 0;
-        rocket.setMassData(rocketMassData);
-        PolygonShape rocketShape = new PolygonShape();
-        rocketShape.setAsBox(rocketImage.getWidth()/2, rocketImage.getHeight() * 5 / 6);
-
-        FixtureDef rocketFixtureDef = new FixtureDef();
-        rocketFixtureDef.shape = rocketShape;
-
-        Fixture rocketFixture = rocket.createFixture(rocketFixtureDef);
-        rocketFixture.setUserData("Rocket");
-        rocketShape.dispose();
+        initializeRocket();
 
         obstacles  = new ArrayList<Body>();
+
 
         score = 0;
 
@@ -101,6 +108,28 @@ public class GameState extends State {
         });
     }
 
+    private void initializeRocket() {
+        BodyDef rocketBodyDef = new BodyDef();
+        rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
+        rocketBodyDef.position.set((WIDTH - rocketImage.getWidth())/ 2, VERTICAL_OFF);
+
+        rocket = world.createBody(rocketBodyDef);
+
+        MassData rocketMassData = new MassData();
+        rocketMassData.mass = 0;
+        rocket.setMassData(rocketMassData);
+
+        PolygonShape rocketShape = new PolygonShape();
+        rocketShape.setAsBox(rocketImage.getWidth()/2, rocketImage.getHeight());
+
+        FixtureDef rocketFixtureDef = new FixtureDef();
+        rocketFixtureDef.shape = rocketShape;
+
+        Fixture rocketFixture = rocket.createFixture(rocketFixtureDef);
+        rocketFixture.setUserData("Rocket");
+        rocketShape.dispose();
+    }
+
     @Override
     protected void handleInput() {
         Vector3 touchPos = new Vector3();
@@ -115,27 +144,33 @@ public class GameState extends State {
 
     @Override
     public void update(float dt) {
+        //step as much as possible
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 
+        //only call handleInput on touch
         if(Gdx.input.isTouched()){
             handleInput();
         }
 
+        //limit rocket position
         if(rocket.getPosition().x < 0)
-            rocket.setTransform(0f,rocket.getPosition().y,0f);
+            rocket.setTransform(0f, rocket.getPosition().y, 0f);
         else if(rocket.getPosition().x > WIDTH - rocketImage.getWidth())
             rocket.setTransform(WIDTH - rocketImage.getWidth(),
                     rocket.getPosition().y, 0);
         if(rocket.getPosition().y > HEIGHT / 2)
             rocket.setTransform(rocket.getPosition().x,HEIGHT / 2,0f);
 
+        //spawn asteroid every second
         if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
             spawnAsteroid();
 
+        //iterate through asteroids
         Iterator<Body> iter = obstacles.iterator();
         while(iter.hasNext()){
             Body asteroid = iter.next();
-            if (asteroid.getPosition().y + 90 < 0) {
+            //check to see if asteroid is below screen
+            if (asteroid.getPosition().y + asteroidImage.getHeight() < 0) {
                 iter.remove();
                 score++;
             }
@@ -144,6 +179,7 @@ public class GameState extends State {
 
     @Override
     public void render(SpriteBatch batch) {
+        //background color
         Gdx.gl.glClearColor(0, 0, .2f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -151,13 +187,23 @@ public class GameState extends State {
 
         batch.setProjectionMatrix(camera.combined);
 
+        stateTime += Gdx.graphics.getDeltaTime();
+        TextureRegion currentFrame = asteroidAnimation.getKeyFrame(stateTime, true);
+
         batch.begin();
+
+        //draw rocket
+        batch.draw(rocketImage, rocket.getPosition().x, rocket.getPosition().y);
+
+        //iterate through asteroids to draw
+        for(Body asteroid : obstacles){
+            batch.draw(currentFrame, asteroid.getPosition().x, asteroid.getPosition().y);
+        }
+
+        //draw score last to stay on top
         font.setColor(1,1,1,0.75f);
         font.draw(batch, "Score: " + score, WIDTH / 2 - 100, HEIGHT - 50);
-        batch.draw(rocketImage, rocket.getPosition().x, rocket.getPosition().y);
-        for(Body asteroid : obstacles){
-            batch.draw(asteroidImage, asteroid.getPosition().x, asteroid.getPosition().y);
-        }
+
         batch.end();
     }
 
@@ -170,7 +216,7 @@ public class GameState extends State {
         asteroid.setLinearDamping(MathUtils.random(0f,3f));
 
         CircleShape asteroidShape = new CircleShape();
-        asteroidShape.setRadius(45f);
+        asteroidShape.setRadius(32f);
 
         FixtureDef asteroidFixtureDef = new FixtureDef();
         asteroidFixtureDef.shape = asteroidShape;
@@ -186,6 +232,7 @@ public class GameState extends State {
     @Override
     public void dispose () {
         rocketImage.dispose();
+        asteroidSheet.dispose();
     }
 
     private void gameOver(){
