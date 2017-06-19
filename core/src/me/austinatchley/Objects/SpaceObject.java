@@ -44,6 +44,12 @@ public abstract class SpaceObject {
         return body.getPosition();
     }
 
+    public float getAngle(){
+        if(body == null)
+            return 0f;
+        return body.getAngle();
+    }
+
     public void setTransform(Vector2 pos, float angle){
         if(body == null)
             return;

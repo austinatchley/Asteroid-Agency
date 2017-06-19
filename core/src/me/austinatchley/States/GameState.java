@@ -68,12 +68,12 @@ public class GameState extends State {
             String asteroidTag = "Asteroid";
             @Override
             public void beginContact(Contact contact) {
-                gameOver();
 
                 if(asteroidTag.equals(contact.getFixtureA().getUserData())) {
                     for(Asteroid asteroid : asteroids) {
                         if(contact.getFixtureA().getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
+                            gameOver();
                             break;
                         }
                     }
@@ -82,6 +82,7 @@ public class GameState extends State {
                     for(Asteroid asteroid : asteroids) {
                         if(contact.getFixtureB().getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
+                            gameOver();
                             break;
                         }
                     }
@@ -135,8 +136,8 @@ public class GameState extends State {
         Vector2 targetPos = new Vector2(touchPos.x - rocket.getWidth() / 2,
                 touchPos.y - rocket.getHeight() / 2);
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
-        currentPos.lerp(targetPos, 0.25f);
-        rocket.setTransform(currentPos, 0);
+        currentPos.lerp(targetPos, 0.15f);
+        rocket.moveTo(currentPos);
     }
 
     @Override
@@ -151,12 +152,12 @@ public class GameState extends State {
 
         //limit rocket position
         if(rocket.getPosition().x < 0)
-            rocket.setTransform(0f, rocket.getPosition().y, 0f);
+            rocket.setTransform(0f, rocket.getPosition().y, rocket.getBody().getAngle());
         else if(rocket.getPosition().x > WIDTH - rocket.getWidth())
             rocket.setTransform(WIDTH - rocket.getWidth(),
-                    rocket.getPosition().y, 0);
-        if(rocket.getPosition().y > HEIGHT / 2)
-            rocket.setTransform(rocket.getPosition().x,HEIGHT / 2,0f);
+                    rocket.getPosition().y, rocket.getBody().getAngle());
+//        if(rocket.getPosition().y > HEIGHT / 2)
+//            rocket.setTransform(rocket.getPosition().x,HEIGHT / 2, rocket.getBody().getAngle());
 
         //spawn asteroid every second
         if (TimeUtils.nanoTime() - lastDropTime > 1000000000)
