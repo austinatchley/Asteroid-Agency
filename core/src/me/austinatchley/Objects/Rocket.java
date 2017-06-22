@@ -24,7 +24,7 @@ public class Rocket extends SpaceObject {
 
     public Rocket(World world){
         super(world);
-        image = new Texture("rocket.png");
+        image = new Texture("outline.png");
         sprite = new Sprite(image);
         initialize();
     }
@@ -78,5 +78,9 @@ public class Rocket extends SpaceObject {
     public void moveTo(Vector2 target) {
         rotateTowards(target);
         setTransform(target, body.getAngle());
+    }
+
+    public void fireLaser(){
+
     }
 }

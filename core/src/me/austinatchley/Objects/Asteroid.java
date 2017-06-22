@@ -42,7 +42,7 @@ public class Asteroid extends SpaceObject {
 
         body = world.createBody(asteroidBodyDef);
         body.setLinearDamping(MathUtils.random(0f,3f));
-        body.setAngularVelocity(MathUtils.random(-8f, 8f));
+        body.setAngularVelocity(MathUtils.random(-5f, 5f));
 
         CircleShape asteroidShape = new CircleShape();
         asteroidShape.setRadius(32f);
