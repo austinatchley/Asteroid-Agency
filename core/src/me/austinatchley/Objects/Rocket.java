@@ -1,8 +1,13 @@
 package me.austinatchley.Objects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.ParticleEffect;
+import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -22,22 +27,41 @@ public class Rocket extends SpaceObject {
     private static final float DEG2RAD = MathUtils.degreesToRadians;
     private static final float CHANGE = 10f * DEG2RAD;
 
+    public ParticleEffect thruster;
+
     public Rocket(World world){
         super(world);
         image = new Texture("outline.png");
         sprite = new Sprite(image);
+
+        thruster = new ParticleEffect();
+        thruster.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+
         initialize();
+
+        thruster.start();
+        thruster.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster.getEmitters().first().getAngle().setLow(body.getAngle());
+        thruster.getEmitters().first().getAngle().setHigh(body.getAngle());
     }
 
     public void render(SpriteBatch batch){
         float posX = body.getPosition().x;
         float posY = body.getPosition().y;
         float rotation = (float) Math.toDegrees(body.getAngle());
+
         sprite.setPosition(posX, posY);
         sprite.setRotation(rotation);
 
         // Then we simply draw it as a normal sprite.
         sprite.draw(batch);
+
+        thruster.setPosition(body.getPosition().x, body.getPosition().y);
+        for (ParticleEmitter emitter :  thruster.getEmitters()) { //get the list of emitters - things that emit particles
+            emitter.getAngle().setLow(rotation / DEG2RAD); //low is the minimum rotation
+            emitter.getAngle().setHigh(rotation / DEG2RAD); //high is the max rotation
+        }
+        thruster.update(Gdx.graphics.getDeltaTime());
     }
 
     public void initialize() {
@@ -50,6 +74,7 @@ public class Rocket extends SpaceObject {
         MassData rocketMassData = new MassData();
         rocketMassData.mass = 10f;
         body.setMassData(rocketMassData);
+        body.setUserData("Rocket");
 
         PolygonShape rocketShape = new PolygonShape();
         rocketShape.setAsBox(image.getWidth()/2, image.getHeight());

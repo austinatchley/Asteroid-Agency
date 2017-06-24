@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -47,7 +48,7 @@ public class GameState extends State {
         super(gsm);
         camera.setToOrtho(false, WIDTH, HEIGHT);
 
-
+        Box2D.init();
         world = new World(new Vector2(0, -120f), true);
 
         rocket = new Rocket(world);
@@ -66,10 +67,11 @@ public class GameState extends State {
 
         world.setContactListener(new ContactListener() {
             String asteroidTag = "Asteroid";
+            String rocketTag = "Rocket";
             @Override
             public void beginContact(Contact contact) {
-
-                if(asteroidTag.equals(contact.getFixtureA().getUserData())) {
+                if(asteroidTag.equals(contact.getFixtureA().getUserData()) && rocketTag.equals(contact.getFixtureB().getUserData())){
+                    Gdx.input.vibrate(100);
                     for(Asteroid asteroid : asteroids) {
                         if(contact.getFixtureA().getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
@@ -78,7 +80,8 @@ public class GameState extends State {
                         }
                     }
                 }
-                else if(asteroidTag.equals(contact.getFixtureB().getUserData())) {
+                else if(asteroidTag.equals(contact.getFixtureB().getUserData()) && rocketTag.equals(contact.getFixtureA().getUserData())) {
+                    Gdx.input.vibrate(100);
                     for(Asteroid asteroid : asteroids) {
                         if(contact.getFixtureB().getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
@@ -124,6 +127,9 @@ public class GameState extends State {
 
     @Override
     protected void handleInput() {
+        if(rocket.thruster.isComplete())
+            rocket.thruster.reset();
+
         Vector3 touchPos = new Vector3();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 
@@ -148,7 +154,6 @@ public class GameState extends State {
         //only call handleInput on touch
         if(Gdx.input.isTouched())
             handleInput();
-
 
         //limit rocket position
         if(rocket.getPosition().x < 0)
@@ -186,12 +191,16 @@ public class GameState extends State {
         batch.setProjectionMatrix(camera.combined);
 
         stateTime += Gdx.graphics.getDeltaTime();
-        TextureRegion currentFrame;
+//        TextureRegion currentFrame;
 
         batch.begin();
 
         //draw rocket
         rocket.render(batch);
+
+        //draw thrusters
+        if(Gdx.input.isTouched())
+            rocket.thruster.draw(batch);
 
         //iterate through asteroids to draw
 //        float tmpTime;
