@@ -21,7 +21,7 @@ public abstract class SpaceObject {
         this.world = world;
     }
 
-    abstract void initialize();
+    abstract void init();
     abstract void render(SpriteBatch batch);
 
     public float getWidth(){
