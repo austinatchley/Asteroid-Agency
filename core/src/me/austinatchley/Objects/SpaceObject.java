@@ -22,7 +22,17 @@ public abstract class SpaceObject {
     }
 
     abstract void init();
-    abstract void render(SpriteBatch batch);
+
+    public void render(SpriteBatch batch){
+        float posX = body.getPosition().x;
+        float posY = body.getPosition().y;
+        float rotation = (float) Math.toDegrees(body.getAngle());
+        sprite.setPosition(posX, posY);
+        sprite.setRotation(rotation);
+
+        // Then we simply draw it as a normal sprite.
+        sprite.draw(batch);
+    }
 
     public float getWidth(){
         return image.getWidth();

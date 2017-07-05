@@ -14,19 +14,22 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
+import java.util.ArrayList;
+
 import me.austinatchley.States.State;
 
 public class Enemy extends SpaceObject {
     private static final int OFFSET = 200;
     public Vector2 spawnLocation;
-    private int direction;
+    public float xDir, yDir;
+    private ArrayList<Missile> shots;
 
     public Enemy(World world){
         super(world);
-        image = new Texture("flynnhead.png");
+        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
         sprite = new Sprite(image);
-        direction = 1;
         spawnLocation = new Vector2(MathUtils.random(State.WIDTH), State.HEIGHT - OFFSET);
+        shots = new ArrayList<Missile>();
         init();
     }
 
@@ -75,10 +78,28 @@ public class Enemy extends SpaceObject {
 
         // Then we simply draw it as a normal sprite.
         sprite.draw(batch);
+
+        for(Missile shot : shots)
+            shot.render(batch);
+
+        for(int i = 0; i < shots.size(); i++)
+            if(shots.get(i).getPosition().y < 0 || shots.get(i).getPosition().y > Gdx.graphics.getHeight() ||
+                    shots.get(i).getPosition().x < 0 || shots.get(i).getPosition().x > Gdx.graphics.getWidth()) {
+                shots.get(i).dispose();
+                shots.remove(i);
+            }
     }
 
-    public void move(float dx, float dy){
-        setTransform(new Vector2(body.getPosition().x + dx,
-                body.getPosition().y + dy), body.getAngle());
+    public void move(float dt){
+        setTransform(new Vector2(body.getPosition().x + dt*xDir,
+                body.getPosition().y + dt*yDir), body.getAngle());
+    }
+
+    public void shoot(String type){
+        Missile shot = new Missile(world,
+                new Vector2(body.getPosition().x, body.getPosition().y),
+                0f,
+                -300f);
+        shots.add(shot);
     }
 }

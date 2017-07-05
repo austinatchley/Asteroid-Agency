@@ -17,7 +17,6 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
-
 import java.util.ArrayList;
 import java.util.Iterator;
 
@@ -75,6 +74,12 @@ public class GameState extends State {
         if (TimeUtils.nanoTime() - lastDropTime > 2000000000)
             spawnAsteroid();
 
+        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000) {
+            for(Enemy enemy : enemies)
+                enemy.shoot("");
+            lastEnemyTime = TimeUtils.nanoTime();
+        }
+
         //iterate through asteroids
         Iterator<Asteroid> iter = asteroids.iterator();
         while(iter.hasNext()){
@@ -105,10 +110,23 @@ public class GameState extends State {
         for(Asteroid ast : asteroids)
             ast.render(batch);
 
-        int range = 400;
         for(Enemy enemy : enemies) {
             enemy.render(batch);
-            enemy.move(1f,-1f);
+
+            if(enemy.getPosition().x >= Gdx.graphics.getWidth()) {
+                enemy.xDir = -500f;
+                System.out.println("hit right");
+            }
+            if(enemy.getPosition().x <= 0){
+                enemy.xDir = 500f;
+                System.out.println("hit left");
+            }
+
+            if(enemy.getPosition().y < -2f*enemy.getHeight())
+                enemy.setTransform(enemy.getPosition().x, Gdx.graphics.getHeight() + 100f, enemy.getAngle());
+
+            enemy.yDir = -180f;
+            enemy.move(Gdx.graphics.getDeltaTime());
         }
 
         //draw score last to stay on top
@@ -222,6 +240,11 @@ public class GameState extends State {
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
         currentPos.lerp(targetPos, 0.15f);
         rocket.moveTo(currentPos);
+
+//        for(Enemy enemy : enemies){
+//            enemy.shoot("normal");
+//            System.out.println("shoot");
+//        }
     }
 
     private void spawnAsteroid() {
@@ -251,6 +274,7 @@ public class GameState extends State {
     }
 
     private void enemySpawned(Enemy enemy){
+        enemy.xDir = 180f;
         enemies.add(enemy);
         lastEnemyTime = TimeUtils.nanoTime();
     }

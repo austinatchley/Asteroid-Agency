@@ -17,7 +17,7 @@ public class PauseState extends State {
 
         camera.setToOrtho(false, WIDTH, HEIGHT);
         pauseLayout = new GlyphLayout();
-        pauseText = "FLYNN PAUSED\nTAP TO RESUME";
+        pauseText = "FLYNN PAUSED\nGET REKT TO RESUME";
     }
 
     @Override
