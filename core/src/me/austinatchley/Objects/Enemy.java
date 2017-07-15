@@ -13,20 +13,28 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 
 import me.austinatchley.States.State;
 
 public class Enemy extends SpaceObject {
     private static final int OFFSET = 200;
+
     public Vector2 spawnLocation;
     public float xDir, yDir;
+
     private ArrayList<Missile> shots;
+    private long lastShotTime;
+
+    private int numShotsTaken, shotLimit;
 
     public Enemy(World world){
         super(world);
-        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
+//        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
+        image = new Texture("outline.png");
         sprite = new Sprite(image);
         spawnLocation = new Vector2(MathUtils.random(State.WIDTH), State.HEIGHT - OFFSET);
         shots = new ArrayList<Missile>();
@@ -34,14 +42,29 @@ public class Enemy extends SpaceObject {
     }
 
     public Enemy(World world, Vector2 spawnLocation){
-        this(world);
+        super(world);
+        image = new Texture("outline.png");
+        sprite = new Sprite(image);
         this.spawnLocation = spawnLocation;
+        shots = new ArrayList<Missile>();
+        init();
     }
 
-    public Enemy(World world, int numX, int numY){
-        this(world);
-        spawnLocation = new Vector2(numX * image.getWidth(),
-                State.HEIGHT - (State.HEIGHT + numY * image.getHeight()));
+    public Enemy(World world, int numX, float height){
+        super(world);
+        image = new Texture("outline.png");
+        sprite = new Sprite(image);
+        shots = new ArrayList<Missile>();
+        this.spawnLocation = new Vector2(
+                (numX * image.getWidth()) % (Gdx.graphics.getWidth() / image.getWidth()),
+                height);
+        init();
+//        spawnLocation = new Vector2(numX * image.getWidth(), height);
+    }
+
+    public Enemy(World world, int numX, float height, int shotLimit){
+        this(world, numX, height);
+        this.shotLimit = shotLimit;
     }
 
     @Override
@@ -49,13 +72,16 @@ public class Enemy extends SpaceObject {
         BodyDef enemyBodyDef = new BodyDef();
         enemyBodyDef.type = BodyDef.BodyType.KinematicBody;
         enemyBodyDef.position.set(spawnLocation);
+        enemyBodyDef.fixedRotation = true;
+        enemyBodyDef.active = false;
+        enemyBodyDef.angle = (float) Math.PI;
 
         body = world.createBody(enemyBodyDef);
 
         MassData enemyMassData = new MassData();
-        enemyMassData.mass = 10f;
+        enemyMassData.mass = 0f;
         body.setMassData(enemyMassData);
-        body.setUserData("Rocket");
+        body.setUserData("Enemy");
 
         PolygonShape enemyShape = new PolygonShape();
         enemyShape.setAsBox(image.getWidth()/2, image.getHeight());
@@ -64,7 +90,7 @@ public class Enemy extends SpaceObject {
         enemyFixtureDef.shape = enemyShape;
 
         Fixture enemyFixture = body.createFixture(enemyFixtureDef);
-        enemyFixture.setUserData("Rocket");
+        enemyFixture.setUserData("Enemy");
         enemyShape.dispose();
     }
 
@@ -79,15 +105,15 @@ public class Enemy extends SpaceObject {
         // Then we simply draw it as a normal sprite.
         sprite.draw(batch);
 
-        for(Missile shot : shots)
+        Iterator<Missile> iterator = shots.iterator();
+        while(iterator.hasNext()){
+            Missile shot = iterator.next();
             shot.render(batch);
-
-        for(int i = 0; i < shots.size(); i++)
-            if(shots.get(i).getPosition().y < 0 || shots.get(i).getPosition().y > Gdx.graphics.getHeight() ||
-                    shots.get(i).getPosition().x < 0 || shots.get(i).getPosition().x > Gdx.graphics.getWidth()) {
-                shots.get(i).dispose();
-                shots.remove(i);
+            if(shot.isOutOfBounds()){
+                shot.dispose();
+                iterator.remove();
             }
+        }
     }
 
     public void move(float dt){
@@ -96,10 +122,29 @@ public class Enemy extends SpaceObject {
     }
 
     public void shoot(String type){
-        Missile shot = new Missile(world,
+        Missile shot;
+        if(type.equals("fast"))
+            shot = new Missile(world,
                 new Vector2(body.getPosition().x, body.getPosition().y),
                 0f,
-                -300f);
+                -500f);
+        else if(type.equals("curvy"))
+            shot = new Missile(world,
+                    new Vector2(body.getPosition().x, body.getPosition().y),
+                    (float) (Math.random() * 100f) - 50f,
+                    -300f);
+        else
+            shot = new Missile(world,
+                    new Vector2(body.getPosition().x, body.getPosition().y),
+                    0f,
+                    -300f);
+
         shots.add(shot);
+        numShotsTaken++;
+        lastShotTime = TimeUtils.nanoTime();
+    }
+
+    public boolean canShoot(){
+        return (TimeUtils.nanoTime() - lastShotTime > 2000000000l) && (numShotsTaken <= shotLimit);
     }
 }

@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
@@ -23,11 +24,14 @@ import java.util.Iterator;
 import me.austinatchley.Objects.Asteroid;
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Objects.Enemy;
+import me.austinatchley.Objects.Missile;
 import me.austinatchley.Objects.Rocket;
 
 public class GameState extends State {
     private static final int NUM_ASTEROID_SPRITES = 64;
     private static final float FRAME_TIME = .06f;
+    private static final int ENEMY_LIMIT = 10;
+    private static final int ASTEROID_LIMIT = 16;
 
     private World world;
 
@@ -46,6 +50,10 @@ public class GameState extends State {
     private int score;
     private long lastDropTime;
     private long lastEnemyTime;
+
+    private int enemyNum = 1;
+    private int totalEnemyNum = enemyNum;
+    private float enemySpeed = MathUtils.random(-180f, 180f);
 
     public GameState(GameStateManager gsm){
         super(gsm);
@@ -71,14 +79,21 @@ public class GameState extends State {
                     rocket.getPosition().y, rocket.getBody().getAngle());
 
         //spawn asteroid every 2 seconds
-        if (TimeUtils.nanoTime() - lastDropTime > 2000000000)
+        if (TimeUtils.nanoTime() - lastDropTime > 2000000000 && asteroids.size() < ASTEROID_LIMIT) {
             spawnAsteroid();
-
-        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000) {
-            for(Enemy enemy : enemies)
-                enemy.shoot("");
-            lastEnemyTime = TimeUtils.nanoTime();
         }
+
+        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000 && enemyNum <= ENEMY_LIMIT){
+            spawnEnemy(enemyNum++, Gdx.graphics.getHeight() + 100f, 2);
+            totalEnemyNum++;
+        }
+
+
+        for(Enemy enemy : enemies)
+            if(enemy.canShoot())
+//                enemy.shoot(Math.random() > 0.5f ? "fast" : "curvy");
+                enemy.shoot("fast");
+
 
         //iterate through asteroids
         Iterator<Asteroid> iter = asteroids.iterator();
@@ -110,23 +125,30 @@ public class GameState extends State {
         for(Asteroid ast : asteroids)
             ast.render(batch);
 
-        for(Enemy enemy : enemies) {
+        Iterator<Enemy> iter = enemies.iterator();
+        while(iter.hasNext()) {
+            Enemy enemy = iter.next();
             enemy.render(batch);
 
-            if(enemy.getPosition().x >= Gdx.graphics.getWidth()) {
-                enemy.xDir = -500f;
-                System.out.println("hit right");
+            enemy.yDir = -300f;
+            enemy.move(Gdx.graphics.getDeltaTime());
+
+            if(enemy.getPosition().x >= Gdx.graphics.getWidth() - enemy.getWidth()) {
+                enemy.xDir *= -1;
+//                System.out.println("hit");
             }
             if(enemy.getPosition().x <= 0){
-                enemy.xDir = 500f;
-                System.out.println("hit left");
+                enemy.xDir *= -1;
             }
 
-            if(enemy.getPosition().y < -2f*enemy.getHeight())
-                enemy.setTransform(enemy.getPosition().x, Gdx.graphics.getHeight() + 100f, enemy.getAngle());
-
-            enemy.yDir = -180f;
-            enemy.move(Gdx.graphics.getDeltaTime());
+            if(enemy.getPosition().y < -2f * enemy.getHeight()) {
+                enemyNum--;
+                System.out.println(enemyNum);
+                enemy.dispose();
+                iter.remove();
+                if(totalEnemyNum % ENEMY_LIMIT == 1)
+                    enemySpeed = MathUtils.random(-500f, 500f);
+            }
         }
 
         //draw score last to stay on top
@@ -157,9 +179,6 @@ public class GameState extends State {
 
         score = 0;
 
-        for(int i = 0; i < 6; i++)
-            spawnEnemy(i, 10);
-
         setupContactListener();
     }
 
@@ -183,9 +202,11 @@ public class GameState extends State {
         world.setContactListener(new ContactListener() {
             String asteroidTag = "Asteroid";
             String rocketTag = "Rocket";
+            String enemyTag = "Enemy";
             @Override
             public void beginContact(Contact contact) {
-                if(asteroidTag.equals(contact.getFixtureA().getUserData()) && rocketTag.equals(contact.getFixtureB().getUserData())){
+                if(asteroidTag.equals(contact.getFixtureA().getUserData()) &&
+                        rocketTag.equals(contact.getFixtureB().getUserData())){
                     for(Asteroid asteroid : asteroids) {
                         if(contact.getFixtureA().getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
@@ -193,8 +214,8 @@ public class GameState extends State {
                             break;
                         }
                     }
-                }
-                else if(asteroidTag.equals(contact.getFixtureB().getUserData()) && rocketTag.equals(contact.getFixtureA().getUserData())) {
+                } else if(asteroidTag.equals(contact.getFixtureB().getUserData()) &&
+                        rocketTag.equals(contact.getFixtureA().getUserData())) {
                     for(Asteroid asteroid : asteroids) {
                         if(contact.getFixtureB().getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
@@ -202,6 +223,12 @@ public class GameState extends State {
                             break;
                         }
                     }
+                } else if(enemyTag.equals(contact.getFixtureA().getUserData()) &&
+                        rocketTag.equals(contact.getFixtureB().getUserData())){
+                    gameOver();
+                } else if(enemyTag.equals(contact.getFixtureB().getUserData()) &&
+                        rocketTag.equals(contact.getFixtureA().getUserData())){
+                    gameOver();
                 }
             }
 
@@ -224,6 +251,9 @@ public class GameState extends State {
 
     @Override
     protected void handleInput() {
+        if(rocket.canShoot())
+            rocket.shootMissile();
+
         if(rocket.thruster.isComplete())
             rocket.thruster.reset();
 
@@ -235,6 +265,7 @@ public class GameState extends State {
 
 
         camera.unproject(touchPos);
+
         Vector2 targetPos = new Vector2(touchPos.x - rocket.getWidth() / 2,
                 touchPos.y - rocket.getHeight() / 2);
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
@@ -264,8 +295,19 @@ public class GameState extends State {
         enemySpawned(enemy);
     }
 
-    private void spawnEnemy(int numX, int numY){
-        Enemy enemy = new Enemy(world, numX, numY);
+    private void spawnEnemy(int numX, float height){
+        if((numX % 2*enemyNum) >= enemyNum && (numX % 2*enemyNum) <= 2*enemyNum)
+            numX = enemyNum - numX;
+
+        Enemy enemy = new Enemy(world, numX, height);
+        enemySpawned(enemy);
+    }
+
+    private void spawnEnemy(int numX, float height, int numShots){
+        if((numX % 2*enemyNum) >= enemyNum && (numX % 2*enemyNum) <= 2*enemyNum)
+            numX = enemyNum - numX;
+
+        Enemy enemy = new Enemy(world, numX, height, numShots);
         enemySpawned(enemy);
     }
 
@@ -274,7 +316,7 @@ public class GameState extends State {
     }
 
     private void enemySpawned(Enemy enemy){
-        enemy.xDir = 180f;
+        enemy.xDir = enemySpeed;
         enemies.add(enemy);
         lastEnemyTime = TimeUtils.nanoTime();
     }
@@ -286,6 +328,7 @@ public class GameState extends State {
     }
 
     private void gameOver(){
+        gsm.tryHighScore(score);
         score = 0;
     }
 }

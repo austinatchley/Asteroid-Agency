@@ -16,7 +16,11 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.sun.org.apache.bcel.internal.generic.CALOAD;
+
+import java.util.ArrayList;
+import java.util.Iterator;
 
 import javax.xml.bind.util.ValidationEventCollector;
 
@@ -29,6 +33,9 @@ public class Rocket extends SpaceObject {
 
     public ParticleEffect thruster;
 
+    private ArrayList<Missile> shots;
+    private long lastShotTime;
+
     public Rocket(World world){
         super(world);
         image = new Texture("outline.png");
@@ -36,6 +43,8 @@ public class Rocket extends SpaceObject {
 
         thruster = new ParticleEffect();
         thruster.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+
+        shots = new ArrayList<Missile>();
 
         init();
 
@@ -79,6 +88,16 @@ public class Rocket extends SpaceObject {
         // Then we simply draw it as a normal sprite.
         sprite.draw(batch);
 
+        Iterator<Missile> iterator = shots.iterator();
+        while(iterator.hasNext()){
+            Missile shot = iterator.next();
+            shot.render(batch);
+            if(shot.isOutOfBounds()){
+                shot.dispose();
+                iterator.remove();
+            }
+        }
+
         thruster.setPosition(body.getPosition().x, body.getPosition().y);
         for (ParticleEmitter emitter :  thruster.getEmitters()) { //get the list of emitters - things that emit particles
             emitter.getAngle().setLow(rotation / DEG2RAD); //low is the minimum rotation
@@ -105,7 +124,21 @@ public class Rocket extends SpaceObject {
         setTransform(target, body.getAngle());
     }
 
-    public void fireLaser(){
+    public void shootMissile(){
+        Missile shot = new Missile(world,
+                new Vector2(
+                        body.getPosition().x + image.getWidth() / 2,
+                        body.getPosition().y + image.getHeight()),
+                0f,
+                1000f);
 
+        //TODO: center missile. add static field to gsm?
+
+        shots.add(shot);
+        lastShotTime = TimeUtils.nanoTime();
+    }
+
+    public boolean canShoot(){
+        return TimeUtils.nanoTime() - lastShotTime > 200000000;
     }
 }
