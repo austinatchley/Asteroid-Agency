@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
@@ -203,32 +204,53 @@ public class GameState extends State {
             String asteroidTag = "Asteroid";
             String rocketTag = "Rocket";
             String enemyTag = "Enemy";
+            String missileTag = "Missile";
             @Override
             public void beginContact(Contact contact) {
-                if(asteroidTag.equals(contact.getFixtureA().getUserData()) &&
-                        rocketTag.equals(contact.getFixtureB().getUserData())){
+                Fixture a = contact.getFixtureA();
+                Fixture b = contact.getFixtureB();
+                if(asteroidTag.equals(a.getUserData()) &&
+                        rocketTag.equals(b.getUserData())){
                     for(Asteroid asteroid : asteroids) {
-                        if(contact.getFixtureA().getBody().equals(asteroid.getBody())) {
+                        if(a.getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
                             gameOver();
                             break;
                         }
                     }
-                } else if(asteroidTag.equals(contact.getFixtureB().getUserData()) &&
-                        rocketTag.equals(contact.getFixtureA().getUserData())) {
+                } else if(asteroidTag.equals(b.getUserData()) &&
+                        rocketTag.equals(a.getUserData())) {
                     for(Asteroid asteroid : asteroids) {
-                        if(contact.getFixtureB().getBody().equals(asteroid.getBody())) {
+                        if(b.getBody().equals(asteroid.getBody())) {
                             asteroids.remove(asteroid);
                             gameOver();
                             break;
                         }
                     }
-                } else if(enemyTag.equals(contact.getFixtureA().getUserData()) &&
-                        rocketTag.equals(contact.getFixtureB().getUserData())){
+                } else if(enemyTag.equals(a.getUserData()) &&
+                        rocketTag.equals(b.getUserData())){
                     gameOver();
-                } else if(enemyTag.equals(contact.getFixtureB().getUserData()) &&
-                        rocketTag.equals(contact.getFixtureA().getUserData())){
+                } else if(enemyTag.equals(b.getUserData()) &&
+                        rocketTag.equals(a.getUserData())) {
                     gameOver();
+                } else if(rocketTag.equals(a.getUserData()) &&
+                        missileTag.equals(b.getUserData())){
+                    for(Missile shot : rocket.shots){
+                        if(b.getBody().equals(shot.getBody())){
+                            rocket.shots.remove(shot);
+                            gameOver();
+                            break;
+                        }
+                    }
+                } else if(rocketTag.equals(b.getUserData()) &&
+                        missileTag.equals(a.getUserData())){
+                    for(Missile shot : rocket.shots){
+                        if(a.getBody().equals(shot.getBody())){
+                            rocket.shots.remove(shot);
+                            gameOver();
+                            break;
+                        }
+                    }
                 }
             }
 
@@ -253,9 +275,6 @@ public class GameState extends State {
     protected void handleInput() {
         if(rocket.canShoot())
             rocket.shootMissile();
-
-        if(rocket.thruster.isComplete())
-            rocket.thruster.reset();
 
         Vector3 touchPos = new Vector3();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);

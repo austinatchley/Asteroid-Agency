@@ -127,7 +127,7 @@ public class Enemy extends SpaceObject {
             shot = new Missile(world,
                 new Vector2(body.getPosition().x, body.getPosition().y),
                 0f,
-                -500f);
+                -5000f);
         else if(type.equals("curvy"))
             shot = new Missile(world,
                     new Vector2(body.getPosition().x, body.getPosition().y),
@@ -137,7 +137,7 @@ public class Enemy extends SpaceObject {
             shot = new Missile(world,
                     new Vector2(body.getPosition().x, body.getPosition().y),
                     0f,
-                    -300f);
+                    -4000f);
 
         shots.add(shot);
         numShotsTaken++;

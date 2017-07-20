@@ -28,12 +28,11 @@ import me.austinatchley.States.State;
 
 public class Rocket extends SpaceObject {
     private static final int VERTICAL_OFF = 20;
-    private static final float DEG2RAD = MathUtils.degreesToRadians;
     private static final float CHANGE = 10f * DEG2RAD;
 
-    public ParticleEffect thruster;
+    public ParticleEffect thruster1, thruster2;
 
-    private ArrayList<Missile> shots;
+    public ArrayList<Missile> shots;
     private long lastShotTime;
 
     public Rocket(World world){
@@ -41,17 +40,26 @@ public class Rocket extends SpaceObject {
         image = new Texture("outline.png");
         sprite = new Sprite(image);
 
-        thruster = new ParticleEffect();
-        thruster.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
-
-        shots = new ArrayList<Missile>();
+        thruster1 = new ParticleEffect();
+        thruster2 = new ParticleEffect();
+        thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+        thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
 
         init();
 
-        thruster.start();
-        thruster.setPosition(body.getPosition().x, body.getPosition().y);
-        thruster.getEmitters().first().getAngle().setLow(body.getAngle());
-        thruster.getEmitters().first().getAngle().setHigh(body.getAngle());
+        shots = new ArrayList<Missile>();
+
+        thruster1.start();
+        thruster1.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster1.getEmitters().first().getAngle().setLow(-85f);
+        thruster1.getEmitters().first().getAngle().setHigh(-95f);
+
+        thruster2.start();
+        thruster2.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster2.getEmitters().first().getAngle().setLow(-85f);
+        thruster2.getEmitters().first().getAngle().setHigh(-95f);
+        System.out.println(thruster2.getEmitters().first().getAngle().getLowMin() + "");
+        System.out.println(thruster2.getEmitters().first().getAngle().getHighMax() + "");
     }
 
     public void init() {
@@ -66,6 +74,7 @@ public class Rocket extends SpaceObject {
         body.setMassData(rocketMassData);
         body.setUserData("Rocket");
 
+        //TODO: POLYGONSHAPE AROUND ROCKET
         PolygonShape rocketShape = new PolygonShape();
         rocketShape.setAsBox(image.getWidth()/2, image.getHeight());
 
@@ -80,13 +89,30 @@ public class Rocket extends SpaceObject {
     public void render(SpriteBatch batch){
         float posX = body.getPosition().x;
         float posY = body.getPosition().y;
-        float rotation = (float) Math.toDegrees(body.getAngle());
+        float rotation = body.getAngle() / DEG2RAD;
 
         sprite.setPosition(posX, posY);
         sprite.setRotation(rotation);
 
-        // Then we simply draw it as a normal sprite.
-        sprite.draw(batch);
+        if(thruster1.isComplete())
+            thruster1.reset();
+
+        if(thruster2.isComplete())
+            thruster2.reset();
+
+        thruster1.setPosition(body.getPosition().x + sprite.getWidth() * 0.1f, body.getPosition().y + sprite.getHeight() * 0.4f);
+        thruster2.setPosition(body.getPosition().x + sprite.getWidth() * 0.9f, body.getPosition().y + sprite.getHeight() * 0.4f);
+
+        thruster1.getEmitters().first().getAngle().setLow(rotation - 90f);
+        thruster1.getEmitters().first().getAngle().setHigh(rotation - 90f);
+
+        thruster2.getEmitters().first().getAngle().setLow(rotation - 90f);
+        thruster2.getEmitters().first().getAngle().setHigh(rotation - 90f);
+
+        thruster1.update(Gdx.graphics.getDeltaTime());
+        thruster1.draw(batch);
+        thruster2.update(Gdx.graphics.getDeltaTime());
+        thruster2.draw(batch);
 
         Iterator<Missile> iterator = shots.iterator();
         while(iterator.hasNext()){
@@ -98,12 +124,8 @@ public class Rocket extends SpaceObject {
             }
         }
 
-        thruster.setPosition(body.getPosition().x, body.getPosition().y);
-        for (ParticleEmitter emitter :  thruster.getEmitters()) { //get the list of emitters - things that emit particles
-            emitter.getAngle().setLow(rotation / DEG2RAD); //low is the minimum rotation
-            emitter.getAngle().setHigh(rotation / DEG2RAD); //high is the max rotation
-        }
-        thruster.draw(batch, Gdx.graphics.getDeltaTime());
+        // draw it as a normal sprite (on top)
+        sprite.draw(batch);
     }
 
     public void rotateTowards(Vector2 target){
@@ -131,7 +153,7 @@ public class Rocket extends SpaceObject {
                         body.getPosition().y + image.getHeight()),
                 0f,
                 1000f);
-
+        shot.flip();
         //TODO: center missile. add static field to gsm?
 
         shots.add(shot);
