@@ -33,6 +33,7 @@ public class GameState extends State {
     private static final float FRAME_TIME = .06f;
     private static final int ENEMY_LIMIT = 10;
     private static final int ASTEROID_LIMIT = 16;
+    private static final int PPM = 100;
 
     private World world;
 
