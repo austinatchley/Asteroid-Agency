@@ -75,10 +75,11 @@ public class GameState extends State {
 
         //limit rocket position
         if(rocket.getPosition().x < 0)
-            rocket.setTransform(0f, rocket.getPosition().y, rocket.getBody().getAngle());
+            rocket.setTransform(p2m(0f,rocket.getPosition().y),
+                    rocket.getBody().getAngle());
         else if(rocket.getPosition().x > WIDTH - rocket.getWidth())
-            rocket.setTransform(WIDTH - rocket.getWidth(),
-                    rocket.getPosition().y, rocket.getBody().getAngle());
+            rocket.setTransform(p2m(WIDTH - rocket.getWidth(),rocket.getPosition().y),
+                    rocket.getBody().getAngle());
 
         //spawn asteroid every 2 seconds
         if (TimeUtils.nanoTime() - lastDropTime > 2000000000 && asteroids.size() < ASTEROID_LIMIT) {
@@ -132,7 +133,7 @@ public class GameState extends State {
             Enemy enemy = iter.next();
             enemy.render(batch);
 
-            enemy.yDir = -300f;
+            enemy.yDir = -180f;
             enemy.move(Gdx.graphics.getDeltaTime());
 
             if(enemy.getPosition().x >= Gdx.graphics.getWidth() - enemy.getWidth()) {
@@ -149,7 +150,8 @@ public class GameState extends State {
                 enemy.dispose();
                 iter.remove();
                 if(totalEnemyNum % ENEMY_LIMIT == 1)
-                    enemySpeed = MathUtils.random(-500f, 500f);
+                    enemySpeed = randomNumInRange(250f, 250f, true);
+
             }
         }
 
@@ -160,6 +162,13 @@ public class GameState extends State {
         batch.draw(pauseButton, pauseLocation.x - pauseButton.getWidth(),
                 pauseLocation.y - pauseButton.getHeight());
         batch.end();
+    }
+
+    private float randomNumInRange(float start, float range, boolean canBeNeg) {
+        float rand = MathUtils.random(0,range) + start;
+        if(MathUtils.random() > 0.5f)
+            rand *= -1;
+        return rand;
     }
 
     private void init() {
@@ -305,17 +314,14 @@ public class GameState extends State {
         lastDropTime = TimeUtils.nanoTime();
     }
 
-    private void spawnEnemy() {
-        Enemy enemy = new Enemy(world);
-        enemySpawned(enemy);
-    }
-
     private void spawnEnemy(float x, float y) {
         Enemy enemy = new Enemy(world, new Vector2(x, y));
         enemySpawned(enemy);
     }
 
     private void spawnEnemy(int numX, float height){
+        //trying to start spawning enemies from other side of x axis
+        //doesn't work right now
         if((numX % 2*enemyNum) >= enemyNum && (numX % 2*enemyNum) <= 2*enemyNum)
             numX = enemyNum - numX;
 
@@ -350,6 +356,35 @@ public class GameState extends State {
     private void gameOver(){
         gsm.tryHighScore(score);
         score = 0;
+    }
+
+    /*
+    Converts meters to pixels for use with LibGDX
+    @param  xMeters float x distance in meters
+    @param  yMeters float y distance in meters
+    @return Vector2 representation of distance in pixels
+     */
+    public static Vector2 m2p(float xMeters, float yMeters){
+        return new Vector2(xMeters / PPM, yMeters / PPM);
+    }
+
+
+    public static Vector2 m2p(Vector2 meters){
+        return new Vector2(meters.x / PPM, meters.y / PPM);
+    }
+
+    /*
+    Converts pixels to meters for use with Box2D
+    @param  xPixels float x distance in pixels
+    @param  yPixels float y distance in pixels
+    @return Vector2 representation of distance in meters
+     */
+    public static Vector2 p2m(float xPixels, float yPixels){
+        return new Vector2(xPixels * PPM, yPixels * PPM);
+    }
+
+    public static Vector2 p2m(Vector2 pixels){
+        return new Vector2(pixels.x * PPM, pixels.y * PPM);
     }
 }
 

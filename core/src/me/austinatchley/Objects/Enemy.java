@@ -18,6 +18,7 @@ import com.badlogic.gdx.utils.TimeUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
 
 public class Enemy extends SpaceObject {
@@ -55,9 +56,9 @@ public class Enemy extends SpaceObject {
         image = new Texture("outline.png");
         sprite = new Sprite(image);
         shots = new ArrayList<Missile>();
-        this.spawnLocation = new Vector2(
+        this.spawnLocation = new Vector2(GameState.p2m(
                 (numX * image.getWidth()) % (Gdx.graphics.getWidth() / image.getWidth()),
-                height);
+                height));
         init();
 //        spawnLocation = new Vector2(numX * image.getWidth(), height);
     }
@@ -96,10 +97,9 @@ public class Enemy extends SpaceObject {
 
     @Override
     public void render(SpriteBatch batch) {
-        float posX = body.getPosition().x;
-        float posY = body.getPosition().y;
+        Vector2 pos = getPosition();
         float rotation = (float) Math.toDegrees(body.getAngle());
-        sprite.setPosition(posX, posY);
+        sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(rotation);
 
         // Then we simply draw it as a normal sprite.
@@ -117,27 +117,27 @@ public class Enemy extends SpaceObject {
     }
 
     public void move(float dt){
-        setTransform(new Vector2(body.getPosition().x + dt*xDir,
-                body.getPosition().y + dt*yDir), body.getAngle());
+        setTransform(new Vector2(getPosition().x + dt*xDir,
+                getPosition().y + dt*yDir), body.getAngle());
     }
 
     public void shoot(String type){
         Missile shot;
         if(type.equals("fast"))
             shot = new Missile(world,
-                new Vector2(body.getPosition().x, body.getPosition().y),
+                new Vector2(getPosition().x, getPosition().y),
                 0f,
-                -5000f);
+                -50f);
         else if(type.equals("curvy"))
             shot = new Missile(world,
-                    new Vector2(body.getPosition().x, body.getPosition().y),
+                    new Vector2(getPosition().x, getPosition().y),
                     (float) (Math.random() * 100f) - 50f,
-                    -300f);
+                    -30f);
         else
             shot = new Missile(world,
-                    new Vector2(body.getPosition().x, body.getPosition().y),
+                    new Vector2(getPosition().x, getPosition().y),
                     0f,
-                    -4000f);
+                    -40f);
 
         shots.add(shot);
         numShotsTaken++;

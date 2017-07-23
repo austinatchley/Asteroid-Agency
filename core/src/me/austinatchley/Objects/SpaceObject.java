@@ -1,5 +1,6 @@
 package me.austinatchley.Objects;
 
+import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -7,6 +8,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+
+import me.austinatchley.States.GameState;
 
 /**
  * Created by austi on 6/18/2017.
@@ -51,7 +54,20 @@ public abstract class SpaceObject {
         return body;
     }
 
+
+    /*
+    Returns position of SpaceObject in pixels
+     */
     public Vector2 getPosition(){
+        if(body == null)
+            return null;
+        return GameState.m2p(body.getPosition());
+    }
+
+    /*
+    Returns position of SpaceObject body in meters
+     */
+    public Vector2 getBodyPosition(){
         if(body == null)
             return null;
         return body.getPosition();
@@ -66,7 +82,7 @@ public abstract class SpaceObject {
     public void setTransform(Vector2 pos, float angle){
         if(body == null)
             return;
-        body.setTransform(pos, angle);
+        body.setTransform(GameState.p2m(pos), angle);
     }
 
     public void setTransform(float x, float y, float angle){

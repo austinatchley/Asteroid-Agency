@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
+import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
 
 public class Asteroid extends SpaceObject {
@@ -37,14 +38,19 @@ public class Asteroid extends SpaceObject {
     public void init() {
         BodyDef asteroidBodyDef = new BodyDef();
         asteroidBodyDef.type = BodyDef.BodyType.DynamicBody;
-        asteroidBodyDef.position.set(MathUtils.random(0, State.WIDTH - 90), State.HEIGHT);
+        asteroidBodyDef.position.set(
+                GameState.p2m(
+                        MathUtils.random(0, State.WIDTH - 90),
+                        State.HEIGHT
+                )
+        );
 
         body = world.createBody(asteroidBodyDef);
         body.setLinearDamping(MathUtils.random(0f,3f));
         body.setAngularVelocity(MathUtils.random(-5f, 5f));
 
         CircleShape asteroidShape = new CircleShape();
-        asteroidShape.setRadius(32f);
+        asteroidShape.setRadius(3f);
 
         FixtureDef asteroidFixtureDef = new FixtureDef();
         asteroidFixtureDef.shape = asteroidShape;
@@ -55,10 +61,9 @@ public class Asteroid extends SpaceObject {
     }
 
     public void render(SpriteBatch batch){
-        float posX = body.getPosition().x;
-        float posY = body.getPosition().y;
+        Vector2 pos = getPosition();
         float rotation = (float) Math.toDegrees(body.getAngle());
-        sprite.setPosition(posX, posY);
+        sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(rotation);
 
         // Then we simply draw it as a normal sprite.

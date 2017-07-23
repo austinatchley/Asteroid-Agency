@@ -87,11 +87,10 @@ public class Rocket extends SpaceObject {
     }
 
     public void render(SpriteBatch batch){
-        float posX = body.getPosition().x;
-        float posY = body.getPosition().y;
+        Vector2 pos = getPosition();
         float rotation = body.getAngle() / DEG2RAD;
 
-        sprite.setPosition(posX, posY);
+        sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(rotation);
 
         if(thruster1.isComplete())
@@ -149,10 +148,10 @@ public class Rocket extends SpaceObject {
     public void shootMissile(){
         Missile shot = new Missile(world,
                 new Vector2(
-                        body.getPosition().x + image.getWidth() / 2,
-                        body.getPosition().y + image.getHeight()),
+                        getPosition().x + image.getWidth() / 2,
+                        getPosition().y + image.getHeight()),
                 0f,
-                1000f);
+                10f);
         shot.flip();
         //TODO: center missile. add static field to gsm?
 

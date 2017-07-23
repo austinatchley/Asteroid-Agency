@@ -14,6 +14,8 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
+import me.austinatchley.States.GameState;
+
 
 public class Missile extends SpaceObject {
     Vector2 start;
@@ -40,7 +42,7 @@ public class Missile extends SpaceObject {
     void init() {
         BodyDef missileBodyDef = new BodyDef();
         missileBodyDef.type = BodyDef.BodyType.DynamicBody;
-        missileBodyDef.position.set(start);
+        missileBodyDef.position.set(GameState.p2m(start));
         missileBodyDef.bullet = true;
 
         body = world.createBody(missileBodyDef);
@@ -65,11 +67,10 @@ public class Missile extends SpaceObject {
 
     @Override
     public void render(SpriteBatch batch) {
-        float posX = body.getPosition().x;
-        float posY = body.getPosition().y;
+        Vector2 pos = getPosition();
         float rotation = body.getAngle() / DEG2RAD;
 
-        sprite.setPosition(posX, posY);
+        sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(rotation);
 
         // Then we simply draw it as a normal sprite.
@@ -77,8 +78,8 @@ public class Missile extends SpaceObject {
     }
 
     public boolean isOutOfBounds(){
-        return body.getPosition().y < -sprite.getHeight() || body.getPosition().y > Gdx.graphics.getHeight() ||
-                body.getPosition().x < -sprite.getWidth() || body.getPosition().x > Gdx.graphics.getWidth();
+        return getPosition().y < -sprite.getHeight() || getPosition().y > Gdx.graphics.getHeight() ||
+                getPosition().x < -sprite.getWidth() || getPosition().x > Gdx.graphics.getWidth();
     }
 
     public void flip(){
