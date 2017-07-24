@@ -36,6 +36,7 @@ public class Missile extends SpaceObject {
 
         //TODO: GET THIS TO APPLY MORE FORCE BY CREATING A CONVERSION FACTOR
         body.applyLinearImpulse(new Vector2(dx,dy), body.getWorldCenter(), true);
+//        body.setLinearVelocity(new Vector2(dx,dy));
     }
 
     @Override
@@ -54,7 +55,8 @@ public class Missile extends SpaceObject {
         body.setGravityScale(0f);
 
         PolygonShape missileShape = new PolygonShape();
-        missileShape.setAsBox(image.getWidth() / 2, image.getHeight() / 2);
+        Vector2 boxSize = GameState.p2m(image.getWidth() / 2, image.getHeight() / 2);
+        missileShape.setAsBox(boxSize.x, boxSize.y);
 
         FixtureDef missileFixtureDef = new FixtureDef();
         missileFixtureDef.shape = missileShape;
@@ -84,5 +86,10 @@ public class Missile extends SpaceObject {
 
     public void flip(){
         body.setTransform(body.getPosition(), MathUtils.PI);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
     }
 }

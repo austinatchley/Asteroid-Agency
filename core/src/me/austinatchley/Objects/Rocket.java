@@ -24,6 +24,7 @@ import java.util.Iterator;
 
 import javax.xml.bind.util.ValidationEventCollector;
 
+import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
 
 public class Rocket extends SpaceObject {
@@ -75,14 +76,16 @@ public class Rocket extends SpaceObject {
         body.setUserData("Rocket");
 
         //TODO: POLYGONSHAPE AROUND ROCKET
+        Vector2 boxSize = GameState.p2m(image.getWidth()/2, image.getHeight());
         PolygonShape rocketShape = new PolygonShape();
-        rocketShape.setAsBox(image.getWidth()/2, image.getHeight());
+        rocketShape.setAsBox(boxSize.x, boxSize.y);
 
         FixtureDef rocketFixtureDef = new FixtureDef();
         rocketFixtureDef.shape = rocketShape;
 
         Fixture rocketFixture = body.createFixture(rocketFixtureDef);
         rocketFixture.setUserData("Rocket");
+        System.out.println("Rocket width: " + rocketShape.getRadius());
         rocketShape.dispose();
     }
 
@@ -99,8 +102,8 @@ public class Rocket extends SpaceObject {
         if(thruster2.isComplete())
             thruster2.reset();
 
-        thruster1.setPosition(body.getPosition().x + sprite.getWidth() * 0.1f, body.getPosition().y + sprite.getHeight() * 0.4f);
-        thruster2.setPosition(body.getPosition().x + sprite.getWidth() * 0.9f, body.getPosition().y + sprite.getHeight() * 0.4f);
+        thruster1.setPosition(getPosition().x + sprite.getWidth() * 0.1f, getPosition().y + sprite.getHeight() * 0.4f);
+        thruster2.setPosition(getPosition().x + sprite.getWidth() * 0.9f, getPosition().y + sprite.getHeight() * 0.4f);
 
         thruster1.getEmitters().first().getAngle().setLow(rotation - 90f);
         thruster1.getEmitters().first().getAngle().setHigh(rotation - 90f);
@@ -151,7 +154,7 @@ public class Rocket extends SpaceObject {
                         getPosition().x + image.getWidth() / 2,
                         getPosition().y + image.getHeight()),
                 0f,
-                10f);
+                200f);
         shot.flip();
         //TODO: center missile. add static field to gsm?
 
@@ -160,6 +163,6 @@ public class Rocket extends SpaceObject {
     }
 
     public boolean canShoot(){
-        return TimeUtils.nanoTime() - lastShotTime > 200000000;
+        return TimeUtils.nanoTime() - lastShotTime > 500000000;
     }
 }

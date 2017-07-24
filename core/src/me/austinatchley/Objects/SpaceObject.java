@@ -88,11 +88,13 @@ public abstract class SpaceObject {
     public void setTransform(float x, float y, float angle){
         if(body == null)
             return;
-        body.setTransform(x, y, angle);
+        body.setTransform(GameState.p2m(x, y), angle);
     }
 
     public void dispose(){
         image.dispose();
+        world.destroyBody(body);
+        sprite = null;
     }
 
 }

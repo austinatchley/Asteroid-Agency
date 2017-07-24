@@ -27,7 +27,7 @@ public class Enemy extends SpaceObject {
     public Vector2 spawnLocation;
     public float xDir, yDir;
 
-    private ArrayList<Missile> shots;
+    public ArrayList<Missile> shots;
     private long lastShotTime;
 
     private int numShotsTaken, shotLimit;
@@ -84,8 +84,9 @@ public class Enemy extends SpaceObject {
         body.setMassData(enemyMassData);
         body.setUserData("Enemy");
 
+        Vector2 boxSize = GameState.p2m(image.getWidth()/2, image.getHeight());
         PolygonShape enemyShape = new PolygonShape();
-        enemyShape.setAsBox(image.getWidth()/2, image.getHeight());
+        enemyShape.setAsBox(boxSize.x, boxSize.y);
 
         FixtureDef enemyFixtureDef = new FixtureDef();
         enemyFixtureDef.shape = enemyShape;
@@ -127,7 +128,7 @@ public class Enemy extends SpaceObject {
             shot = new Missile(world,
                 new Vector2(getPosition().x, getPosition().y),
                 0f,
-                -50f);
+                -100f);
         else if(type.equals("curvy"))
             shot = new Missile(world,
                     new Vector2(getPosition().x, getPosition().y),
@@ -137,7 +138,7 @@ public class Enemy extends SpaceObject {
             shot = new Missile(world,
                     new Vector2(getPosition().x, getPosition().y),
                     0f,
-                    -40f);
+                    -80f);
 
         shots.add(shot);
         numShotsTaken++;

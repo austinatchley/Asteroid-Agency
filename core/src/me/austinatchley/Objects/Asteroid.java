@@ -46,7 +46,7 @@ public class Asteroid extends SpaceObject {
         );
 
         body = world.createBody(asteroidBodyDef);
-        body.setLinearDamping(MathUtils.random(0f,3f));
+//        body.setLinearDamping(MathUtils.random(0f,3f));
         body.setAngularVelocity(MathUtils.random(-5f, 5f));
 
         CircleShape asteroidShape = new CircleShape();

@@ -33,7 +33,7 @@ public class GameState extends State {
     private static final float FRAME_TIME = .06f;
     private static final int ENEMY_LIMIT = 10;
     private static final int ASTEROID_LIMIT = 16;
-    private static final int PPM = 100;
+    private static final float PPM = 1/4f;
 
     private World world;
 
@@ -75,11 +75,13 @@ public class GameState extends State {
 
         //limit rocket position
         if(rocket.getPosition().x < 0)
-            rocket.setTransform(p2m(0f,rocket.getPosition().y),
+            rocket.setTransform(0f, rocket.getPosition().y,
                     rocket.getBody().getAngle());
-        else if(rocket.getPosition().x > WIDTH - rocket.getWidth())
-            rocket.setTransform(p2m(WIDTH - rocket.getWidth(),rocket.getPosition().y),
+        else if(rocket.getPosition().x > WIDTH - rocket.getWidth()) {
+            rocket.setTransform(WIDTH - rocket.getWidth(), rocket.getPosition().y,
                     rocket.getBody().getAngle());
+            System.out.println("hit right " + rocket.getPosition());
+        }
 
         //spawn asteroid every 2 seconds
         if (TimeUtils.nanoTime() - lastDropTime > 2000000000 && asteroids.size() < ASTEROID_LIMIT) {
@@ -173,7 +175,7 @@ public class GameState extends State {
 
     private void init() {
         Box2D.init();
-        world = new World(new Vector2(0, -120f), true);
+        world = new World(new Vector2(0, -100f), true);
 
         rocket = new Rocket(world);
 
@@ -238,27 +240,31 @@ public class GameState extends State {
                         }
                     }
                 } else if(enemyTag.equals(a.getUserData()) &&
-                        rocketTag.equals(b.getUserData())){
-                    gameOver();
+                        missileTag.equals(b.getUserData())){
+                    System.out.println("enemy+missile");
                 } else if(enemyTag.equals(b.getUserData()) &&
-                        rocketTag.equals(a.getUserData())) {
-                    gameOver();
+                        missileTag.equals(a.getUserData())) {
+                    System.out.println("missile+enemy");
                 } else if(rocketTag.equals(a.getUserData()) &&
                         missileTag.equals(b.getUserData())){
-                    for(Missile shot : rocket.shots){
-                        if(b.getBody().equals(shot.getBody())){
-                            rocket.shots.remove(shot);
-                            gameOver();
-                            break;
+                    for(Enemy enemy : enemies) {
+                        for (Missile shot : enemy.shots) {
+                            if (b.getBody().equals(shot.getBody())) {
+                                enemy.shots.remove(shot);
+                                gameOver();
+                                break;
+                            }
                         }
                     }
                 } else if(rocketTag.equals(b.getUserData()) &&
                         missileTag.equals(a.getUserData())){
-                    for(Missile shot : rocket.shots){
-                        if(a.getBody().equals(shot.getBody())){
-                            rocket.shots.remove(shot);
-                            gameOver();
-                            break;
+                    for(Enemy enemy : enemies) {
+                        for (Missile shot : enemy.shots) {
+                            if (a.getBody().equals(shot.getBody())) {
+                                enemy.shots.remove(shot);
+                                gameOver();
+                                break;
+                            }
                         }
                     }
                 }
