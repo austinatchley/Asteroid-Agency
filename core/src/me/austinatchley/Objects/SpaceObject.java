@@ -94,7 +94,6 @@ public abstract class SpaceObject {
     public void dispose(){
         image.dispose();
         world.destroyBody(body);
-        sprite = null;
     }
 
 }

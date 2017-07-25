@@ -8,16 +8,19 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -27,18 +30,23 @@ import me.austinatchley.GameStateManager;
 import me.austinatchley.Objects.Enemy;
 import me.austinatchley.Objects.Missile;
 import me.austinatchley.Objects.Rocket;
+import me.austinatchley.Objects.SpaceObject;
 
 public class GameState extends State {
     private static final int NUM_ASTEROID_SPRITES = 64;
     private static final float FRAME_TIME = .06f;
     private static final int ENEMY_LIMIT = 10;
     private static final int ASTEROID_LIMIT = 16;
-    private static final float PPM = 1/4f;
+    public static final float PPM = 1/4f;
+
+    private Box2DDebugRenderer render;
+    private Matrix4 debugMatrix;
 
     private World world;
 
-    private ArrayList<Asteroid> asteroids;
-    private ArrayList<Enemy> enemies;
+    private Array<Asteroid> asteroids;
+    private Array<Enemy> enemies;
+    private Array<SpaceObject> destroyArray;
     private Rocket rocket;
 
     private Vector2 pauseLocation;
@@ -62,6 +70,9 @@ public class GameState extends State {
         camera.setToOrtho(false, WIDTH, HEIGHT);
 
         init();
+
+        render = new Box2DDebugRenderer();
+        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
     }
 
     @Override
@@ -69,6 +80,7 @@ public class GameState extends State {
         //step as much as possible
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 
+        cleanDestroyArray();
         //only call handleInput on touch
         if(Gdx.input.isTouched())
             handleInput();
@@ -84,7 +96,7 @@ public class GameState extends State {
         }
 
         //spawn asteroid every 2 seconds
-        if (TimeUtils.nanoTime() - lastDropTime > 2000000000 && asteroids.size() < ASTEROID_LIMIT) {
+        if (TimeUtils.nanoTime() - lastDropTime > 2000000000 && asteroids.size < ASTEROID_LIMIT) {
             spawnAsteroid();
         }
 
@@ -112,6 +124,13 @@ public class GameState extends State {
         }
     }
 
+    private void cleanDestroyArray() {
+        for(int i = destroyArray.size - 1; i >= 0; i--) {
+            destroyArray.get(i).dispose();
+            destroyArray.removeIndex(i);
+        }
+    }
+
     @Override
     public void render(SpriteBatch batch) {
         //background color
@@ -121,6 +140,8 @@ public class GameState extends State {
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
+
+        render.render(world, debugMatrix);
 
         batch.begin();
 
@@ -180,8 +201,9 @@ public class GameState extends State {
         rocket = new Rocket(world);
 
         setUpAsteroidAnimation();
-        asteroids = new ArrayList<Asteroid>();
-        enemies = new ArrayList<Enemy>();
+        asteroids = new Array<Asteroid>();
+        enemies = new Array<Enemy>();
+        destroyArray = new Array<SpaceObject>();
 
         pauseButton = new Texture("pause.png");
         pauseLocation = new Vector2(WIDTH, HEIGHT);
@@ -225,7 +247,8 @@ public class GameState extends State {
                         rocketTag.equals(b.getUserData())){
                     for(Asteroid asteroid : asteroids) {
                         if(a.getBody().equals(asteroid.getBody())) {
-                            asteroids.remove(asteroid);
+                            destroyArray.add(asteroid);
+                            asteroids.removeValue(asteroid, false);
                             gameOver();
                             break;
                         }
@@ -234,7 +257,8 @@ public class GameState extends State {
                         rocketTag.equals(a.getUserData())) {
                     for(Asteroid asteroid : asteroids) {
                         if(b.getBody().equals(asteroid.getBody())) {
-                            asteroids.remove(asteroid);
+                            destroyArray.add(asteroid);
+                            asteroids.removeValue(asteroid, false);
                             gameOver();
                             break;
                         }
@@ -250,6 +274,7 @@ public class GameState extends State {
                     for(Enemy enemy : enemies) {
                         for (Missile shot : enemy.shots) {
                             if (b.getBody().equals(shot.getBody())) {
+                                destroyArray.add(shot);
                                 enemy.shots.remove(shot);
                                 gameOver();
                                 break;
@@ -261,6 +286,7 @@ public class GameState extends State {
                     for(Enemy enemy : enemies) {
                         for (Missile shot : enemy.shots) {
                             if (a.getBody().equals(shot.getBody())) {
+                                destroyArray.add(shot);
                                 enemy.shots.remove(shot);
                                 gameOver();
                                 break;
@@ -303,7 +329,7 @@ public class GameState extends State {
 
         Vector2 targetPos = new Vector2(touchPos.x - rocket.getWidth() / 2,
                 touchPos.y - rocket.getHeight() / 2);
-        Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
+        Vector2 currentPos = new Vector2(rocket.getPosition().x - rocket.getWidth()/2, rocket.getPosition().y);
         currentPos.lerp(targetPos, 0.15f);
         rocket.moveTo(currentPos);
 

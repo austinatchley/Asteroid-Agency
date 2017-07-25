@@ -93,7 +93,7 @@ public class Rocket extends SpaceObject {
         Vector2 pos = getPosition();
         float rotation = body.getAngle() / DEG2RAD;
 
-        sprite.setPosition(pos.x, pos.y);
+        sprite.setPosition(pos.x - image.getWidth()/2f, pos.y - image.getHeight()/2f);
         sprite.setRotation(rotation);
 
         if(thruster1.isComplete())
@@ -102,8 +102,8 @@ public class Rocket extends SpaceObject {
         if(thruster2.isComplete())
             thruster2.reset();
 
-        thruster1.setPosition(getPosition().x + sprite.getWidth() * 0.1f, getPosition().y + sprite.getHeight() * 0.4f);
-        thruster2.setPosition(getPosition().x + sprite.getWidth() * 0.9f, getPosition().y + sprite.getHeight() * 0.4f);
+        thruster1.setPosition(sprite.getX() + sprite.getWidth() * 0.1f, sprite.getY() + sprite.getHeight() * 0.4f);
+        thruster2.setPosition(sprite.getX() + sprite.getWidth() * 0.9f, sprite.getY() + sprite.getHeight() * 0.4f);
 
         thruster1.getEmitters().first().getAngle().setLow(rotation - 90f);
         thruster1.getEmitters().first().getAngle().setHigh(rotation - 90f);
@@ -145,7 +145,7 @@ public class Rocket extends SpaceObject {
 
     public void moveTo(Vector2 target) {
         //rotateTowards(target);
-        setTransform(target, body.getAngle());
+        setTransform(target.x + GameState.PPM*image.getWidth()/4f, target.y, body.getAngle());
     }
 
     public void shootMissile(){
