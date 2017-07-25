@@ -329,7 +329,7 @@ public class GameState extends State {
 
         Vector2 targetPos = new Vector2(touchPos.x - rocket.getWidth() / 2,
                 touchPos.y - rocket.getHeight() / 2);
-        Vector2 currentPos = new Vector2(rocket.getPosition().x - rocket.getWidth()/2, rocket.getPosition().y);
+        Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
         currentPos.lerp(targetPos, 0.15f);
         rocket.moveTo(currentPos);
 
