@@ -60,16 +60,6 @@ public class Asteroid extends SpaceObject {
         asteroidFixture.setUserData("Asteroid");
     }
 
-    public void render(SpriteBatch batch){
-        Vector2 pos = getPosition();
-        float rotation = (float) Math.toDegrees(body.getAngle());
-        sprite.setPosition(pos.x - image.getWidth()/2f, pos.y - image.getHeight()/2f);
-        sprite.setRotation(rotation);
-
-        // Then we simply draw it as a normal sprite.
-        sprite.draw(batch);
-    }
-
     @Override
     public void dispose() {
         super.dispose();

@@ -67,18 +67,6 @@ public class Missile extends SpaceObject {
         missileShape.dispose();
     }
 
-    @Override
-    public void render(SpriteBatch batch) {
-        Vector2 pos = getPosition();
-        float rotation = body.getAngle() / DEG2RAD;
-
-        sprite.setPosition(pos.x, pos.y);
-        sprite.setRotation(rotation);
-
-        // Then we simply draw it as a normal sprite.
-        sprite.draw(batch);
-    }
-
     public boolean isOutOfBounds(){
         return getPosition().y < -sprite.getHeight() || getPosition().y > Gdx.graphics.getHeight() ||
                 getPosition().x < -sprite.getWidth() || getPosition().x > Gdx.graphics.getWidth();

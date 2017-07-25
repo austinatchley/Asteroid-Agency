@@ -101,13 +101,7 @@ public class Enemy extends SpaceObject {
 
     @Override
     public void render(SpriteBatch batch) {
-        Vector2 pos = getPosition();
-        float rotation = (float) Math.toDegrees(body.getAngle());
-        sprite.setPosition(pos.x, pos.y);
-        sprite.setRotation(rotation);
-
-        // Then we simply draw it as a normal sprite.
-        sprite.draw(batch);
+        super.render(batch);
 
         Iterator<Missile> iterator = shots.iterator();
         while(iterator.hasNext()){
