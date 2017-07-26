@@ -20,12 +20,14 @@ import me.austinatchley.States.GameState;
 public class Missile extends SpaceObject {
     Vector2 start;
     float dx,dy;
+    String tag;
 
     public Missile(World world, Vector2 start){
         super(world);
         image = new Texture("shot.png");
         sprite = new Sprite(image);
         this.start = start;
+        this.tag = "Missile";
         init();
     }
 
@@ -51,7 +53,7 @@ public class Missile extends SpaceObject {
         MassData missileMassData = new MassData();
         missileMassData.mass = 1f;
         body.setMassData(missileMassData);
-        body.setUserData("Missile");
+        body.setUserData(tag);
         body.setGravityScale(0f);
 
         PolygonShape missileShape = new PolygonShape();
@@ -63,7 +65,7 @@ public class Missile extends SpaceObject {
         missileFixtureDef.isSensor = true;
 
         Fixture missileFixture = body.createFixture(missileFixtureDef);
-        missileFixture.setUserData("Missile");
+        missileFixture.setUserData(tag);
         missileShape.dispose();
     }
 

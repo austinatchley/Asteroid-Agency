@@ -77,13 +77,12 @@ public class Enemy extends SpaceObject {
         enemyBodyDef.type = BodyDef.BodyType.KinematicBody;
         enemyBodyDef.position.set(spawnLocation);
         enemyBodyDef.fixedRotation = true;
-        enemyBodyDef.active = false;
         enemyBodyDef.angle = (float) Math.PI;
 
         body = world.createBody(enemyBodyDef);
 
         MassData enemyMassData = new MassData();
-        enemyMassData.mass = 0f;
+        enemyMassData.mass = 1f;
         body.setMassData(enemyMassData);
         body.setUserData("Enemy");
 
@@ -144,5 +143,12 @@ public class Enemy extends SpaceObject {
 
     public boolean canShoot(){
         return (TimeUtils.nanoTime() - lastShotTime > 2000000000l) && (numShotsTaken <= shotLimit);
+    }
+
+    @Override
+    public void dispose() {
+        super.dispose();
+        for(Missile shot : shots)
+            shot.dispose();
     }
 }

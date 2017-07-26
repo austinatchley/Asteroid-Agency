@@ -39,7 +39,7 @@ public class GameState extends State {
     private static final int ASTEROID_LIMIT = 16;
     public static final float PPM = 1/4f;
 
-    private Box2DDebugRenderer render;
+    private Box2DDebugRenderer debugRenderer;
     private Matrix4 debugMatrix;
 
     private World world;
@@ -71,8 +71,8 @@ public class GameState extends State {
 
         init();
 
-        render = new Box2DDebugRenderer();
-        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
+//        debugRenderer = new Box2DDebugRenderer();
+//        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
     }
 
     @Override
@@ -85,12 +85,12 @@ public class GameState extends State {
         if(Gdx.input.isTouched())
             handleInput();
 
-        //limit rocket position
-        if(rocket.getPosition().x < 0)
-            rocket.setTransform(0f, rocket.getPosition().y,
+        //limit rocket position to screen
+        if(rocket.getPosition().x < rocket.getWidth()/2f)
+            rocket.setTransform(rocket.getWidth()/2f, rocket.getPosition().y,
                     rocket.getBody().getAngle());
-        else if(rocket.getPosition().x > WIDTH - rocket.getWidth()) {
-            rocket.setTransform(WIDTH - rocket.getWidth(), rocket.getPosition().y,
+        else if(rocket.getPosition().x > WIDTH - rocket.getWidth()/2) {
+            rocket.setTransform(WIDTH - rocket.getWidth()/2f, rocket.getPosition().y,
                     rocket.getBody().getAngle());
             System.out.println("hit right " + rocket.getPosition());
         }
@@ -124,24 +124,17 @@ public class GameState extends State {
         }
     }
 
-    private void cleanDestroyArray() {
-        for(int i = destroyArray.size - 1; i >= 0; i--) {
-            destroyArray.get(i).dispose();
-            destroyArray.removeIndex(i);
-        }
-    }
-
     @Override
     public void render(SpriteBatch batch) {
         //background color
-        Gdx.gl.glClearColor(0, 0, .2f, 1);
+        Gdx.gl.glClearColor(.1f, .1f, .3f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
 
         batch.setProjectionMatrix(camera.combined);
 
-        render.render(world, debugMatrix);
+//        debugRenderer.render(world, debugMatrix);
 
         batch.begin();
 
@@ -159,12 +152,12 @@ public class GameState extends State {
             enemy.yDir = -180f;
             enemy.move(Gdx.graphics.getDeltaTime());
 
-            if(enemy.getPosition().x >= Gdx.graphics.getWidth() - enemy.getWidth()) {
-                enemy.xDir *= -1;
+            if(enemy.getPosition().x >= Gdx.graphics.getWidth() - enemy.getWidth()/2f) {
+                enemy.xDir = -Math.abs(enemy.xDir);;
 //                System.out.println("hit");
             }
-            if(enemy.getPosition().x <= 0){
-                enemy.xDir *= -1;
+            if(enemy.getPosition().x <= enemy.getWidth()/2f){
+                enemy.xDir = Math.abs(enemy.xDir);
             }
 
             if(enemy.getPosition().y < -2f * enemy.getHeight()) {
@@ -185,6 +178,13 @@ public class GameState extends State {
         batch.draw(pauseButton, pauseLocation.x - pauseButton.getWidth(),
                 pauseLocation.y - pauseButton.getHeight());
         batch.end();
+    }
+
+    private void cleanDestroyArray() {
+        for(int i = destroyArray.size - 1; i >= 0; i--) {
+            destroyArray.get(i).dispose();
+            destroyArray.removeIndex(i);
+        }
     }
 
     private float randomNumInRange(float start, float range, boolean canBeNeg) {
@@ -239,39 +239,34 @@ public class GameState extends State {
             String rocketTag = "Rocket";
             String enemyTag = "Enemy";
             String missileTag = "Missile";
+            String playerMissileTag = "PMissile";
             @Override
             public void beginContact(Contact contact) {
                 Fixture a = contact.getFixtureA();
                 Fixture b = contact.getFixtureB();
-                if(asteroidTag.equals(a.getUserData()) &&
-                        rocketTag.equals(b.getUserData())){
-                    for(Asteroid asteroid : asteroids) {
-                        if(a.getBody().equals(asteroid.getBody())) {
+                if (asteroidTag.equals(a.getUserData()) &&
+                        rocketTag.equals(b.getUserData())) {
+                    for (Asteroid asteroid : asteroids) {
+                        if (a.getBody().equals(asteroid.getBody())) {
                             destroyArray.add(asteroid);
                             asteroids.removeValue(asteroid, false);
                             gameOver();
                             break;
                         }
                     }
-                } else if(asteroidTag.equals(b.getUserData()) &&
+                } else if (asteroidTag.equals(b.getUserData()) &&
                         rocketTag.equals(a.getUserData())) {
-                    for(Asteroid asteroid : asteroids) {
-                        if(b.getBody().equals(asteroid.getBody())) {
+                    for (Asteroid asteroid : asteroids) {
+                        if (b.getBody().equals(asteroid.getBody())) {
                             destroyArray.add(asteroid);
                             asteroids.removeValue(asteroid, false);
                             gameOver();
                             break;
                         }
                     }
-                } else if(enemyTag.equals(a.getUserData()) &&
-                        missileTag.equals(b.getUserData())){
-                    System.out.println("enemy+missile");
-                } else if(enemyTag.equals(b.getUserData()) &&
-                        missileTag.equals(a.getUserData())) {
-                    System.out.println("missile+enemy");
-                } else if(rocketTag.equals(a.getUserData()) &&
-                        missileTag.equals(b.getUserData())){
-                    for(Enemy enemy : enemies) {
+                } else if (rocketTag.equals(a.getUserData()) &&
+                        missileTag.equals(b.getUserData())) {
+                    for (Enemy enemy : enemies) {
                         for (Missile shot : enemy.shots) {
                             if (b.getBody().equals(shot.getBody())) {
                                 destroyArray.add(shot);
@@ -281,9 +276,9 @@ public class GameState extends State {
                             }
                         }
                     }
-                } else if(rocketTag.equals(b.getUserData()) &&
-                        missileTag.equals(a.getUserData())){
-                    for(Enemy enemy : enemies) {
+                } else if (rocketTag.equals(b.getUserData()) &&
+                        missileTag.equals(a.getUserData())) {
+                    for (Enemy enemy : enemies) {
                         for (Missile shot : enemy.shots) {
                             if (a.getBody().equals(shot.getBody())) {
                                 destroyArray.add(shot);
@@ -291,6 +286,28 @@ public class GameState extends State {
                                 gameOver();
                                 break;
                             }
+                        }
+                    }
+                } else if (enemyTag.equals(a.getUserData()) &&
+                        playerMissileTag.equals(b.getUserData())) {
+                    for(Enemy enemy : enemies){
+                        if(a.getBody().equals(enemy.getBody())){
+                            destroyArray.add(enemy);
+                            enemies.removeValue(enemy, false);
+                            score++;
+                            enemyNum--;
+                            break;
+                        }
+                    }
+                } else if (enemyTag.equals(b.getUserData()) &&
+                        playerMissileTag.equals(a.getUserData())) {
+                    for(Enemy enemy : enemies){
+                        if(b.getBody().equals(enemy.getBody())){
+                            destroyArray.add(enemy);
+                            enemies.removeValue(enemy, false);
+                            score++;
+                            enemyNum--;
+                            break;
                         }
                     }
                 }

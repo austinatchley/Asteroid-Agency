@@ -149,7 +149,7 @@ public class Rocket extends SpaceObject {
     }
 
     public void shootMissile(){
-        Missile shot = new Missile(world,
+        PlayerMissile shot = new PlayerMissile(world,
                 new Vector2(
                         getPosition().x,
                         getPosition().y + image.getHeight()),
