@@ -31,6 +31,7 @@ import me.austinatchley.Objects.Enemy;
 import me.austinatchley.Objects.Missile;
 import me.austinatchley.Objects.Rocket;
 import me.austinatchley.Objects.SpaceObject;
+import me.austinatchley.Starfield;
 
 public class GameState extends State {
     private static final int NUM_ASTEROID_SPRITES = 64;
@@ -43,6 +44,7 @@ public class GameState extends State {
     private Matrix4 debugMatrix;
 
     private World world;
+    private Starfield starfield;
 
     private Array<Asteroid> asteroids;
     private Array<Enemy> enemies;
@@ -71,6 +73,12 @@ public class GameState extends State {
 
         init();
 
+        score = 0;
+
+        setupContactListener();
+
+        starfield = new Starfield(300, camera);
+
 //        debugRenderer = new Box2DDebugRenderer();
 //        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
     }
@@ -80,7 +88,9 @@ public class GameState extends State {
         //step as much as possible
         world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 
+        //destroy all the objects we need to
         cleanDestroyArray();
+
         //only call handleInput on touch
         if(Gdx.input.isTouched())
             handleInput();
@@ -127,7 +137,7 @@ public class GameState extends State {
     @Override
     public void render(SpriteBatch batch) {
         //background color
-        Gdx.gl.glClearColor(.1f, .1f, .3f, 1);
+        Gdx.gl.glClearColor(.055f, .056f, .24f, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -135,6 +145,10 @@ public class GameState extends State {
         batch.setProjectionMatrix(camera.combined);
 
 //        debugRenderer.render(world, debugMatrix);
+
+
+        //update the stars
+        starfield.update();
 
         batch.begin();
 
@@ -211,10 +225,6 @@ public class GameState extends State {
                 0,
                 pauseButton.getWidth(),
                 pauseButton.getHeight());
-
-        score = 0;
-
-        setupContactListener();
     }
 
     private void setUpAsteroidAnimation() {
@@ -250,7 +260,7 @@ public class GameState extends State {
                         if (a.getBody().equals(asteroid.getBody())) {
                             destroyArray.add(asteroid);
                             asteroids.removeValue(asteroid, false);
-                            gameOver();
+                            score++;
                             break;
                         }
                     }
@@ -260,7 +270,7 @@ public class GameState extends State {
                         if (b.getBody().equals(asteroid.getBody())) {
                             destroyArray.add(asteroid);
                             asteroids.removeValue(asteroid, false);
-                            gameOver();
+                            score++;
                             break;
                         }
                     }
@@ -349,11 +359,6 @@ public class GameState extends State {
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
         currentPos.lerp(targetPos, 0.15f);
         rocket.moveTo(currentPos);
-
-//        for(Enemy enemy : enemies){
-//            enemy.shoot("normal");
-//            System.out.println("shoot");
-//        }
     }
 
     private void spawnAsteroid() {

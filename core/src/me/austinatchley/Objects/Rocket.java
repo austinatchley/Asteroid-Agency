@@ -154,7 +154,7 @@ public class Rocket extends SpaceObject {
                         getPosition().x,
                         getPosition().y + image.getHeight()),
                 0f,
-                200f);
+                400f);
         shot.flip();
         //TODO: center missile. add static field to gsm?
 

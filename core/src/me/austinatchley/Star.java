@@ -5,11 +5,11 @@ public class Star {
     public float y;
     public float z;
 
-    public int r;
-    public int g;
-    public int b;
+    public float r;
+    public float g;
+    public float b;
 
-    public Star(float x, float y, float z, int r, int g, int b){
+    public Star(float x, float y, float z, float r, float g, float b){
         this.x = x;
         this.y = y;
         this.z = z;
