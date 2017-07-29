@@ -55,8 +55,6 @@ public class Starfield {
             float vx = MathUtils.random(-5f, 5f) + rocket.getVelocity().x / 2f;
             float vy = 80f + rocket.getVelocity().y;
 
-            System.out.println(rocket.getVelocity());
-
             p.x = (p.x - vx/p.z) % GameState.WIDTH;
             if (p.x < 0)
                 p.x += GameState.WIDTH;

@@ -17,6 +17,7 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.codeandweb.physicseditor.PhysicsShapeCache;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -35,6 +36,8 @@ public class Enemy extends SpaceObject {
 
     private int numShotsTaken, shotLimit;
 
+    private PhysicsShapeCache physicsShapes;
+
     public Enemy(World world){
         super(world);
 //        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
@@ -42,6 +45,8 @@ public class Enemy extends SpaceObject {
         sprite = new Sprite(image);
         spawnLocation = new Vector2(MathUtils.random(State.WIDTH), State.HEIGHT - OFFSET);
         shots = new ArrayList<Missile>();
+
+        physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
     }
 
@@ -51,6 +56,8 @@ public class Enemy extends SpaceObject {
         sprite = new Sprite(image);
         this.spawnLocation = spawnLocation;
         shots = new ArrayList<Missile>();
+
+        physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
     }
 
@@ -62,6 +69,8 @@ public class Enemy extends SpaceObject {
         this.spawnLocation = new Vector2(GameState.p2m(
                 (numX * image.getWidth()) % (Gdx.graphics.getWidth() / image.getWidth()),
                 height));
+
+        physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
 //        spawnLocation = new Vector2(numX * image.getWidth(), height);
     }
@@ -79,28 +88,19 @@ public class Enemy extends SpaceObject {
         enemyBodyDef.fixedRotation = true;
         enemyBodyDef.angle = (float) Math.PI;
 
-        body = world.createBody(enemyBodyDef);
-
-        MassData enemyMassData = new MassData();
-        enemyMassData.mass = 1f;
-        body.setMassData(enemyMassData);
+        body = physicsShapes.createBody("outline", world, enemyBodyDef, GameState.PPM, GameState.PPM);
         body.setUserData("Enemy");
-
-        Vector2 boxSize = GameState.p2m(image.getWidth()/2, image.getHeight());
-        PolygonShape enemyShape = new PolygonShape();
-        enemyShape.setAsBox(boxSize.x, boxSize.y);
-
-        FixtureDef enemyFixtureDef = new FixtureDef();
-        enemyFixtureDef.shape = enemyShape;
-
-        Fixture enemyFixture = body.createFixture(enemyFixtureDef);
-        enemyFixture.setUserData("Enemy");
-        enemyShape.dispose();
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        super.render(batch);
+        Vector2 pos = getPosition();
+        float rotation = body.getAngle() / DEG2RAD;
+        sprite.setPosition(pos.x - image.getWidth(), pos.y - image.getHeight());
+        sprite.setRotation(rotation);
+
+        // Then we simply draw it as a normal sprite.
+        sprite.draw(batch);
 
         Iterator<Missile> iterator = shots.iterator();
         while(iterator.hasNext()){

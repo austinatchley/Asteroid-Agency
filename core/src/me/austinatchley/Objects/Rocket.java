@@ -17,6 +17,7 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
+import com.codeandweb.physicseditor.PhysicsShapeCache;
 import com.sun.org.apache.bcel.internal.generic.CALOAD;
 
 import java.util.ArrayList;
@@ -40,6 +41,8 @@ public class Rocket extends SpaceObject {
     private Vector2 velocity;
     private Vector2 lastPos;
 
+    PhysicsShapeCache physicsShapes;
+
     public Rocket(World world){
         super(world);
         image = new Texture("outline.png");
@@ -52,6 +55,8 @@ public class Rocket extends SpaceObject {
         thruster2 = new ParticleEffect();
         thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
         thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+
+        physicsShapes = new PhysicsShapeCache("rocket_body.xml");
 
         init();
 
@@ -66,8 +71,6 @@ public class Rocket extends SpaceObject {
         thruster2.setPosition(body.getPosition().x, body.getPosition().y);
         thruster2.getEmitters().first().getAngle().setLow(-85f);
         thruster2.getEmitters().first().getAngle().setHigh(-95f);
-        System.out.println(thruster2.getEmitters().first().getAngle().getLowMin() + "");
-        System.out.println(thruster2.getEmitters().first().getAngle().getHighMax() + "");
     }
 
     public void init() {
@@ -75,32 +78,15 @@ public class Rocket extends SpaceObject {
         rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
         rocketBodyDef.position.set((State.WIDTH - image.getWidth())/ 2, VERTICAL_OFF);
 
-        body = world.createBody(rocketBodyDef);
-
-        MassData rocketMassData = new MassData();
-        rocketMassData.mass = 10f;
-        body.setMassData(rocketMassData);
+        body = physicsShapes.createBody("outline", world, rocketBodyDef, GameState.PPM, GameState.PPM);
         body.setUserData("Rocket");
-
-        //TODO: POLYGONSHAPE AROUND ROCKET
-        Vector2 boxSize = GameState.p2m(image.getWidth()/2, image.getHeight());
-        PolygonShape rocketShape = new PolygonShape();
-        rocketShape.setAsBox(boxSize.x, boxSize.y);
-
-        FixtureDef rocketFixtureDef = new FixtureDef();
-        rocketFixtureDef.shape = rocketShape;
-
-        Fixture rocketFixture = body.createFixture(rocketFixtureDef);
-        rocketFixture.setUserData("Rocket");
-        System.out.println("Rocket width: " + rocketShape.getRadius());
-        rocketShape.dispose();
     }
 
     public void render(SpriteBatch batch){
         Vector2 pos = getPosition();
         float rotation = body.getAngle() / DEG2RAD;
 
-        sprite.setPosition(pos.x - image.getWidth()/2f, pos.y - image.getHeight()/2f);
+        sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(rotation);
 
         if(thruster1.isComplete())
