@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 
+import me.austinatchley.Objects.Rocket;
 import me.austinatchley.States.GameState;
 
 
@@ -17,11 +18,13 @@ public class Starfield {
     private Array<Star> stars;
     private ShapeRenderer renderer;
     private Camera cam;
+    private Rocket rocket;
 
-    public Starfield(int num, Camera cam){
+    public Starfield(int num, Camera cam, Rocket rocket){
         this.num = num;
         this.stars = new Array<Star>();
         this.cam = cam;
+        this.rocket = rocket;
 
         renderer = new ShapeRenderer();
         renderer.setProjectionMatrix(cam.combined);
@@ -49,8 +52,10 @@ public class Starfield {
         for(int i = 0; i < num; i++){
             Star p = stars.get(i);
 
-            float vx = MathUtils.random(-5f, 5f);
-            float vy = 80f;
+            float vx = MathUtils.random(-5f, 5f) + rocket.getVelocity().x / 2f;
+            float vy = 80f + rocket.getVelocity().y;
+
+            System.out.println(rocket.getVelocity());
 
             p.x = (p.x - vx/p.z) % GameState.WIDTH;
             if (p.x < 0)

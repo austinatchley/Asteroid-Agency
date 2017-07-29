@@ -22,6 +22,7 @@ import com.sun.org.apache.bcel.internal.generic.CALOAD;
 import java.util.ArrayList;
 import java.util.Iterator;
 
+import javax.xml.bind.ValidationException;
 import javax.xml.bind.util.ValidationEventCollector;
 
 import me.austinatchley.States.GameState;
@@ -36,10 +37,16 @@ public class Rocket extends SpaceObject {
     public ArrayList<Missile> shots;
     private long lastShotTime;
 
+    private Vector2 velocity;
+    private Vector2 lastPos;
+
     public Rocket(World world){
         super(world);
         image = new Texture("outline.png");
         sprite = new Sprite(image);
+
+        velocity = new Vector2();
+        lastPos = new Vector2();
 
         thruster1 = new ParticleEffect();
         thruster2 = new ParticleEffect();
@@ -144,8 +151,10 @@ public class Rocket extends SpaceObject {
     }
 
     public void moveTo(Vector2 target) {
-        //rotateTowards(target);
+        lastPos = getPosition();
         setTransform(target.x + GameState.PPM*image.getWidth()/4f, target.y, body.getAngle());
+        velocity.x = getPosition().x - lastPos.x;
+        velocity.y = getPosition().y - lastPos.y;
     }
 
     public void shootMissile(){
@@ -164,5 +173,9 @@ public class Rocket extends SpaceObject {
 
     public boolean canShoot(){
         return TimeUtils.nanoTime() - lastShotTime > 500000000;
+    }
+
+    public Vector2 getVelocity(){
+        return velocity;
     }
 }

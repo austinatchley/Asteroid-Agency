@@ -77,7 +77,7 @@ public class GameState extends State {
 
         setupContactListener();
 
-        starfield = new Starfield(300, camera);
+        starfield = new Starfield(300, camera, rocket);
 
 //        debugRenderer = new Box2DDebugRenderer();
 //        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
