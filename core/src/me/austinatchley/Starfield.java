@@ -31,9 +31,9 @@ public class Starfield {
 
         float r,g,b;
         for (int i = 0; i < num; i++) {
-            r = 100f - MathUtils.random(-20,20);
-            g = 50f - MathUtils.random(-20,20);
-            b = 110f - MathUtils.random(-20,20);
+            r = 100f - MathUtils.random(-30,30);
+            g = 50f - MathUtils.random(-30,30);
+            b = 110f - MathUtils.random(-30,30);
             stars.add(new Star(
                     MathUtils.random(GameState.WIDTH),
                     MathUtils.random(GameState.HEIGHT),
@@ -60,10 +60,12 @@ public class Starfield {
                 p.x += GameState.WIDTH;
 
             p.y = (p.y - vy/p.z) % GameState.HEIGHT;
-            if (p.y < 0)
+            if (p.y < 0) {
                 p.y += GameState.HEIGHT;
+                p.x = MathUtils.random(GameState.WIDTH);
+            }
 
-            float val = 1 - p.z/20f;
+            float val = 1f - p.z / 20f;
             Color color = new Color(val*p.r, val*p.g, val*p.b, 1f);
             renderer.setColor(color);
             renderer.line(p.x, p.y, p.x - vx/p.z, p.y - vy/p.z);

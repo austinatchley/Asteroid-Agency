@@ -43,7 +43,7 @@ public class Asteroid extends SpaceObject {
         );
 
         body = world.createBody(asteroidBodyDef);
-//        body.setLinearDamping(MathUtils.random(0f,3f));
+        body.setLinearDamping(MathUtils.random(0f,3f));
         body.setAngularVelocity(MathUtils.random(-5f, 5f));
 
         CircleShape asteroidShape = new CircleShape();
@@ -52,6 +52,8 @@ public class Asteroid extends SpaceObject {
         FixtureDef asteroidFixtureDef = new FixtureDef();
         asteroidFixtureDef.shape = asteroidShape;
         asteroidFixtureDef.density = 1f;
+        asteroidFixtureDef.filter.categoryBits = 0x0001;
+        asteroidFixtureDef.filter.maskBits = 0x0002;
 
         Fixture asteroidFixture = body.createFixture(asteroidFixtureDef);
         asteroidFixture.setUserData("Asteroid");

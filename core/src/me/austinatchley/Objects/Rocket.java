@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.MassData;
@@ -76,10 +77,17 @@ public class Rocket extends SpaceObject {
     public void init() {
         BodyDef rocketBodyDef = new BodyDef();
         rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
-        rocketBodyDef.position.set((State.WIDTH - image.getWidth())/ 2, VERTICAL_OFF);
+        rocketBodyDef.position.set((State.WIDTH - image.getWidth()) * GameState.PPM / 2, VERTICAL_OFF);
 
         body = physicsShapes.createBody("outline", world, rocketBodyDef, GameState.PPM, GameState.PPM);
         body.setUserData("Rocket");
+
+        Filter filter = new Filter();
+        filter.categoryBits = 0x0002;
+        filter.maskBits = 0x7fff;
+
+        for(Fixture fix : body.getFixtureList())
+            fix.setFilterData(filter);
     }
 
     public void render(SpriteBatch batch){

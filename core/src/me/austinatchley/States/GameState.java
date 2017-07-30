@@ -2,9 +2,11 @@ package me.austinatchley.States;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -62,6 +64,8 @@ public class GameState extends State {
     private float stateTime;
 
     private int score;
+    private GlyphLayout scoreLayout;
+
     private long lastDropTime;
     private long lastEnemyTime;
 
@@ -75,11 +79,7 @@ public class GameState extends State {
 
         init();
 
-        score = 0;
-
         setupContactListener();
-
-        starfield = new Starfield(300, camera, rocket);
 
 //        debugRenderer = new Box2DDebugRenderer();
 //        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
@@ -98,15 +98,9 @@ public class GameState extends State {
         if(Gdx.input.isTouched())
             handleInput();
 
-        //limit rocket position to screen
-        if(rocket.getPosition().x < 0)
-            rocket.setTransform(0, rocket.getPosition().y,
-                    rocket.getBody().getAngle());
-        else if(rocket.getPosition().x > WIDTH) {
-            rocket.setTransform(WIDTH, rocket.getPosition().y,
-                    rocket.getBody().getAngle());
-            System.out.println("hit right " + rocket.getPosition());
-        }
+        updateEnemies();
+
+        checkRocketBounds();
 
         //spawn asteroid every 2 seconds
         if (TimeUtils.nanoTime() - lastDropTime > 2000000000 && asteroids.size < ASTEROID_LIMIT) {
@@ -120,21 +114,10 @@ public class GameState extends State {
 
 
         for(Enemy enemy : enemies)
-            if(enemy.canShoot())
-//                enemy.shoot(Math.random() > 0.5f ? "fast" : "curvy");
-                enemy.shoot("fast");
+            enemy.update();
 
 
-        //iterate through asteroids
-        Iterator<Asteroid> iter = asteroids.iterator();
-        while(iter.hasNext()){
-            Asteroid asteroid = iter.next();
-            //check to see if asteroid is below screen
-            if (asteroid.getPosition().y + asteroid.getHeight() < 0) {
-                iter.remove();
-                score++;
-            }
-        }
+        checkAsteroids();
     }
 
     @Override
@@ -149,7 +132,6 @@ public class GameState extends State {
 
 //        debugRenderer.render(world, debugMatrix);
 
-
         //update the stars
         starfield.update();
 
@@ -161,54 +143,19 @@ public class GameState extends State {
         for(Asteroid ast : asteroids)
             ast.render(batch);
 
-        Iterator<Enemy> iter = enemies.iterator();
-        while(iter.hasNext()) {
-            Enemy enemy = iter.next();
+        for(Enemy enemy : enemies)
             enemy.render(batch);
 
-            enemy.yDir = -180f;
-            enemy.move(Gdx.graphics.getDeltaTime());
-
-            if(enemy.getPosition().x >= Gdx.graphics.getWidth() - enemy.getWidth()/2f) {
-                enemy.xDir = -Math.abs(enemy.xDir);;
-//                System.out.println("hit");
-            }
-            if(enemy.getPosition().x <= enemy.getWidth()/2f){
-                enemy.xDir = Math.abs(enemy.xDir);
-            }
-
-            if(enemy.getPosition().y < -2f * enemy.getHeight()) {
-                enemyNum--;
-                System.out.println(enemyNum);
-                enemy.dispose();
-                iter.remove();
-                if(totalEnemyNum % ENEMY_LIMIT == 1)
-                    enemySpeed = randomNumInRange(250f, 250f, true);
-
-            }
-        }
 
         //draw score last to stay on top
-        font.setColor(1,1,1,1);
-        font.draw(batch, "Score: " + score, WIDTH / 2 - 100, HEIGHT - 50);
+        scoreLayout.setText(font, "Score: " + score);
+        float scoreX = WIDTH / 2 - scoreLayout.width / 2f;
+        float scoreY = HEIGHT - scoreLayout.height * 5f/4f;
+        font.draw(batch, scoreLayout, scoreX, scoreY);
 
         batch.draw(pauseButton, pauseLocation.x - pauseButton.getWidth(),
                 pauseLocation.y - pauseButton.getHeight());
         batch.end();
-    }
-
-    private void cleanDestroyArray() {
-        for(int i = destroyArray.size - 1; i >= 0; i--) {
-            destroyArray.get(i).dispose();
-            destroyArray.removeIndex(i);
-        }
-    }
-
-    private float randomNumInRange(float start, float range, boolean canBeNeg) {
-        float rand = MathUtils.random(0,range) + start;
-        if(MathUtils.random() > 0.5f)
-            rand *= -1;
-        return rand;
     }
 
     private void init() {
@@ -228,6 +175,78 @@ public class GameState extends State {
                 0,
                 pauseButton.getWidth(),
                 pauseButton.getHeight());
+
+        score = 0;
+        scoreLayout = new GlyphLayout();
+        font.setColor(new Color(0xD3BCC0FF));
+        starfield = new Starfield(300, camera, rocket);
+    }
+
+    //check bounds to keep rocket on screen
+    private void checkRocketBounds() {
+        //limit rocket position to screen
+        if(rocket.getPosition().x < 0)
+            rocket.setTransform(0, rocket.getPosition().y,
+                    rocket.getBody().getAngle());
+        else if(rocket.getPosition().x > WIDTH - rocket.getWidth() / 2) {
+            rocket.setTransform(WIDTH, rocket.getPosition().y,
+                    rocket.getBody().getAngle());
+        }
+    }
+
+    private void checkAsteroids() {
+        //iterate through asteroids
+        Iterator<Asteroid> iter = asteroids.iterator();
+        while(iter.hasNext()){
+            Asteroid asteroid = iter.next();
+            //check to see if asteroid is below screen
+            if (asteroid.getPosition().y + asteroid.getHeight() < 0) {
+                iter.remove();
+            }
+        }
+    }
+
+    private void updateEnemies(){
+        Iterator<Enemy> iter = enemies.iterator();
+        while(iter.hasNext()) {
+            Enemy enemy = iter.next();
+            enemy.move(Gdx.graphics.getDeltaTime());
+
+            enemy.yDir = -180f;
+
+            checkEnemyBounds(enemy);
+
+            if(enemy.getPosition().y < -2f * enemy.getHeight()) {
+                enemyNum--;
+                enemy.dispose();
+                iter.remove();
+                if(totalEnemyNum % ENEMY_LIMIT == 1)
+                    enemySpeed = randomNumInRange(250f, 250f, true);
+            }
+        }
+    }
+
+    //move enemies and check bounds
+    private void checkEnemyBounds(Enemy enemy) {
+        if(enemy.getPosition().x >= Gdx.graphics.getWidth())
+            enemy.xDir = -Math.abs(enemy.xDir);
+
+        if(enemy.getPosition().x <= 0)
+            enemy.xDir = Math.abs(enemy.xDir);
+    }
+
+    private void cleanDestroyArray() {
+        for(int i = destroyArray.size - 1; i >= 0; i--) {
+            destroyArray.get(i).dispose();
+            destroyArray.removeIndex(i);
+        }
+    }
+
+    private float randomNumInRange(float start, float range, boolean canBeNeg) {
+        float rand = MathUtils.random(0,range) + start;
+        if(MathUtils.random() > 0.5f)
+            rand *= -1;
+        return rand;
     }
 
     private void setUpAsteroidAnimation() {
@@ -253,6 +272,7 @@ public class GameState extends State {
             String enemyTag = "Enemy";
             String missileTag = "Missile";
             String playerMissileTag = "PMissile";
+
             @Override
             public void beginContact(Contact contact) {
                 Fixture a = contact.getFixtureA();
@@ -277,7 +297,7 @@ public class GameState extends State {
                             break;
                         }
                     }
-                } else if (rocketTag.equals(a.getUserData()) &&
+                } else if (rocketTag.equals(a.getBody().getUserData()) &&
                         missileTag.equals(b.getUserData())) {
                     for (Enemy enemy : enemies) {
                         for (Missile shot : enemy.shots) {
@@ -289,7 +309,7 @@ public class GameState extends State {
                             }
                         }
                     }
-                } else if (rocketTag.equals(b.getUserData()) &&
+                } else if (rocketTag.equals(b.getBody().getUserData()) &&
                         missileTag.equals(a.getUserData())) {
                     for (Enemy enemy : enemies) {
                         for (Missile shot : enemy.shots) {

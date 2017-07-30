@@ -11,6 +11,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
+import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.MassData;
@@ -89,6 +90,14 @@ public class Enemy extends SpaceObject {
         enemyBodyDef.angle = (float) Math.PI;
 
         body = physicsShapes.createBody("outline", world, enemyBodyDef, GameState.PPM, GameState.PPM);
+
+        Filter filter = new Filter();
+        filter.categoryBits = 0x0004;
+        filter.maskBits = 0x0003;
+
+        for(Fixture fix : body.getFixtureList())
+            fix.setFilterData(filter);
+
         body.setUserData("Enemy");
     }
 
@@ -111,6 +120,11 @@ public class Enemy extends SpaceObject {
                 iterator.remove();
             }
         }
+    }
+
+    public void update(){
+        if(canShoot())
+            shoot("fast");
     }
 
     public void move(float dt){

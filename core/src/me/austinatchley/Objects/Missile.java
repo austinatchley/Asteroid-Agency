@@ -64,6 +64,9 @@ public class Missile extends SpaceObject {
         missileFixtureDef.shape = missileShape;
         missileFixtureDef.isSensor = true;
 
+        missileFixtureDef.filter.categoryBits = 0x0001;
+        missileFixtureDef.filter.maskBits = 0x0006;
+
         Fixture missileFixture = body.createFixture(missileFixtureDef);
         missileFixture.setUserData(tag);
         missileShape.dispose();
