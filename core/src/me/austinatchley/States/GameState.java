@@ -42,7 +42,7 @@ public class GameState extends State {
     private static final float FRAME_TIME = .06f;
     private static final int ENEMY_LIMIT = 10;
     private static final int ASTEROID_LIMIT = 16;
-    public static final float PPM = 1/4f;
+    public static final float PPM = 1/8f;
 
     private Box2DDebugRenderer debugRenderer;
     private Matrix4 debugMatrix;
@@ -72,6 +72,7 @@ public class GameState extends State {
     private int enemyNum = 1;
     private int totalEnemyNum = enemyNum;
     private float enemySpeed = MathUtils.random(-180f, 180f);
+    private int enemySpawnLocation;
 
     public GameState(GameStateManager gsm){
         super(gsm);
@@ -107,9 +108,16 @@ public class GameState extends State {
             spawnAsteroid();
         }
 
-        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000 && enemyNum <= ENEMY_LIMIT){
-            spawnEnemy(enemyNum++, Gdx.graphics.getHeight() + 100f, 2);
-            totalEnemyNum++;
+        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000){
+            if(totalEnemyNum % ENEMY_LIMIT == 0) {
+                enemySpawnLocation = MathUtils.random((int) (WIDTH / rocket.getWidth()));
+//                System.out.println("diff pos " + enemySpawnLocation);
+            }
+            if(enemyNum <= ENEMY_LIMIT) {
+                spawnEnemy(enemySpawnLocation, Gdx.graphics.getHeight() + 200f, 2);
+                enemyNum++;
+                totalEnemyNum++;
+            }
         }
 
 
@@ -231,7 +239,7 @@ public class GameState extends State {
         if(enemy.getPosition().x >= Gdx.graphics.getWidth())
             enemy.xDir = -Math.abs(enemy.xDir);
 
-        if(enemy.getPosition().x <= 0)
+        if(enemy.getPosition().x <= enemy.getWidth())
             enemy.xDir = Math.abs(enemy.xDir);
     }
 
@@ -397,19 +405,11 @@ public class GameState extends State {
     }
 
     private void spawnEnemy(int numX, float height){
-        //trying to start spawning enemies from other side of x axis
-        //doesn't work right now
-        if((numX % 2*enemyNum) >= enemyNum && (numX % 2*enemyNum) <= 2*enemyNum)
-            numX = enemyNum - numX;
-
         Enemy enemy = new Enemy(world, numX, height);
         enemySpawned(enemy);
     }
 
     private void spawnEnemy(int numX, float height, int numShots){
-        if((numX % 2*enemyNum) >= enemyNum && (numX % 2*enemyNum) <= 2*enemyNum)
-            numX = enemyNum - numX;
-
         Enemy enemy = new Enemy(world, numX, height, numShots);
         enemySpawned(enemy);
     }

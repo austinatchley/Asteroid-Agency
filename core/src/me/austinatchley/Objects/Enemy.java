@@ -68,8 +68,10 @@ public class Enemy extends SpaceObject {
         sprite = new Sprite(image);
         shots = new ArrayList<Missile>();
         this.spawnLocation = new Vector2(GameState.p2m(
-                (numX * image.getWidth()) % (Gdx.graphics.getWidth() / image.getWidth()),
+                numX * image.getWidth(),
                 height));
+
+//        System.out.println("Spawning enemy at " + spawnLocation);
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
