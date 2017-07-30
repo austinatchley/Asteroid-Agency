@@ -16,9 +16,13 @@ import me.austinatchley.States.GameState;
 public class Starfield {
     private int num;
     private Array<Star> stars;
+
     private ShapeRenderer renderer;
     private Camera cam;
-    private Rocket rocket;
+    public Rocket rocket;
+
+    private Color color;
+    private float vx,vy,val;
 
     public Starfield(int num, Camera cam, Rocket rocket){
         this.num = num;
@@ -31,9 +35,9 @@ public class Starfield {
 
         float r,g,b;
         for (int i = 0; i < num; i++) {
-            r = 100f - MathUtils.random(-30,30);
-            g = 50f - MathUtils.random(-30,30);
-            b = 110f - MathUtils.random(-30,30);
+            r = 120f - MathUtils.random(-30,30);
+            g = 70f - MathUtils.random(-30,30);
+            b = 90f - MathUtils.random(-30,30);
             stars.add(new Star(
                     MathUtils.random(GameState.WIDTH),
                     MathUtils.random(GameState.HEIGHT),
@@ -45,15 +49,20 @@ public class Starfield {
         }
     }
 
-    public void update(){
+    public void render(){
         Gdx.gl.glLineWidth(10);
         renderer.begin(ShapeRenderer.ShapeType.Line);
 
         for(int i = 0; i < num; i++){
             Star p = stars.get(i);
 
-            float vx = MathUtils.random(-5f, 5f) + rocket.getVelocity().x / 2f;
-            float vy = 80f + rocket.getVelocity().y;
+            vx = MathUtils.random(-5f, 5f);
+            vy = 80f;
+
+            if(rocket != null){
+                vx += rocket.getVelocity().x / 2f;
+                vx += rocket.getVelocity().y;
+            }
 
             p.x = (p.x - vx/p.z) % GameState.WIDTH;
             if (p.x < 0)
@@ -65,8 +74,8 @@ public class Starfield {
                 p.x = MathUtils.random(GameState.WIDTH);
             }
 
-            float val = 1f - p.z / 20f;
-            Color color = new Color(val*p.r, val*p.g, val*p.b, 1f);
+            val = 1f - p.z / 20f;
+            color = new Color(val*p.r, val*p.g, val*p.b, 1f);
             renderer.setColor(color);
             renderer.line(p.x, p.y, p.x - vx/p.z, p.y - vy/p.z);
         }

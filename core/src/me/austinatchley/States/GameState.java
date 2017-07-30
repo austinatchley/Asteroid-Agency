@@ -35,6 +35,7 @@ import me.austinatchley.Objects.Enemy;
 import me.austinatchley.Objects.Missile;
 import me.austinatchley.Objects.Rocket;
 import me.austinatchley.Objects.SpaceObject;
+import me.austinatchley.Star;
 import me.austinatchley.Starfield;
 
 public class GameState extends State {
@@ -49,6 +50,8 @@ public class GameState extends State {
 
     private World world;
     private Starfield starfield;
+
+    private Color bgColor;
 
     private Array<Asteroid> asteroids;
     private Array<Enemy> enemies;
@@ -84,6 +87,23 @@ public class GameState extends State {
 
 //        debugRenderer = new Box2DDebugRenderer();
 //        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
+
+        starfield = new Starfield(300, camera, rocket);
+    }
+
+    public GameState(GameStateManager gsm, Starfield starfield){
+        super(gsm);
+        camera.setToOrtho(false, WIDTH, HEIGHT);
+
+        init();
+
+        setupContactListener();
+
+//        debugRenderer = new Box2DDebugRenderer();
+//        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
+
+        this.starfield = starfield;
+        this.starfield.rocket = rocket;
     }
 
     @Override
@@ -114,7 +134,7 @@ public class GameState extends State {
 //                System.out.println("diff pos " + enemySpawnLocation);
             }
             if(enemyNum <= ENEMY_LIMIT) {
-                spawnEnemy(enemySpawnLocation, Gdx.graphics.getHeight() + 200f, 2);
+                spawnEnemy(enemySpawnLocation, HEIGHT + rocket.getHeight(), 2);
                 enemyNum++;
                 totalEnemyNum++;
             }
@@ -131,7 +151,7 @@ public class GameState extends State {
     @Override
     public void render(SpriteBatch batch) {
         //background color
-        Gdx.gl.glClearColor(.055f, .056f, .24f, 1);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         camera.update();
@@ -141,7 +161,7 @@ public class GameState extends State {
 //        debugRenderer.render(world, debugMatrix);
 
         //update the stars
-        starfield.update();
+        starfield.render();
 
         batch.begin();
 
@@ -187,7 +207,8 @@ public class GameState extends State {
         score = 0;
         scoreLayout = new GlyphLayout();
         font.setColor(new Color(0xD3BCC0FF));
-        starfield = new Starfield(300, camera, rocket);
+
+        bgColor = new Color(0x0E103DFF);
     }
 
     //check bounds to keep rocket on screen

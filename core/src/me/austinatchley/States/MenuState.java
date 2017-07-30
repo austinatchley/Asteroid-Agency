@@ -2,6 +2,7 @@ package me.austinatchley.States;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 
 import me.austinatchley.GameStateManager;
+import me.austinatchley.Starfield;
 
 
 public class MenuState extends State {
@@ -27,6 +29,8 @@ public class MenuState extends State {
     private Vector2 startLocation;
 
     private Rectangle playBounds;
+
+    private Starfield starfield;
 
     public MenuState(GameStateManager gsm){
         super(gsm);
@@ -54,12 +58,17 @@ public class MenuState extends State {
 
         blinking = new Animation<TextureRegion>(.4f, frames);
         stateTime = 0;
+
+        starfield = new Starfield(400, camera, null);
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        Gdx.gl.glClearColor(0.4f, 0.6f, 1f, 1);
+        Color bgColor = new Color(0xA5668BFF);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        starfield.render();
 
         stateTime += Gdx.graphics.getDeltaTime();
         TextureRegion startCurrentFrame = blinking.getKeyFrame(stateTime, true);
@@ -90,7 +99,7 @@ public class MenuState extends State {
         Vector2 touchPos = new Vector2();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY());
         if(playBounds.contains(touchPos))
-            gsm.set(new GameState(gsm));
+            gsm.set(new GameState(gsm, starfield));
     }
 
     @Override

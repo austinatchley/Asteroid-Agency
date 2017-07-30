@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector3;
 import org.w3c.dom.css.Rect;
 
 import me.austinatchley.GameStateManager;
+import me.austinatchley.Starfield;
 
 
 public class PauseState extends State {
@@ -21,6 +22,8 @@ public class PauseState extends State {
     private Texture playButton;
     private Vector2 playButtonLocation;
     private Rectangle playButtonBounds;
+
+    private Starfield starfield;
 
     protected PauseState(GameStateManager gsm) {
         super(gsm);
@@ -33,6 +36,8 @@ public class PauseState extends State {
         playButtonLocation = new Vector2((WIDTH - playButton.getWidth()) / 2, 0);
         playButtonBounds = new Rectangle(playButtonLocation.x, HEIGHT - playButton.getHeight(),
                 playButton.getWidth(), playButton.getHeight());
+
+        starfield = new Starfield(400, camera, null);
     }
 
     @Override
@@ -54,6 +59,8 @@ public class PauseState extends State {
     public void render(SpriteBatch batch) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        starfield.render();
 
         batch.begin();
         pauseLayout.setText(font, pauseText);
