@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.World;
 
 import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
+import me.austinatchley.Utils;
 
 public class Asteroid extends SpaceObject {
     private static final int NUM_ASTEROID_SPRITES = 64;
@@ -36,7 +37,7 @@ public class Asteroid extends SpaceObject {
         BodyDef asteroidBodyDef = new BodyDef();
         asteroidBodyDef.type = BodyDef.BodyType.DynamicBody;
         asteroidBodyDef.position.set(
-                GameState.p2m(
+                Utils.p2m(
                         MathUtils.random(0, State.WIDTH - 90),
                         State.HEIGHT
                 )

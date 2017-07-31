@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 import me.austinatchley.States.GameState;
+import me.austinatchley.Utils;
 
 
 public class Missile extends SpaceObject {
@@ -45,7 +46,7 @@ public class Missile extends SpaceObject {
     public void init() {
         BodyDef missileBodyDef = new BodyDef();
         missileBodyDef.type = BodyDef.BodyType.DynamicBody;
-        missileBodyDef.position.set(GameState.p2m(start));
+        missileBodyDef.position.set(Utils.p2m(start));
         missileBodyDef.bullet = true;
 
         body = world.createBody(missileBodyDef);
@@ -54,10 +55,10 @@ public class Missile extends SpaceObject {
         missileMassData.mass = 1f;
         body.setMassData(missileMassData);
         body.setUserData(tag);
-        body.setGravityScale(0f);
+           body.setGravityScale(0f);
 
         PolygonShape missileShape = new PolygonShape();
-        Vector2 boxSize = GameState.p2m(image.getWidth() / 2, image.getHeight() / 2);
+        Vector2 boxSize = Utils.p2m(image.getWidth() / 2, image.getHeight() / 2);
         missileShape.setAsBox(boxSize.x, boxSize.y);
 
         FixtureDef missileFixtureDef = new FixtureDef();

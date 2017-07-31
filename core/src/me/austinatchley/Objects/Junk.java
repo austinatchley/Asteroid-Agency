@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.World;
 
 import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
+import me.austinatchley.Utils;
 
 public class Junk extends Obstacle {
 
@@ -21,7 +22,7 @@ public class Junk extends Obstacle {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(
-                GameState.p2m(
+                Utils.p2m(
                         MathUtils.random(0, State.WIDTH - 90),
                         State.HEIGHT
                 )

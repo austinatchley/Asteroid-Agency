@@ -29,6 +29,7 @@ import javax.xml.bind.util.ValidationEventCollector;
 
 import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
+import me.austinatchley.Utils;
 
 public class Rocket extends SpaceObject {
     private static final int VERTICAL_OFF = 20;
@@ -77,9 +78,9 @@ public class Rocket extends SpaceObject {
     public void init() {
         BodyDef rocketBodyDef = new BodyDef();
         rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
-        rocketBodyDef.position.set((State.WIDTH - image.getWidth()) * GameState.PPM / 2, VERTICAL_OFF);
+        rocketBodyDef.position.set((State.WIDTH - image.getWidth()) * Utils.PPM / 2, VERTICAL_OFF);
 
-        body = physicsShapes.createBody("outline", world, rocketBodyDef, GameState.PPM, GameState.PPM);
+        body = physicsShapes.createBody("outline", world, rocketBodyDef, Utils.PPM, Utils.PPM);
         body.setUserData("Rocket");
 
         Filter filter = new Filter();
@@ -146,7 +147,7 @@ public class Rocket extends SpaceObject {
 
     public void moveTo(Vector2 target) {
         lastPos = getPosition();
-        setTransform(target.x + GameState.PPM*image.getWidth()/4f, target.y, body.getAngle());
+        setTransform(target.x + Utils.PPM*image.getWidth()/4f, target.y, body.getAngle());
         velocity.x = getPosition().x - lastPos.x;
         velocity.y = getPosition().y - lastPos.y;
     }

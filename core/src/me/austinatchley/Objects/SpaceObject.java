@@ -14,6 +14,7 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 import me.austinatchley.States.GameState;
+import me.austinatchley.Utils;
 
 public abstract class SpaceObject {
     static final float DEG2RAD = MathUtils.degreesToRadians;
@@ -30,7 +31,7 @@ public abstract class SpaceObject {
     public void init(){
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(GameState.p2m(0,0));
+        bodyDef.position.set(Utils.p2m(0,0));
 
         body = world.createBody(bodyDef);
 
@@ -78,7 +79,7 @@ public abstract class SpaceObject {
     public Vector2 getPosition(){
         if(body == null)
             return null;
-        return GameState.m2p(body.getPosition());
+        return Utils.m2p(body.getPosition());
     }
 
     /*
@@ -99,13 +100,13 @@ public abstract class SpaceObject {
     public void setTransform(Vector2 pos, float angle){
         if(body == null)
             return;
-        body.setTransform(GameState.p2m(pos), angle);
+        body.setTransform(Utils.p2m(pos), angle);
     }
 
     public void setTransform(float x, float y, float angle){
         if(body == null)
             return;
-        body.setTransform(GameState.p2m(x, y), angle);
+        body.setTransform(Utils.p2m(x, y), angle);
     }
 
     public int scoreEffect(){

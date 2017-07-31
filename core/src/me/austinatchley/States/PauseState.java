@@ -1,6 +1,7 @@
 package me.austinatchley.States;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -25,6 +26,8 @@ public class PauseState extends State {
 
     private Starfield starfield;
 
+    private Color bgColor;
+
     protected PauseState(GameStateManager gsm) {
         super(gsm);
 
@@ -43,6 +46,8 @@ public class PauseState extends State {
         playButtonLocation = new Vector2((WIDTH - playButton.getWidth()) / 2, 0);
         playButtonBounds = new Rectangle(playButtonLocation.x, HEIGHT - playButton.getHeight(),
                 playButton.getWidth(), playButton.getHeight());
+
+        bgColor = new Color(0x0E103DFF);
     }
 
     protected PauseState(GameStateManager gsm, Starfield starfield) {
@@ -71,7 +76,7 @@ public class PauseState extends State {
 
     @Override
     public void render(SpriteBatch batch) {
-        Gdx.gl.glClearColor(0, 0, 0, 1);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         starfield.render();

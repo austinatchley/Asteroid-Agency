@@ -26,6 +26,7 @@ import java.util.Iterator;
 
 import me.austinatchley.States.GameState;
 import me.austinatchley.States.State;
+import me.austinatchley.Utils;
 
 public class Enemy extends SpaceObject {
     private static final int OFFSET = 200;
@@ -69,7 +70,7 @@ public class Enemy extends SpaceObject {
         image = new Texture("outline.png");
         sprite = new Sprite(image);
         shots = new ArrayList<Missile>();
-        this.spawnLocation = new Vector2(GameState.p2m(
+        this.spawnLocation = new Vector2(Utils.p2m(
                 (numX + 1) * image.getWidth(),
                 height));
 
@@ -93,7 +94,7 @@ public class Enemy extends SpaceObject {
         enemyBodyDef.fixedRotation = true;
         enemyBodyDef.angle = (float) Math.PI;
 
-        body = physicsShapes.createBody("outline", world, enemyBodyDef, GameState.PPM, GameState.PPM);
+        body = physicsShapes.createBody("outline", world, enemyBodyDef, Utils.PPM, Utils.PPM);
 
         Filter filter = new Filter();
         filter.categoryBits = 0x0004;

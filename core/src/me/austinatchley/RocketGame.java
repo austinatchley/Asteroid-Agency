@@ -22,13 +22,11 @@ public class RocketGame extends Game {
 				Gdx.files.internal("fonts/test.png"),
 				false);
 		gsm = new GameStateManager();
-		Gdx.gl.glClearColor(0.4f, 0.6f, 1f, 1);
 		gsm.push(new MenuState(gsm));
 	}
 
 	@Override
 	public void render() {
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		gsm.update(Gdx.graphics.getDeltaTime());
 		gsm.render(batch);
 		super.render();
