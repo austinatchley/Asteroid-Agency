@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -46,6 +47,7 @@ public class Enemy extends SpaceObject {
         sprite = new Sprite(image);
         spawnLocation = new Vector2(MathUtils.random(State.WIDTH), State.HEIGHT - OFFSET);
         shots = new ArrayList<Missile>();
+        numShotsTaken = 0;
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
@@ -68,7 +70,7 @@ public class Enemy extends SpaceObject {
         sprite = new Sprite(image);
         shots = new ArrayList<Missile>();
         this.spawnLocation = new Vector2(GameState.p2m(
-                numX * image.getWidth(),
+                (numX + 1) * image.getWidth(),
                 height));
 
 //        System.out.println("Spawning enemy at " + spawnLocation);
@@ -158,13 +160,17 @@ public class Enemy extends SpaceObject {
     }
 
     public boolean canShoot(){
-        return (TimeUtils.nanoTime() - lastShotTime > 2000000000l) && (numShotsTaken <= shotLimit);
+        boolean result = (numShotsTaken == 0);
+        result = result || ((TimeUtils.nanoTime() - lastShotTime > 2000000000l) && (numShotsTaken <= shotLimit));
+        return isOnScreen() && result;
     }
 
     @Override
     public void dispose() {
         super.dispose();
-        for(Missile shot : shots)
-            shot.dispose();
+    }
+
+    public boolean isOnScreen(){
+        return new Rectangle(0, 0, State.WIDTH, State.HEIGHT).contains(sprite.getBoundingRectangle());
     }
 }

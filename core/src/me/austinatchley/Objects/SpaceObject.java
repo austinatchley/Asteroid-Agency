@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.Fixture;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 import me.austinatchley.States.GameState;
-
-/**
- * Created by austi on 6/18/2017.
- */
 
 public abstract class SpaceObject {
     static final float DEG2RAD = MathUtils.degreesToRadians;
@@ -27,7 +27,25 @@ public abstract class SpaceObject {
         this.world = world;
     }
 
-    abstract void init();
+    public void init(){
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;
+        bodyDef.position.set(GameState.p2m(0,0));
+
+        body = world.createBody(bodyDef);
+
+        PolygonShape shape = new PolygonShape();
+        shape.setAsBox(image.getWidth(), image.getHeight());
+
+        FixtureDef fixtureDef = new FixtureDef();
+        fixtureDef.shape = shape;
+        fixtureDef.density = 1f;
+        fixtureDef.filter.categoryBits = 0x0001;
+        fixtureDef.filter.maskBits = 0x0002;
+
+        Fixture fixture = body.createFixture(fixtureDef);
+        fixture.setUserData("");
+    }
 
     public void render(SpriteBatch batch){
         Vector2 pos = getPosition();
@@ -90,9 +108,12 @@ public abstract class SpaceObject {
         body.setTransform(GameState.p2m(x, y), angle);
     }
 
+    public int scoreEffect(){
+        return 1;
+    }
+
     public void dispose(){
         image.dispose();
         world.destroyBody(body);
     }
-
 }

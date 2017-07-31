@@ -68,6 +68,9 @@ public class GameState extends State {
 
     private int score;
     private GlyphLayout scoreLayout;
+    private GlyphLayout livesLayout;
+
+    private int lives;
 
     private long lastDropTime;
     private long lastEnemyTime;
@@ -177,9 +180,15 @@ public class GameState extends State {
 
         //draw score last to stay on top
         scoreLayout.setText(font, "Score: " + score);
-        float scoreX = WIDTH / 2 - scoreLayout.width / 2f;
+        float scoreX = (WIDTH - scoreLayout.width) / 2f;
         float scoreY = HEIGHT - scoreLayout.height * 5f/4f;
+
+        livesLayout.setText(font, "Lives: " + lives);
+        float livesX = (WIDTH - livesLayout.width) / 2f;
+        float livesY = scoreY - (livesLayout.height * 1.5f);
+
         font.draw(batch, scoreLayout, scoreX, scoreY);
+        font.draw(batch, livesLayout, livesX, livesY);
 
         batch.draw(pauseButton, pauseLocation.x - pauseButton.getWidth(),
                 pauseLocation.y - pauseButton.getHeight());
@@ -205,7 +214,9 @@ public class GameState extends State {
                 pauseButton.getHeight());
 
         score = 0;
+        lives = 3;
         scoreLayout = new GlyphLayout();
+        livesLayout = new GlyphLayout();
         font.setColor(new Color(0xD3BCC0FF));
 
         bgColor = new Color(0x0E103DFF);
@@ -333,7 +344,7 @@ public class GameState extends State {
                             if (b.getBody().equals(shot.getBody())) {
                                 destroyArray.add(shot);
                                 enemy.shots.remove(shot);
-                                gameOver();
+                                loseLife();
                                 break;
                             }
                         }
@@ -345,7 +356,7 @@ public class GameState extends State {
                             if (a.getBody().equals(shot.getBody())) {
                                 destroyArray.add(shot);
                                 enemy.shots.remove(shot);
-                                gameOver();
+                                loseLife();
                                 break;
                             }
                         }
@@ -400,13 +411,17 @@ public class GameState extends State {
         Vector3 touchPos = new Vector3();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
 
-        if(pauseBounds.contains(touchPos.x, touchPos.y))
-            gsm.push(new PauseState(gsm));
+        if(pauseBounds.contains(touchPos.x, touchPos.y)) {
+            //fix this
+            Starfield dummy = new Starfield(400, camera, null);
+            dummy.stars = this.starfield.stars;
+            gsm.push(new PauseState(gsm, dummy));
+        }
 
 
         camera.unproject(touchPos);
 
-        Vector2 targetPos = new Vector2(touchPos.x - rocket.getWidth(),
+        Vector2 targetPos = new Vector2(touchPos.x - (rocket.getWidth() / 1.5f),
                 touchPos.y - rocket.getHeight() / 2);
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
         currentPos.lerp(targetPos, 0.15f);
@@ -453,7 +468,13 @@ public class GameState extends State {
 
     private void gameOver(){
         gsm.tryHighScore(score);
-        score = 0;
+        gsm.push(new GameOverState(gsm, score));
+    }
+
+    private void loseLife() {
+        lives--;
+        if(lives <= 0)
+            gameOver();
     }
 
     /*

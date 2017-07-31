@@ -15,7 +15,7 @@ import me.austinatchley.States.GameState;
 
 public class Starfield {
     private int num;
-    private Array<Star> stars;
+    public Array<Star> stars;
 
     private ShapeRenderer renderer;
     private Camera cam;

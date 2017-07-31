@@ -44,7 +44,7 @@ public class MenuState extends State {
         nameLocation = new Vector2((WIDTH - name.getWidth()) / 2,
                 (HEIGHT - name.getHeight()) * 2 / 3);
         startLocation = new Vector2((WIDTH - start.getWidth() / 2) / 2,
-                playLocation.y - 150 );
+                playLocation.y - (start.getHeight() * 1.5f) );
 
         playBounds = new Rectangle(playLocation.x, playLocation.y,
                 playButton.getWidth(), playButton.getHeight());
@@ -64,7 +64,7 @@ public class MenuState extends State {
 
     @Override
     public void render(SpriteBatch batch) {
-        Color bgColor = new Color(0xA5668BFF);
+        Color bgColor = new Color(0x0E103DFF);
         Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

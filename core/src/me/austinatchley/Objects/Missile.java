@@ -42,7 +42,7 @@ public class Missile extends SpaceObject {
     }
 
     @Override
-    void init() {
+    public void init() {
         BodyDef missileBodyDef = new BodyDef();
         missileBodyDef.type = BodyDef.BodyType.DynamicBody;
         missileBodyDef.position.set(GameState.p2m(start));

@@ -29,6 +29,13 @@ public class PauseState extends State {
         super(gsm);
 
         camera.setToOrtho(false, WIDTH, HEIGHT);
+
+        init();
+
+        starfield = new Starfield(400, camera, null);
+    }
+
+    private void init() {
         pauseLayout = new GlyphLayout();
         pauseText = "FLYNN PAUSED\nGET REKT TO RESUME";
 
@@ -36,8 +43,15 @@ public class PauseState extends State {
         playButtonLocation = new Vector2((WIDTH - playButton.getWidth()) / 2, 0);
         playButtonBounds = new Rectangle(playButtonLocation.x, HEIGHT - playButton.getHeight(),
                 playButton.getWidth(), playButton.getHeight());
+    }
 
-        starfield = new Starfield(400, camera, null);
+    protected PauseState(GameStateManager gsm, Starfield starfield) {
+        super(gsm);
+
+        init();
+
+        this.starfield = starfield;
+        this.starfield.rocket = null;
     }
 
     @Override

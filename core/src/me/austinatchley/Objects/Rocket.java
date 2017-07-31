@@ -154,7 +154,7 @@ public class Rocket extends SpaceObject {
     public void shootMissile(){
         PlayerMissile shot = new PlayerMissile(world,
                 new Vector2(
-                        getPosition().x,
+                        getPosition().x + image.getWidth() / 2f,
                         getPosition().y + image.getHeight()),
                 0f,
                 400f);
