@@ -229,7 +229,7 @@ public class GameState extends State {
             rocket.setTransform(0, rocket.getPosition().y,
                     rocket.getBody().getAngle());
         else if(rocket.getPosition().x > WIDTH - rocket.getWidth() / 2) {
-            rocket.setTransform(WIDTH, rocket.getPosition().y,
+            rocket.setTransform(WIDTH - rocket.getWidth() / 2, rocket.getPosition().y,
                     rocket.getBody().getAngle());
         }
     }
