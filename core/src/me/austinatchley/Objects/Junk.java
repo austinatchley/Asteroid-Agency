@@ -1,5 +1,7 @@
 package me.austinatchley.Objects;
 
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
@@ -15,6 +17,9 @@ public class Junk extends Obstacle {
 
     public Junk(World world){
         super(world);
+        image = new Texture("rocks.png");
+        sprite = new Sprite(image);
+        init();
     }
 
     @Override
@@ -23,17 +28,18 @@ public class Junk extends Obstacle {
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(
                 Utils.p2m(
-                        MathUtils.random(0, State.WIDTH - 90),
-                        State.HEIGHT
+                        MathUtils.random(0, State.WIDTH - image.getWidth()),
+                        State.HEIGHT + image.getHeight()
                 )
         );
 
         body = world.createBody(bodyDef);
         body.setLinearDamping(MathUtils.random(0f,3f));
         body.setAngularVelocity(MathUtils.random(-2f, 2f));
+        body.setUserData("Junk");
 
         CircleShape shape = new CircleShape();
-        shape.setRadius(10f);
+        shape.setRadius(5f);
 
         FixtureDef fixtureDef = new FixtureDef();
         fixtureDef.shape = shape;

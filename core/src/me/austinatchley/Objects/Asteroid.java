@@ -23,7 +23,7 @@ public class Asteroid extends SpaceObject {
 
     public Asteroid(World world){
         super(world);
-        image = new Texture("asteroid.png");
+        image = new Texture("meteorFull.png");
         sprite = new Sprite(image);
         init();
     }
@@ -38,8 +38,8 @@ public class Asteroid extends SpaceObject {
         asteroidBodyDef.type = BodyDef.BodyType.DynamicBody;
         asteroidBodyDef.position.set(
                 Utils.p2m(
-                        MathUtils.random(0, State.WIDTH - 90),
-                        State.HEIGHT
+                        MathUtils.random(0, State.WIDTH - image.getWidth()),
+                        State.HEIGHT + image.getHeight()
                 )
         );
 
@@ -48,7 +48,7 @@ public class Asteroid extends SpaceObject {
         body.setAngularVelocity(MathUtils.random(-5f, 5f));
 
         CircleShape asteroidShape = new CircleShape();
-        asteroidShape.setRadius(10f);
+        asteroidShape.setRadius(5f);
 
         FixtureDef asteroidFixtureDef = new FixtureDef();
         asteroidFixtureDef.shape = asteroidShape;

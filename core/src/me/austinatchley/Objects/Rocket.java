@@ -47,7 +47,7 @@ public class Rocket extends SpaceObject {
 
     public Rocket(World world){
         super(world);
-        image = new Texture("outline.png");
+        image = new Texture("spaceCraft4.png");
         sprite = new Sprite(image);
 
         velocity = new Vector2();
@@ -80,7 +80,7 @@ public class Rocket extends SpaceObject {
         rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
         rocketBodyDef.position.set((State.WIDTH - image.getWidth()) * Utils.PPM / 2, VERTICAL_OFF);
 
-        body = physicsShapes.createBody("outline", world, rocketBodyDef, Utils.PPM, Utils.PPM);
+        body = physicsShapes.createBody("spaceCraft4", world, rocketBodyDef, Utils.PPM, Utils.PPM);
         body.setUserData("Rocket");
 
         Filter filter = new Filter();
@@ -104,8 +104,8 @@ public class Rocket extends SpaceObject {
         if(thruster2.isComplete())
             thruster2.reset();
 
-        thruster1.setPosition(sprite.getX() + sprite.getWidth() * 0.1f, sprite.getY() + sprite.getHeight() * 0.4f);
-        thruster2.setPosition(sprite.getX() + sprite.getWidth() * 0.9f, sprite.getY() + sprite.getHeight() * 0.4f);
+        thruster1.setPosition(sprite.getX() + sprite.getWidth() * 0.3f, sprite.getY() + sprite.getHeight() * 0.3f);
+        thruster2.setPosition(sprite.getX() + sprite.getWidth() * 0.7f, sprite.getY() + sprite.getHeight() * 0.3f);
 
         thruster1.getEmitters().first().getAngle().setLow(rotation - 90f);
         thruster1.getEmitters().first().getAngle().setHigh(rotation - 90f);
@@ -167,7 +167,7 @@ public class Rocket extends SpaceObject {
     }
 
     public boolean canShoot(){
-        return TimeUtils.nanoTime() - lastShotTime > 500000000;
+        return TimeUtils.nanoTime() - lastShotTime > 400000000;
     }
 
     public Vector2 getVelocity(){

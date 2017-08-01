@@ -18,6 +18,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.codeandweb.physicseditor.PhysicsShapeCache;
 
@@ -30,12 +31,12 @@ import me.austinatchley.Utils;
 
 public class Enemy extends SpaceObject {
     private static final int OFFSET = 200;
-
     public Vector2 spawnLocation;
+
+    private long lastShotTime;
     public float xDir, yDir;
 
-    public ArrayList<Missile> shots;
-    private long lastShotTime;
+    private Array<Missile> shots;
 
     private int numShotsTaken, shotLimit;
 
@@ -47,7 +48,7 @@ public class Enemy extends SpaceObject {
         image = new Texture("outline.png");
         sprite = new Sprite(image);
         spawnLocation = new Vector2(MathUtils.random(State.WIDTH), State.HEIGHT - OFFSET);
-        shots = new ArrayList<Missile>();
+        shots = new Array<Missile>();
         numShotsTaken = 0;
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
@@ -59,7 +60,7 @@ public class Enemy extends SpaceObject {
         image = new Texture("outline.png");
         sprite = new Sprite(image);
         this.spawnLocation = spawnLocation;
-        shots = new ArrayList<Missile>();
+        shots = new Array<Missile>();
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
@@ -67,23 +68,25 @@ public class Enemy extends SpaceObject {
 
     public Enemy(World world, int numX, float height){
         super(world);
-        image = new Texture("outline.png");
+        image = new Texture("spaceCraft1.png");
         sprite = new Sprite(image);
-        shots = new ArrayList<Missile>();
+        shots = new Array<Missile>();
         this.spawnLocation = new Vector2(Utils.p2m(
                 (numX + 1) * image.getWidth(),
                 height));
 
-//        System.out.println("Spawning enemy at " + spawnLocation);
-
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
-//        spawnLocation = new Vector2(numX * image.getWidth(), height);
     }
 
     public Enemy(World world, int numX, float height, int shotLimit){
         this(world, numX, height);
         this.shotLimit = shotLimit;
+    }
+
+    public Enemy(World world, int numX, float height, int shotLimit, Array<Missile> shots){
+        this(world, numX, height, shotLimit);
+        this.shots = shots;
     }
 
     @Override
@@ -94,7 +97,7 @@ public class Enemy extends SpaceObject {
         enemyBodyDef.fixedRotation = true;
         enemyBodyDef.angle = (float) Math.PI;
 
-        body = physicsShapes.createBody("outline", world, enemyBodyDef, Utils.PPM, Utils.PPM);
+        body = physicsShapes.createBody("spaceCraft1", world, enemyBodyDef, Utils.PPM, Utils.PPM);
 
         Filter filter = new Filter();
         filter.categoryBits = 0x0004;
@@ -115,16 +118,6 @@ public class Enemy extends SpaceObject {
 
         // Then we simply draw it as a normal sprite.
         sprite.draw(batch);
-
-        Iterator<Missile> iterator = shots.iterator();
-        while(iterator.hasNext()){
-            Missile shot = iterator.next();
-            shot.render(batch);
-            if(shot.isOutOfBounds()){
-                shot.dispose();
-                iterator.remove();
-            }
-        }
     }
 
     public void update(){
