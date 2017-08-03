@@ -36,6 +36,7 @@ public class PauseState extends State {
         init();
 
         starfield = new Starfield(400, camera, null);
+        starfield.useVelocity(false);
     }
 
     private void init() {

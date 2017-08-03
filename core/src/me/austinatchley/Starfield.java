@@ -14,13 +14,15 @@ import me.austinatchley.States.GameState;
 
 
 public class Starfield {
+    private static boolean useVelocity;
+
     private int num;
     public Array<Star> stars;
 
     private ShapeRenderer renderer;
     private Camera cam;
-    public Rocket rocket;
 
+    public Rocket rocket;
     private Color color;
     private float vx,vy,val;
 
@@ -59,7 +61,7 @@ public class Starfield {
             vx = MathUtils.random(-5f, 5f);
             vy = 80f;
 
-            if(rocket != null){
+            if(useVelocity && rocket != null){
                 vx += rocket.getVelocity().x;
                 vx += rocket.getVelocity().y;
             }
@@ -80,5 +82,9 @@ public class Starfield {
             renderer.line(p.x, p.y, p.x - vx/p.z, p.y - vy/p.z);
         }
         renderer.end();
+    }
+    
+    public static void useVelocity(boolean use){
+        useVelocity = use;
     }
 }

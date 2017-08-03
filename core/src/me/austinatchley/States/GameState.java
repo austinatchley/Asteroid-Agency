@@ -124,6 +124,8 @@ public class GameState extends State {
         //only call handleInput on touch
         if(Gdx.input.isTouched())
             handleInput();
+        else
+            starfield.useVelocity(false);
 
         updateEnemies();
 
@@ -446,6 +448,8 @@ public class GameState extends State {
 
     @Override
     protected void handleInput() {
+        starfield.useVelocity(true);
+
         if(rocket.canShoot())
             rocket.shootMissile();
 

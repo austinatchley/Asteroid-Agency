@@ -60,6 +60,7 @@ public class MenuState extends State {
         stateTime = 0;
 
         starfield = new Starfield(400, camera, null);
+        starfield.useVelocity(false);
     }
 
     @Override

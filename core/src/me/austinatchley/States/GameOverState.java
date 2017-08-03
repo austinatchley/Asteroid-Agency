@@ -69,6 +69,8 @@ public class GameOverState extends State {
         scoreLayout.setText(font, "Score: " + score);
         highScoreLayout = new GlyphLayout();
         highScoreLayout.setText(font, "High Score: " + gsm.getHighScore());
+
+        starfield.useVelocity(false);
     }
 
     public GameOverState(GameStateManager gsm, int score){
