@@ -60,7 +60,7 @@ public class Starfield {
             vy = 80f;
 
             if(rocket != null){
-                vx += rocket.getVelocity().x / 2f;
+                vx += rocket.getVelocity().x;
                 vx += rocket.getVelocity().y;
             }
 
