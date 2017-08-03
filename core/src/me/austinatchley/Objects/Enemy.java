@@ -47,7 +47,7 @@ public class Enemy extends SpaceObject {
 //        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
         image = new Texture("outline.png");
         sprite = new Sprite(image);
-        spawnLocation = new Vector2(MathUtils.random(State.WIDTH), State.HEIGHT - OFFSET);
+        spawnLocation = new Vector2(MathUtils.random(Utils.WIDTH), Utils.HEIGHT - OFFSET);
         shots = new Array<Missile>();
         numShotsTaken = 0;
 
@@ -165,6 +165,6 @@ public class Enemy extends SpaceObject {
     }
 
     public boolean isOnScreen(){
-        return new Rectangle(0, 0, State.WIDTH, State.HEIGHT).contains(sprite.getBoundingRectangle());
+        return new Rectangle(0, 0, Utils.WIDTH, Utils.HEIGHT).contains(sprite.getBoundingRectangle());
     }
 }

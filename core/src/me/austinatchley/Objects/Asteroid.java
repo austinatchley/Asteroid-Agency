@@ -38,8 +38,8 @@ public class Asteroid extends SpaceObject {
         asteroidBodyDef.type = BodyDef.BodyType.DynamicBody;
         asteroidBodyDef.position.set(
                 Utils.p2m(
-                        MathUtils.random(0, State.WIDTH - image.getWidth()),
-                        State.HEIGHT + image.getHeight()
+                        MathUtils.random(0, Utils.WIDTH - image.getWidth()),
+                        Utils.HEIGHT + image.getHeight()
                 )
         );
 

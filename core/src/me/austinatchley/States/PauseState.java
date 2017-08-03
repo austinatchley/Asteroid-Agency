@@ -15,6 +15,9 @@ import org.w3c.dom.css.Rect;
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Starfield;
 
+import static me.austinatchley.Utils.HEIGHT;
+import static me.austinatchley.Utils.WIDTH;
+
 
 public class PauseState extends State {
     private GlyphLayout pauseLayout;
@@ -41,7 +44,7 @@ public class PauseState extends State {
 
     private void init() {
         pauseLayout = new GlyphLayout();
-        pauseText = "FLYNN PAUSED\nGET REKT TO RESUME";
+        pauseText = "PAUSED\nGET REKT TO RESUME";
 
         playButton = new Texture("flynnhead.png");
         playButtonLocation = new Vector2((WIDTH - playButton.getWidth()) / 2, 0);

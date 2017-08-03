@@ -41,8 +41,8 @@ public class Starfield {
             g = 70f - MathUtils.random(-30,30);
             b = 90f - MathUtils.random(-30,30);
             stars.add(new Star(
-                    MathUtils.random(GameState.WIDTH),
-                    MathUtils.random(GameState.HEIGHT),
+                    MathUtils.random(Utils.WIDTH),
+                    MathUtils.random(Utils.HEIGHT),
                     10f - MathUtils.random()*MathUtils.random()*9f,
                     r / 255f,
                     g / 255f,
@@ -66,14 +66,14 @@ public class Starfield {
                 vx += rocket.getVelocity().y;
             }
 
-            p.x = (p.x - vx/p.z) % GameState.WIDTH;
+            p.x = (p.x - vx/p.z) % Utils.WIDTH;
             if (p.x < 0)
-                p.x += GameState.WIDTH;
+                p.x += Utils.WIDTH;
 
-            p.y = (p.y - vy/p.z) % GameState.HEIGHT;
+            p.y = (p.y - vy/p.z) % Utils.HEIGHT;
             if (p.y < 0) {
-                p.y += GameState.HEIGHT;
-                p.x = MathUtils.random(GameState.WIDTH);
+                p.y += Utils.HEIGHT;
+                p.x = MathUtils.random(Utils.WIDTH);
             }
 
             val = 1f - p.z / 20f;

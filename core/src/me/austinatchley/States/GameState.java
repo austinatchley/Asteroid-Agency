@@ -43,7 +43,9 @@ import me.austinatchley.Utils;
 import static me.austinatchley.Utils.ASTEROID_LIMIT;
 import static me.austinatchley.Utils.ENEMY_LIMIT;
 import static me.austinatchley.Utils.FRAME_TIME;
+import static me.austinatchley.Utils.HEIGHT;
 import static me.austinatchley.Utils.NUM_ASTEROID_SPRITES;
+import static me.austinatchley.Utils.WIDTH;
 
 public class GameState extends State {
 

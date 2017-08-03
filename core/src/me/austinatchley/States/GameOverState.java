@@ -15,6 +15,10 @@ import com.badlogic.gdx.math.Vector3;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Starfield;
+import me.austinatchley.Utils;
+
+import static me.austinatchley.Utils.HEIGHT;
+import static me.austinatchley.Utils.WIDTH;
 
 
 public class GameOverState extends State {

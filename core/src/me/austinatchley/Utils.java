@@ -1,9 +1,12 @@
 package me.austinatchley;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 
 public class Utils {
     public static final float PPM = 1/8f;
+    public static final int WIDTH = Gdx.graphics.getWidth();
+    public static final int HEIGHT = Gdx.graphics.getHeight();
     public static final int NUM_ASTEROID_SPRITES = 64;
     public static final float FRAME_TIME = .06f;
     public static final int ENEMY_LIMIT = 10;

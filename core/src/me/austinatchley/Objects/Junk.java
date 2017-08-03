@@ -28,8 +28,8 @@ public class Junk extends Obstacle {
         bodyDef.type = BodyDef.BodyType.DynamicBody;
         bodyDef.position.set(
                 Utils.p2m(
-                        MathUtils.random(0, State.WIDTH - image.getWidth()),
-                        State.HEIGHT + image.getHeight()
+                        MathUtils.random(0, Utils.WIDTH - image.getWidth()),
+                        Utils.HEIGHT + image.getHeight()
                 )
         );
 

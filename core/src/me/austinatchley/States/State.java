@@ -13,9 +13,6 @@ public abstract class State {
     protected GameStateManager gsm;
     protected BitmapFont font;
 
-    public static final int WIDTH = Gdx.graphics.getWidth();
-    public static final int HEIGHT = Gdx.graphics.getHeight();
-
     protected State(GameStateManager gsm){
         this.gsm = gsm;
         camera = new OrthographicCamera();

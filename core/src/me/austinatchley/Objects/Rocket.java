@@ -78,7 +78,7 @@ public class Rocket extends SpaceObject {
     public void init() {
         BodyDef rocketBodyDef = new BodyDef();
         rocketBodyDef.type = BodyDef.BodyType.KinematicBody;
-        rocketBodyDef.position.set((State.WIDTH - image.getWidth()) * Utils.PPM / 2, VERTICAL_OFF);
+        rocketBodyDef.position.set((Utils.WIDTH - image.getWidth()) * Utils.PPM / 2, VERTICAL_OFF);
 
         body = physicsShapes.createBody("spaceCraft4", world, rocketBodyDef, Utils.PPM, Utils.PPM);
         body.setUserData("Rocket");
