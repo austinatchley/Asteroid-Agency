@@ -40,11 +40,12 @@ import me.austinatchley.Star;
 import me.austinatchley.Starfield;
 import me.austinatchley.Utils;
 
+import static me.austinatchley.Utils.ASTEROID_LIMIT;
+import static me.austinatchley.Utils.ENEMY_LIMIT;
+import static me.austinatchley.Utils.FRAME_TIME;
+import static me.austinatchley.Utils.NUM_ASTEROID_SPRITES;
+
 public class GameState extends State {
-    private static final int NUM_ASTEROID_SPRITES = 64;
-    private static final float FRAME_TIME = .06f;
-    private static final int ENEMY_LIMIT = 10;
-    private static final int ASTEROID_LIMIT = 16;
 
     private Box2DDebugRenderer debugRenderer;
     private Matrix4 debugMatrix;

@@ -4,6 +4,10 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Utils {
     public static final float PPM = 1/8f;
+    public static final int NUM_ASTEROID_SPRITES = 64;
+    public static final float FRAME_TIME = .06f;
+    public static final int ENEMY_LIMIT = 10;
+    public static final int ASTEROID_LIMIT = 16;
 
     /*
     Converts meters to pixels for use with LibGDX
