@@ -1,5 +1,7 @@
 package me.austinatchley;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Preferences;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.Stack;
@@ -8,11 +10,17 @@ import me.austinatchley.States.State;
 
 public class GameStateManager {
 
+    private final String SCORE = "highScore";
+
     private Stack<State> states;
-    private int highScore;
+    private Preferences pref;
 
     public GameStateManager(){
         states = new Stack<State>();
+        pref = Gdx.app.getPreferences("PreferenceName");
+
+        if(!pref.contains(SCORE))
+            pref.putInteger(SCORE, 0);
     }
 
     public void push(State state){
@@ -37,15 +45,17 @@ public class GameStateManager {
     }
 
     public int getHighScore(){
-        return highScore;
+        return pref.getInteger(SCORE);
     }
 
     public void setHighScore(int score){
-        highScore = score;
+        pref.putInteger(SCORE, score);
+        pref.flush();
     }
 
     public void tryHighScore(int score){
-        highScore = Math.max(score, highScore);
+        if(score > pref.getInteger(SCORE))
+            setHighScore(score);
     }
 }
 
