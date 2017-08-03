@@ -478,7 +478,6 @@ public class GameState extends State {
 
     private void spawnJunk() {
         Junk junk = new Junk(world);
-        System.out.println("spawn junk");
 
         junks.add(junk);
         lastJunkDropTime = TimeUtils.nanoTime();
