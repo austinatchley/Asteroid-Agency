@@ -1,6 +1,7 @@
 package me.austinatchley.Objects;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
 import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
@@ -152,22 +153,23 @@ public class Rocket extends SpaceObject {
         velocity.y = getPosition().y - lastPos.y;
     }
 
-    public void shootMissile(){
+    public void shootMissile(Sound missileSound){
+        missileSound.play();
+
         PlayerMissile shot = new PlayerMissile(world,
                 new Vector2(
                         getPosition().x + image.getWidth() / 2f,
                         getPosition().y + image.getHeight()),
                 0f,
-                400f);
+                600f);
         shot.flip();
-        //TODO: center missile. add static field to gsm?
 
         shots.add(shot);
         lastShotTime = TimeUtils.nanoTime();
     }
 
     public boolean canShoot(){
-        return TimeUtils.nanoTime() - lastShotTime > 400000000;
+        return TimeUtils.nanoTime() - lastShotTime > 250000000;
     }
 
     public Vector2 getVelocity(){

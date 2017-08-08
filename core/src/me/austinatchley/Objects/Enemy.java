@@ -1,6 +1,7 @@
 package me.austinatchley.Objects;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -42,10 +43,12 @@ public class Enemy extends SpaceObject {
 
     private PhysicsShapeCache physicsShapes;
 
+    private Sound shotSound;
+
     public Enemy(World world){
         super(world);
 //        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
-        image = new Texture("outline.png");
+        image = new Texture("spaceCraft1.png");
         sprite = new Sprite(image);
         spawnLocation = new Vector2(MathUtils.random(Utils.WIDTH), Utils.HEIGHT - OFFSET);
         shots = new Array<Missile>();
@@ -57,7 +60,7 @@ public class Enemy extends SpaceObject {
 
     public Enemy(World world, Vector2 spawnLocation){
         super(world);
-        image = new Texture("outline.png");
+        image = new Texture("spaceCraft1.png");
         sprite = new Sprite(image);
         this.spawnLocation = spawnLocation;
         shots = new Array<Missile>();
@@ -91,6 +94,8 @@ public class Enemy extends SpaceObject {
 
     @Override
     public void init() {
+        shotSound = Gdx.audio.newSound(Gdx.files.internal("enemyshoot.wav"));
+
         BodyDef enemyBodyDef = new BodyDef();
         enemyBodyDef.type = BodyDef.BodyType.KinematicBody;
         enemyBodyDef.position.set(spawnLocation);
@@ -122,7 +127,7 @@ public class Enemy extends SpaceObject {
 
     public void update(){
         if(canShoot())
-            shoot("fast");
+            shoot("fast", shotSound);
     }
 
     public void move(float dt){
@@ -130,7 +135,9 @@ public class Enemy extends SpaceObject {
                 getPosition().y + dt*yDir), body.getAngle());
     }
 
-    public void shoot(String type){
+    public void shoot(String type, Sound shotSound){
+        shotSound.play();
+
         Missile shot;
         if(type.equals("fast"))
             shot = new Missile(world,

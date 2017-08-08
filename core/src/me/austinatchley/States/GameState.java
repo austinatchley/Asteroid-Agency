@@ -2,6 +2,8 @@ package me.austinatchley.States;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Music;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -85,6 +87,9 @@ public class GameState extends State {
     private int totalEnemyNum = enemyNum;
     private float enemySpeed;
     private int enemySpawnLocation;
+
+    private Sound missileSound;
+    private Sound explosionSound;
 
     public GameState(GameStateManager gsm){
         super(gsm);
@@ -244,6 +249,9 @@ public class GameState extends State {
         font.setColor(new Color(0xD3BCC0FF));
 
         bgColor = new Color(0x0E103DFF);
+
+        missileSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
+        explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
     }
 
     //check bounds to keep rocket on screen
@@ -343,6 +351,7 @@ public class GameState extends State {
             public void beginContact(Contact contact) {
                 Fixture a = contact.getFixtureA();
                 Fixture b = contact.getFixtureB();
+
                 if (asteroidTag.equals(a.getUserData()) &&
                         rocketTag.equals(b.getBody().getUserData())) {
                     for (Asteroid asteroid : asteroids) {
@@ -365,32 +374,35 @@ public class GameState extends State {
                     }
                 } else if (rocketTag.equals(a.getBody().getUserData()) &&
                         missileTag.equals(b.getUserData())) {
-                    for (Enemy enemy : enemies) {
                         for (Missile shot : shots) {
                             if (b.getBody().equals(shot.getBody())) {
+                                long id = explosionSound.play();
+                                explosionSound.setPitch(id, .5f);
+
                                 destroyArray.add(shot);
                                 shots.removeValue(shot, false);
                                 loseLife();
                                 break;
                             }
                         }
-                    }
                 } else if (rocketTag.equals(b.getBody().getUserData()) &&
                         missileTag.equals(a.getUserData())) {
-                    for (Enemy enemy : enemies) {
                         for (Missile shot : shots) {
                             if (a.getBody().equals(shot.getBody())) {
+                                long id = explosionSound.play();
+                                explosionSound.setPitch(id, .5f);
+
                                 destroyArray.add(shot);
                                 shots.removeValue(shot, false);
                                 loseLife();
                                 break;
                             }
                         }
-                    }
                 } else if (enemyTag.equals(a.getBody().getUserData()) &&
                         playerMissileTag.equals(b.getUserData())) {
                     for(Enemy enemy : enemies){
                         if(a.getBody().equals(enemy.getBody())){
+                            explosionSound.play();
                             destroyArray.add(enemy);
                             enemies.removeValue(enemy, false);
                             score++;
@@ -402,6 +414,7 @@ public class GameState extends State {
                         playerMissileTag.equals(a.getUserData())) {
                     for(Enemy enemy : enemies){
                         if(b.getBody().equals(enemy.getBody())){
+                            explosionSound.play();
                             destroyArray.add(enemy);
                             enemies.removeValue(enemy, false);
                             score++;
@@ -454,7 +467,7 @@ public class GameState extends State {
         starfield.useVelocity(true);
 
         if(rocket.canShoot())
-            rocket.shootMissile();
+            rocket.shootMissile(missileSound);
 
         Vector3 touchPos = new Vector3();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
