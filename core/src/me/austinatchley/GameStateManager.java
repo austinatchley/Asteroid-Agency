@@ -28,6 +28,7 @@ public class GameStateManager {
     }
 
     public State pop(){
+        states.peek().dispose();
         return states.pop();
     }
 

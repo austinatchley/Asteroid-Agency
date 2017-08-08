@@ -69,10 +69,6 @@ public class GameState extends State {
     private Rectangle pauseBounds;
     private Texture pauseButton;
 
-    private Animation<TextureRegion> asteroidAnimation;
-    private Texture asteroidSheet;
-    private float stateTime;
-
     private int score;
     private GlyphLayout scoreLayout;
     private GlyphLayout livesLayout;
@@ -90,6 +86,7 @@ public class GameState extends State {
 
     private Sound missileSound;
     private Sound explosionSound;
+    private Sound gameOverSound;
 
     public GameState(GameStateManager gsm){
         super(gsm);
@@ -226,7 +223,6 @@ public class GameState extends State {
 
         rocket = new Rocket(world);
 
-        setUpAsteroidAnimation();
         asteroids = new Array<Asteroid>();
         enemies = new Array<Enemy>();
         destroyArray = new Array<SpaceObject>();
@@ -252,6 +248,8 @@ public class GameState extends State {
 
         missileSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.wav"));
+        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.wav"));
     }
 
     //check bounds to keep rocket on screen
@@ -320,22 +318,6 @@ public class GameState extends State {
         if(MathUtils.random() > 0.5f)
             rand *= -1;
         return rand;
-    }
-
-    private void setUpAsteroidAnimation() {
-        asteroidSheet = new Texture("asteroidSheet.png");
-
-        TextureRegion[][] tmpFrames = TextureRegion.split(asteroidSheet,
-                asteroidSheet.getWidth() / NUM_ASTEROID_SPRITES, asteroidSheet.getHeight());
-
-        TextureRegion[] spinFrames = new TextureRegion[NUM_ASTEROID_SPRITES];
-        int index = 0;
-        for (TextureRegion[] tmpFrame : tmpFrames)
-            for (int j = 0; j < tmpFrames[0].length; j++)
-                spinFrames[index++] = tmpFrame[j];
-
-        asteroidAnimation = new Animation<TextureRegion>(FRAME_TIME, spinFrames);
-        stateTime = 0f;
     }
 
     private void setupContactListener() {
@@ -531,17 +513,22 @@ public class GameState extends State {
     @Override
     public void dispose () {
         rocket.dispose();
-        asteroidSheet.dispose();
+        gameOverSound.dispose();
+        explosionSound.dispose();
+        missileSound.dispose();
+        pauseButton.dispose();
+        world.dispose();
+
     }
 
     private void gameOver(){
         gsm.tryHighScore(score);
-        gsm.push(new GameOverState(gsm, score));
+        gameOverSound.play();
+        gsm.set(new GameOverState(gsm, score));
     }
 
     private void loseLife() {
-        lives--;
-        if(lives <= 0)
+        if(--lives <= 0)
             gameOver();
     }
 }

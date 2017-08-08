@@ -15,7 +15,7 @@ public class RocketGame extends Game {
 	private GameStateManager gsm;
 	SpriteBatch batch;
 	BitmapFont font;
-	Music gameMusic;
+	public static Music gameMusic;
 
 	@Override
 	public void create() {

@@ -2,6 +2,7 @@ package me.austinatchley.States;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -17,6 +18,7 @@ import me.austinatchley.GameStateManager;
 import me.austinatchley.Starfield;
 import me.austinatchley.Utils;
 
+import static me.austinatchley.RocketGame.gameMusic;
 import static me.austinatchley.Utils.HEIGHT;
 import static me.austinatchley.Utils.WIDTH;
 
@@ -108,6 +110,8 @@ public class GameOverState extends State {
 
         batch.end();
 
+
+
 //        camera.update();
 //        batch.setProjectionMatrix(camera.combined);
 
@@ -127,8 +131,10 @@ public class GameOverState extends State {
     protected void handleInput() {
         Vector2 touchPos = new Vector2();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY());
-        if(playBounds.contains(touchPos))
+        if(playBounds.contains(touchPos)) {
+            gameMusic.setVolume(.75f);
             gsm.set(new GameState(gsm, starfield));
+        }
     }
 
     @Override
