@@ -14,7 +14,7 @@ import me.austinatchley.States.GameState;
 
 
 public class Starfield {
-    private static boolean useVelocity;
+    private boolean useVelocity;
 
     private int num;
     public Array<Star> stars;
@@ -84,7 +84,7 @@ public class Starfield {
         renderer.end();
     }
     
-    public static void useVelocity(boolean use){
+    public void useVelocity(boolean use){
         useVelocity = use;
     }
 }

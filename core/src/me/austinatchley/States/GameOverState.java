@@ -128,7 +128,7 @@ public class GameOverState extends State {
         Vector2 touchPos = new Vector2();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY());
         if(playBounds.contains(touchPos)) {
-            gsm.gameMusic.setVolume(.75f);
+            gsm.gameMusic.setVolume(.5f);
             gsm.set(new GameState(gsm, starfield));
         }
     }

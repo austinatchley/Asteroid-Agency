@@ -1,16 +1,23 @@
 package me.austinatchley;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.Vector2;
 
 public class Utils {
     public static final float PPM = 1/8f;
     public static final int WIDTH = Gdx.graphics.getWidth();
     public static final int HEIGHT = Gdx.graphics.getHeight();
+
     public static final int NUM_ASTEROID_SPRITES = 64;
     public static final float FRAME_TIME = .06f;
     public static final int ENEMY_LIMIT = 10;
     public static final int ASTEROID_LIMIT = 16;
+
+    public static final Color TEXT_COLOR = new Color(0xD3BCC0FF);
+    public static final Color BG_COLOR = new Color(0x0E103DFF);
+
+    public static final int DEFAULT_FONT_SIZE = 36;
 
     /*
     Converts meters to pixels for use with LibGDX

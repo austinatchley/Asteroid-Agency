@@ -2,13 +2,11 @@ package me.austinatchley;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Music;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
-import me.austinatchley.States.*;
-import me.austinatchley.States.MenuState;
+import me.austinatchley.States.MenuScene2D;
 
 public class RocketGame extends Game {
 
@@ -19,12 +17,19 @@ public class RocketGame extends Game {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		font = new BitmapFont(Gdx.files.internal("fonts/test.fnt"),
-				Gdx.files.internal("fonts/test.png"),
-				false);
+		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/FFF.TTF"));
+		FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+		parameter.size = 36;
+		font = generator.generateFont(parameter);
+
+//		font = new BitmapFont(Gdx.files.internal("fonts/test.fnt"),
+//				Gdx.files.internal("fonts/test.png"),
+//				false);
+
 
 		gsm = new GameStateManager();
-		gsm.push(new MenuState(gsm));
+//		gsm.push(new MenuState(gsm));
+		gsm.push(new MenuScene2D(gsm));
 	}
 
 	@Override
