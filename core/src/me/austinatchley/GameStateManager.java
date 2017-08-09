@@ -2,6 +2,7 @@ package me.austinatchley;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Preferences;
+import com.badlogic.gdx.audio.Music;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
 import java.util.Stack;
@@ -15,12 +16,19 @@ public class GameStateManager {
 
     private Stack<State> states;
 
+    public Music gameMusic;
+
     public GameStateManager(){
         states = new Stack<State>();
         pref = Gdx.app.getPreferences("PreferenceName");
 
         if(!pref.contains(SCORE))
             pref.putInteger(SCORE, 0);
+
+        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+        gameMusic.setVolume(.75f);
+        gameMusic.setLooping(true);
+        gameMusic.play();
     }
 
     public void push(State state){

@@ -2,7 +2,6 @@ package me.austinatchley.States;
 
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -12,13 +11,10 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Starfield;
-import me.austinatchley.Utils;
 
-import static me.austinatchley.RocketGame.gameMusic;
 import static me.austinatchley.Utils.HEIGHT;
 import static me.austinatchley.Utils.WIDTH;
 
@@ -132,7 +128,7 @@ public class GameOverState extends State {
         Vector2 touchPos = new Vector2();
         touchPos.set(Gdx.input.getX(), Gdx.input.getY());
         if(playBounds.contains(touchPos)) {
-            gameMusic.setVolume(.75f);
+            gsm.gameMusic.setVolume(.75f);
             gsm.set(new GameState(gsm, starfield));
         }
     }

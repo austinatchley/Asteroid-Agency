@@ -15,15 +15,9 @@ public class RocketGame extends Game {
 	private GameStateManager gsm;
 	SpriteBatch batch;
 	BitmapFont font;
-	public static Music gameMusic;
 
 	@Override
 	public void create() {
-        gameMusic = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
-        gameMusic.setVolume(.75f);
-        gameMusic.setLooping(true);
-        gameMusic.play();
-
 		batch = new SpriteBatch();
 		font = new BitmapFont(Gdx.files.internal("fonts/test.fnt"),
 				Gdx.files.internal("fonts/test.png"),

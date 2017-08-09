@@ -249,7 +249,6 @@ public class GameState extends State {
         missileSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
         explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
         gameOverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.wav"));
-        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.wav"));
     }
 
     //check bounds to keep rocket on screen
