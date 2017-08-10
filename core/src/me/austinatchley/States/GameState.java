@@ -95,7 +95,6 @@ public class GameState extends State {
 
     public GameState(GameStateManager gsm, Starfield starfield){
         super(gsm);
-        camera.setToOrtho(false, WIDTH, HEIGHT);
 
         init();
 

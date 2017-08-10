@@ -34,8 +34,6 @@ public class PauseState extends State {
     protected PauseState(GameStateManager gsm) {
         super(gsm);
 
-        camera.setToOrtho(false, WIDTH, HEIGHT);
-
         init();
 
         starfield = new Starfield(400, camera, null);

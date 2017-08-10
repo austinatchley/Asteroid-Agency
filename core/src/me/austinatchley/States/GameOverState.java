@@ -40,7 +40,7 @@ public class GameOverState extends State {
 
     public GameOverState(GameStateManager gsm){
         super(gsm);
-        camera.setToOrtho(false, WIDTH, HEIGHT);
+
         playButton = new Texture("playbutton.png");
         gameOverImage = new Texture("gameover.png");
         start = new Texture("start.png");

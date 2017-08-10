@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 
-import me.austinatchley.States.MenuScene2D;
+import me.austinatchley.States.MenuState;
 
 public class RocketGame extends Game {
 
@@ -29,7 +29,7 @@ public class RocketGame extends Game {
 
 		gsm = new GameStateManager();
 //		gsm.push(new MenuState(gsm));
-		gsm.push(new MenuScene2D(gsm));
+		gsm.push(new MenuState(gsm));
 	}
 
 	@Override

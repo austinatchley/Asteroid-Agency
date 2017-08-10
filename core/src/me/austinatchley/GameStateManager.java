@@ -44,13 +44,17 @@ public class GameStateManager {
     }
 
     public State pop(){
-        states.peek().dispose();
+        peek().dispose();
         return states.pop();
     }
 
     public void set(State state){
         states.pop();
         states.push(state);
+    }
+
+    public State peek(){
+        return states.peek();
     }
 
     public void update(float dt){

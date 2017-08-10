@@ -17,6 +17,9 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.austinatchley.States.GameState;
 import me.austinatchley.Utils;
 
+import static me.austinatchley.Utils.HEIGHT;
+import static me.austinatchley.Utils.WIDTH;
+
 
 public class Missile extends SpaceObject {
     Vector2 start;
@@ -74,8 +77,8 @@ public class Missile extends SpaceObject {
     }
 
     public boolean isOutOfBounds(){
-        return getPosition().y < -sprite.getHeight() || getPosition().y > Gdx.graphics.getHeight() ||
-                getPosition().x < -sprite.getWidth() || getPosition().x > Gdx.graphics.getWidth();
+        return getPosition().y < -sprite.getHeight() || getPosition().y > HEIGHT ||
+                getPosition().x < -sprite.getWidth() || getPosition().x > WIDTH;
     }
 
     public void flip(){

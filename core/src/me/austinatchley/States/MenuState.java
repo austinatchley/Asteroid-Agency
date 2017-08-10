@@ -1,114 +1,114 @@
 package me.austinatchley.States;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.Stage;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Starfield;
+import me.austinatchley.Utils;
 
+import static me.austinatchley.Utils.BG_COLOR;
 import static me.austinatchley.Utils.HEIGHT;
 import static me.austinatchley.Utils.WIDTH;
 
-
 public class MenuState extends State {
-    private Texture playButton;
-    private Texture name;
-    private Texture start;
+    private Stage stage;
+    private Table table;
+    private Skin skin;
 
-    private Animation<TextureRegion> blinking;
-    private float stateTime;
-
-    private Vector2 playLocation;
-    private Vector2 nameLocation;
-    private Vector2 startLocation;
-
-    private Rectangle playBounds;
+    private Label playLabel;
 
     private Starfield starfield;
 
-    public MenuState(GameStateManager gsm){
+    private float elapsedTime;
+    private boolean visible;
+
+    public MenuState(final GameStateManager gsm){
         super(gsm);
-        camera.setToOrtho(false, WIDTH, HEIGHT);
-        playButton = new Texture("playbutton.png");
-        start = new Texture("start.png");
-        name = new Texture("name.png");
 
-        playLocation = new Vector2((WIDTH - playButton.getWidth()) / 2,
-                (HEIGHT - playButton.getHeight()) / 2);
-        nameLocation = new Vector2((WIDTH - name.getWidth()) / 2,
-                (HEIGHT - name.getHeight()) * 2 / 3);
-        startLocation = new Vector2((WIDTH - start.getWidth() / 2) / 2,
-                playLocation.y - (start.getHeight() * 1.5f) );
+        skin = gsm.getSkin();
 
-        playBounds = new Rectangle(playLocation.x, playLocation.y,
-                playButton.getWidth(), playButton.getHeight());
+        System.out.println(WIDTH + " " + HEIGHT);
 
-        TextureRegion[][] tmpFrames = TextureRegion.split(start, start.getWidth()/2, start.getHeight());
-        TextureRegion[] frames = new TextureRegion[2];
-        int index = 0;
-        for (TextureRegion[] tmpFrame : tmpFrames)
-            for (int j = 0; j < tmpFrames[0].length; j++)
-                frames[index++] = tmpFrame[j];
+        stage = new Stage();
+        Gdx.input.setInputProcessor(stage);
 
-        blinking = new Animation<TextureRegion>(.4f, frames);
-        stateTime = 0;
+        table = new Table();
+        table.setFillParent(true);
+        stage.addActor(table);
+//        table.setDebug(true);
+
+        Label titleLabel = new Label("Asteroid Agency", skin, "title");
+        table.add(titleLabel).spaceBottom(titleLabel.getPrefHeight() / 2f);
+        table.row();
+
+        Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
+        final ImageButton playButton = new ImageButton(buttonImage);
+
+        table.add(playButton);
+
+        playButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                gsm.set(new GameState(gsm, starfield));
+            }
+        });
+        table.row();
+
+        playLabel = new Label("Tap to Play", skin, "subtitle");
+        table.add(playLabel).spaceTop(playLabel.getPrefHeight() / 2f);
 
         starfield = new Starfield(400, camera, null);
         starfield.useVelocity(false);
+
+        elapsedTime = 0f;
+        visible = true;
     }
-
-    @Override
-    public void render(SpriteBatch batch) {
-        Color bgColor = new Color(0x0E103DFF);
-        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-
-        starfield.render();
-
-        stateTime += Gdx.graphics.getDeltaTime();
-        TextureRegion startCurrentFrame = blinking.getKeyFrame(stateTime, true);
-
-        batch.begin();
-        batch.draw(playButton, playLocation.x, playLocation.y);
-        batch.draw(name, nameLocation.x, nameLocation.y);
-        batch.draw(startCurrentFrame, startLocation.x, startLocation.y);
-        batch.end();
-
-//        camera.update();
-//        batch.setProjectionMatrix(camera.combined);
-
-//        if (Gdx.input.isTouched()) {
-//            game.setScreen(new GameState(game));
-//            dispose();
-//        }
-    }
-
-    @Override
-    public void dispose() {
-        playButton.dispose();
-    }
-
 
     @Override
     protected void handleInput() {
-        Vector2 touchPos = new Vector2();
-        touchPos.set(Gdx.input.getX(), Gdx.input.getY());
-        if(playBounds.contains(touchPos))
-            gsm.set(new GameState(gsm, starfield));
+
     }
 
     @Override
     public void update(float dt) {
-        if(Gdx.input.justTouched())
-            handleInput();
+        stage.act(Gdx.graphics.getDeltaTime());
+
+        elapsedTime += dt;
+        if(elapsedTime >= .4f){
+            visible = !visible;
+            playLabel.setVisible(visible);
+            elapsedTime = 0;
+        }
+    }
+
+    @Override
+    public void render (SpriteBatch batch) {
+        Gdx.gl.glClearColor(BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, BG_COLOR.a);
+        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        starfield.render();
+
+        stage.draw();
+    }
+
+    public void dispose() {
+        stage.dispose();
+        skin.dispose();
     }
 }
