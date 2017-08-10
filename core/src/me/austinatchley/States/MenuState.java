@@ -42,9 +42,7 @@ public class MenuState extends State {
         super(gsm);
 
         skin = gsm.getSkin();
-
-        System.out.println(WIDTH + " " + HEIGHT);
-
+        
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
