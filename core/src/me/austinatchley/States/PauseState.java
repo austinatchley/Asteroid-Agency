@@ -6,93 +6,73 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.scenes.scene2d.Actor;
+import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import org.w3c.dom.css.Rect;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Starfield;
+import me.austinatchley.Utils;
 
+import static me.austinatchley.Utils.BG_COLOR;
 import static me.austinatchley.Utils.HEIGHT;
 import static me.austinatchley.Utils.WIDTH;
 
 
-public class PauseState extends State {
-    private GlyphLayout pauseLayout;
-    private String pauseText;
-
-    private Texture playButton;
-    private Vector2 playButtonLocation;
-    private Rectangle playButtonBounds;
-
+public class PauseState extends InterfaceState {
     private Starfield starfield;
 
-    private Color bgColor;
-
-    protected PauseState(GameStateManager gsm) {
+    private PauseState(final GameStateManager gsm) {
         super(gsm);
 
-        init();
+        final Label pauseText = new Label("PAUSED", skin, "subtitle");
+        table.add(pauseText).spaceBottom(pauseText.getPrefHeight() / 2);
 
-        starfield = new Starfield(400, camera, null);
-        starfield.useVelocity(false);
+        table.row();
+
+        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("flynnhead.png")));
+        final ImageButton playButton = new ImageButton(buttonImage);
+
+        table.add(playButton);
+        table.row();
+
+        playButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                gsm.pop();
+            }
+        });
+
+        final Label playText = new Label("Press to Resume", skin, "h2");
+
+        table.add(playText).spaceTop(playText.getPrefHeight() / 2);
     }
 
-    private void init() {
-        pauseLayout = new GlyphLayout();
-        pauseText = "PAUSED\nGET REKT TO RESUME";
-
-        playButton = new Texture("flynnhead.png");
-        playButtonLocation = new Vector2((WIDTH - playButton.getWidth()) / 2, 0);
-        playButtonBounds = new Rectangle(playButtonLocation.x, HEIGHT - playButton.getHeight(),
-                playButton.getWidth(), playButton.getHeight());
-
-        bgColor = new Color(0x0E103DFF);
-    }
-
-    protected PauseState(GameStateManager gsm, Starfield starfield) {
-        super(gsm);
-
-        init();
-
+    public PauseState(GameStateManager gsm, Starfield starfield) {
+        this(gsm);
         this.starfield = starfield;
-        this.starfield.rocket = null;
+        this.starfield.useVelocity(false);
     }
 
     @Override
     protected void handleInput() {
-        Vector3 touchPos = new Vector3();
-        touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
-
-        if(playButtonBounds.contains(touchPos.x, touchPos.y))
-            gsm.pop();
-    }
-
-    @Override
-    public void update(float dt) {
-        if(Gdx.input.justTouched())
-            handleInput();
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        super.render(batch);
 
         starfield.render();
 
-        batch.begin();
-        pauseLayout.setText(font, pauseText);
-        font.draw(batch, pauseLayout, (WIDTH - pauseLayout.width)/ 2, HEIGHT * (3f/4f));
-        batch.draw(playButton, playButtonBounds.x, HEIGHT - playButtonBounds.y - playButton.getHeight());
-
-        batch.end();
-    }
-
-    @Override
-    public void dispose() {
-
+        stage.draw();
     }
 }

@@ -113,6 +113,8 @@ public class GameStateManager {
         newSkin.add("text-color", Utils.TEXT_COLOR, Color.class);
         newSkin.add("title-font", generateFont(96), BitmapFont.class);
         newSkin.add("subtitle-font", generateFont(72), BitmapFont.class);
+        newSkin.add("h2-font", generateFont(48), BitmapFont.class);
+        newSkin.add("text-font", generateFont(36), BitmapFont.class);
 
         newSkin.addRegions(new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
         newSkin.load(Gdx.files.internal("uiskin.json"));

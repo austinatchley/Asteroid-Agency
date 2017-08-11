@@ -26,10 +26,7 @@ import static me.austinatchley.Utils.BG_COLOR;
 import static me.austinatchley.Utils.HEIGHT;
 import static me.austinatchley.Utils.WIDTH;
 
-public class MenuState extends State {
-    private Stage stage;
-    private Table table;
-    private Skin skin;
+public class MenuState extends InterfaceState {
 
     private Label playLabel;
 
@@ -41,21 +38,11 @@ public class MenuState extends State {
     public MenuState(final GameStateManager gsm){
         super(gsm);
 
-        skin = gsm.getSkin();
-        
-        stage = new Stage();
-        Gdx.input.setInputProcessor(stage);
-
-        table = new Table();
-        table.setFillParent(true);
-        stage.addActor(table);
-//        table.setDebug(true);
-
         Label titleLabel = new Label("Asteroid Agency", skin, "title");
         table.add(titleLabel).spaceBottom(titleLabel.getPrefHeight() / 2f);
         table.row();
 
-        Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
+        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
         final ImageButton playButton = new ImageButton(buttonImage);
 
         table.add(playButton);
@@ -80,12 +67,11 @@ public class MenuState extends State {
 
     @Override
     protected void handleInput() {
-
     }
 
     @Override
     public void update(float dt) {
-        stage.act(Gdx.graphics.getDeltaTime());
+        super.update(dt);
 
         elapsedTime += dt;
         if(elapsedTime >= .4f){
@@ -97,16 +83,10 @@ public class MenuState extends State {
 
     @Override
     public void render (SpriteBatch batch) {
-        Gdx.gl.glClearColor(BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, BG_COLOR.a);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        super.render(batch);
 
         starfield.render();
 
         stage.draw();
-    }
-
-    public void dispose() {
-        stage.dispose();
-        skin.dispose();
     }
 }
