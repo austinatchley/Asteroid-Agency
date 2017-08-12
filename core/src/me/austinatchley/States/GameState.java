@@ -2,6 +2,7 @@ package me.austinatchley.States;
 
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -11,6 +12,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
@@ -22,6 +24,8 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
@@ -34,11 +38,16 @@ import me.austinatchley.Objects.Missile;
 import me.austinatchley.Objects.Rocket;
 import me.austinatchley.Objects.SpaceObject;
 import me.austinatchley.Starfield;
+import me.austinatchley.Utils;
 
 import static me.austinatchley.Utils.ASTEROID_LIMIT;
 import static me.austinatchley.Utils.ENEMY_LIMIT;
 import static me.austinatchley.Utils.HEIGHT;
+import static me.austinatchley.Utils.IS_DESKTOP;
+import static me.austinatchley.Utils.MOVE_DIST;
 import static me.austinatchley.Utils.WIDTH;
+import static me.austinatchley.Utils.m2p;
+import static me.austinatchley.Utils.p2m;
 
 public class GameState extends State {
 
@@ -113,11 +122,15 @@ public class GameState extends State {
 //        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
         world.step(1f/60f, 6, 2);
 
+        //shoot missiles
+        if(rocket.canShoot())
+            rocket.shootMissile(missileSound);
+
         //destroy all the objects we need to
         cleanDestroyArray();
 
         //only call handleInput on touch
-        if(Gdx.input.isTouched())
+        if(isControlled())
             handleInput();
         else
             starfield.useVelocity(false);
@@ -149,6 +162,13 @@ public class GameState extends State {
 
         checkBounds(asteroids);
         checkBounds(junks);
+    }
+
+    private boolean isControlled() {
+        if(IS_DESKTOP)
+            return Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
+                    Gdx.input.isKeyPressed(Input.Keys.DOWN) ||Gdx.input.isKeyPressed(Input.Keys.UP);
+        return Gdx.input.isTouched();
     }
 
     @Override
@@ -437,14 +457,21 @@ public class GameState extends State {
     protected void handleInput() {
         starfield.useVelocity(true);
 
-        if(rocket.canShoot())
-            rocket.shootMissile(missileSound);
+        controls();
+    }
 
-        Vector3 touchPos = new Vector3();
-        touchPos.set(Gdx.input.getX(), Gdx.input.getY(), 0);
+    private void controls() {
+        if(IS_DESKTOP)
+            arrowControls();
+        else
+            touchControls();
+    }
+
+    private void touchControls() {
+        Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 
         if(pauseBounds.contains(touchPos.x, touchPos.y)) {
-            //fix this
+            //build a dummy starfield with no rocket for pause
             Starfield dummy = new Starfield(400, camera, null);
             dummy.stars = this.starfield.stars;
             gsm.push(new PauseState(gsm, dummy));
@@ -456,8 +483,27 @@ public class GameState extends State {
         Vector2 targetPos = new Vector2(touchPos.x - (rocket.getWidth() / 1.5f),
                 touchPos.y - rocket.getHeight() / 2);
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
-        currentPos.lerp(targetPos, 0.15f);
-        rocket.moveTo(currentPos);
+        Vector2 finalPos = currentPos.lerp(targetPos, 0.15f);
+        rocket.moveTo(finalPos);
+    }
+
+    private void arrowControls() {
+        float posX = rocket.getPosition().x;
+        float posY = rocket.getPosition().y;
+
+        if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
+            posX -= MOVE_DIST;
+        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
+            posX += MOVE_DIST;
+        if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
+            posY -= MOVE_DIST;
+        if(Gdx.input.isKeyPressed(Input.Keys.UP))
+            posY += MOVE_DIST;
+
+
+        Vector2 newPos = new Vector2(posX, posY);
+        Vector2 finalPos = rocket.getPosition().lerp(newPos, 0.45f);
+        rocket.setTransform(finalPos, rocket.getBody().getAngle());
     }
 
     private void spawnAsteroid() {

@@ -6,6 +6,8 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Utils {
     public static final float PPM = 1/8f;
+
+    public static boolean IS_DESKTOP = false;
     public static int WIDTH = Gdx.graphics.getWidth();
     public static int HEIGHT = Gdx.graphics.getHeight();
 
@@ -18,6 +20,8 @@ public class Utils {
     public static final Color BG_COLOR = new Color(0x0E103DFF);
 
     public static final int DEFAULT_FONT_SIZE = 36;
+
+    public static final float MOVE_DIST = 25f;
 
     /*
     Converts meters to pixels for use with LibGDX

@@ -27,5 +27,6 @@ public class DesktopLauncher {
 
 		Utils.HEIGHT = HEIGHT;
 		Utils.WIDTH = WIDTH;
+		Utils.IS_DESKTOP = true;
 	}
 }

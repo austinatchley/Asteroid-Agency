@@ -39,7 +39,7 @@ public class PauseState extends InterfaceState {
 
         table.row();
 
-        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("flynnhead.png")));
+        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
         final ImageButton playButton = new ImageButton(buttonImage);
 
         table.add(playButton);
