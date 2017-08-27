@@ -9,9 +9,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
-import me.austinatchley.States.GameState;
-import me.austinatchley.States.State;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
 public class Junk extends Obstacle {
 

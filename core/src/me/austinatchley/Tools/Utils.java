@@ -1,4 +1,4 @@
-package me.austinatchley;
+package me.austinatchley.Tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
@@ -22,6 +22,8 @@ public class Utils {
     public static final int DEFAULT_FONT_SIZE = 36;
 
     public static final float MOVE_DIST = 25f;
+
+    public static final String SCORE = "highScore";
 
     /*
     Converts meters to pixels for use with LibGDX

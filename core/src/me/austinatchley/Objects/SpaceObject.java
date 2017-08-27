@@ -1,6 +1,5 @@
 package me.austinatchley.Objects;
 
-import com.badlogic.gdx.Game;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -13,8 +12,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
-import me.austinatchley.States.GameState;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
 public abstract class SpaceObject {
     static final float DEG2RAD = MathUtils.degreesToRadians;

@@ -1,7 +1,5 @@
 package me.austinatchley.Objects;
 
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -10,8 +8,7 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
-import me.austinatchley.States.GameState;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
 public class PlayerMissile extends Missile {
 

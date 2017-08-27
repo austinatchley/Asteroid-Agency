@@ -2,10 +2,13 @@ package me.austinatchley;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
+import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
 
+import me.austinatchley.States.LoadingState;
 import me.austinatchley.States.MenuState;
 
 public class RocketGame extends Game {
@@ -13,6 +16,8 @@ public class RocketGame extends Game {
 	private GameStateManager gsm;
 	SpriteBatch batch;
 	BitmapFont font;
+
+	public AssetManager manager;
 
 	@Override
 	public void create() {
@@ -27,9 +32,9 @@ public class RocketGame extends Game {
 //				false);
 
 
-		gsm = new GameStateManager();
-//		gsm.push(new MenuState(gsm));
-		gsm.push(new MenuState(gsm));
+		gsm = new GameStateManager(this);
+		gsm.push(new LoadingState(gsm, this));
+
 	}
 
 	@Override

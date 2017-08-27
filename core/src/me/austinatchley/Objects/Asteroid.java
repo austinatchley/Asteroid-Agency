@@ -5,16 +5,13 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.World;
 
-import me.austinatchley.States.GameState;
-import me.austinatchley.States.State;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
 public class Asteroid extends SpaceObject {
     private static final int NUM_ASTEROID_SPRITES = 64;

@@ -4,13 +4,12 @@ package me.austinatchley.States;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 
 import me.austinatchley.GameStateManager;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
-import static me.austinatchley.Utils.HEIGHT;
-import static me.austinatchley.Utils.WIDTH;
+import static me.austinatchley.Tools.Utils.HEIGHT;
+import static me.austinatchley.Tools.Utils.WIDTH;
 
 public abstract class State {
     public OrthographicCamera camera;
@@ -22,7 +21,7 @@ public abstract class State {
         camera = new OrthographicCamera(WIDTH, HEIGHT);
         camera.setToOrtho(false, WIDTH, HEIGHT);
 
-        font = gsm.generateFont(Utils.DEFAULT_FONT_SIZE);
+        font = gsm.getFont();
     }
 
     protected abstract void handleInput();

@@ -4,33 +4,21 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.ParticleEffect;
-import com.badlogic.gdx.graphics.g2d.ParticleEmitter;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g3d.particles.ParticleEffectLoader;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Filter;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.MassData;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.codeandweb.physicseditor.PhysicsShapeCache;
-import com.sun.org.apache.bcel.internal.generic.CALOAD;
 
 import java.util.ArrayList;
 import java.util.Iterator;
 
-import javax.xml.bind.ValidationException;
-import javax.xml.bind.util.ValidationEventCollector;
-
-import me.austinatchley.States.GameState;
-import me.austinatchley.States.State;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
 public class Rocket extends SpaceObject {
     private static final int VERTICAL_OFF = 20;

@@ -1,11 +1,8 @@
 package me.austinatchley.Objects;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -14,11 +11,10 @@ import com.badlogic.gdx.physics.box2d.MassData;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
-import me.austinatchley.States.GameState;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
-import static me.austinatchley.Utils.HEIGHT;
-import static me.austinatchley.Utils.WIDTH;
+import static me.austinatchley.Tools.Utils.HEIGHT;
+import static me.austinatchley.Tools.Utils.WIDTH;
 
 
 public class Missile extends SpaceObject {

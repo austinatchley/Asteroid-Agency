@@ -1,14 +1,10 @@
 package me.austinatchley.desktop;
 
-import com.badlogic.gdx.Graphics;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 
-import org.lwjgl.opengl.Display;
-import org.lwjgl.opengl.DisplayMode;
-
 import me.austinatchley.RocketGame;
-import me.austinatchley.Utils;
+import me.austinatchley.Tools.Utils;
 
 public class DesktopLauncher {
 	private static final int WIDTH = LwjglApplicationConfiguration.getDesktopDisplayMode().width;

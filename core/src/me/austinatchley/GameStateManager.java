@@ -14,29 +14,31 @@ import java.util.Stack;
 
 import me.austinatchley.States.State;
 
+import static me.austinatchley.Tools.Utils.SCORE;
+
 public class GameStateManager {
 
-    private static final String SCORE = "highScore";
+    public RocketGame game;
+
     private static Preferences pref;
 
     private Stack<State> states;
 
     public static Music gameMusic;
-
     private static BitmapFont font;
-
     private static Skin skin;
 
-    public GameStateManager(){
+    public GameStateManager(RocketGame game){
+        this.game = game;
+
         states = new Stack<State>();
+
         pref = Gdx.app.getPreferences("PreferenceName");
 
         if(!pref.contains(SCORE))
             pref.putInteger(SCORE, 0);
 
-        gameMusic = generateMusic(.5f);
-        font = generateFont(Utils.DEFAULT_FONT_SIZE);
-        skin = generateSkin();
+        font = generateFont(me.austinatchley.Tools.Utils.DEFAULT_FONT_SIZE);
     }
 
     public void push(State state){
@@ -79,17 +81,17 @@ public class GameStateManager {
             setHighScore(score);
     }
 
-    private Music generateMusic(float volume) {
-        Music music = Gdx.audio.newMusic(Gdx.files.internal("music.mp3"));
+    public void generateMusic(float volume) {
+        Music music = game.manager.get("music.mp3", Music.class);
         music.setVolume(volume);
         music.setLooping(true);
         music.play();
-        return music;
+        gameMusic = music;
     }
 
     public BitmapFont getFont(){
         if(font == null)
-            font = generateFont(Utils.DEFAULT_FONT_SIZE);
+            font = generateFont(me.austinatchley.Tools.Utils.DEFAULT_FONT_SIZE);
         return font;
     }
 
@@ -102,24 +104,24 @@ public class GameStateManager {
 
     public Skin getSkin(){
         if(skin == null)
-            skin = generateSkin();
+            generateSkin();
         return skin;
     }
 
-    private Skin generateSkin() {
+    public void generateSkin() {
         Skin newSkin = new Skin();
 
         newSkin.add("button-font", font, BitmapFont.class);
-        newSkin.add("text-color", Utils.TEXT_COLOR, Color.class);
+        newSkin.add("text-color", me.austinatchley.Tools.Utils.TEXT_COLOR, Color.class);
         newSkin.add("title-font", generateFont(96), BitmapFont.class);
         newSkin.add("subtitle-font", generateFont(72), BitmapFont.class);
         newSkin.add("h2-font", generateFont(48), BitmapFont.class);
         newSkin.add("text-font", generateFont(36), BitmapFont.class);
 
-        newSkin.addRegions(new TextureAtlas(Gdx.files.internal("uiskin.atlas")));
+        newSkin.addRegions(game.manager.get("uiskin.atlas", TextureAtlas.class));
         newSkin.load(Gdx.files.internal("uiskin.json"));
 
-        return newSkin;
+        skin = newSkin;
     }
 }
 

@@ -12,7 +12,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
@@ -24,8 +23,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.IntFloatMap;
 import com.badlogic.gdx.utils.TimeUtils;
 
 import java.util.Iterator;
@@ -37,22 +34,20 @@ import me.austinatchley.Objects.Junk;
 import me.austinatchley.Objects.Missile;
 import me.austinatchley.Objects.Rocket;
 import me.austinatchley.Objects.SpaceObject;
-import me.austinatchley.Starfield;
-import me.austinatchley.Utils;
+import me.austinatchley.RocketGame;
+import me.austinatchley.Tools.Starfield;
 
-import static me.austinatchley.Utils.ASTEROID_LIMIT;
-import static me.austinatchley.Utils.ENEMY_LIMIT;
-import static me.austinatchley.Utils.HEIGHT;
-import static me.austinatchley.Utils.IS_DESKTOP;
-import static me.austinatchley.Utils.MOVE_DIST;
-import static me.austinatchley.Utils.WIDTH;
-import static me.austinatchley.Utils.m2p;
-import static me.austinatchley.Utils.p2m;
+import static me.austinatchley.Tools.Utils.ASTEROID_LIMIT;
+import static me.austinatchley.Tools.Utils.ENEMY_LIMIT;
+import static me.austinatchley.Tools.Utils.HEIGHT;
+import static me.austinatchley.Tools.Utils.IS_DESKTOP;
+import static me.austinatchley.Tools.Utils.MOVE_DIST;
+import static me.austinatchley.Tools.Utils.WIDTH;
 
 public class GameState extends State {
 
-    private Box2DDebugRenderer debugRenderer;
-    private Matrix4 debugMatrix;
+//    private Box2DDebugRenderer debugRenderer;
+//    private Matrix4 debugMatrix;
 
     private World world;
     private Starfield starfield;
@@ -88,38 +83,26 @@ public class GameState extends State {
     private Sound explosionSound;
     private Sound gameOverSound;
 
-    public GameState(GameStateManager gsm){
-        super(gsm);
-        camera.setToOrtho(false, WIDTH, HEIGHT);
-
-        init();
-
-        setupContactListener();
-
-//        debugRenderer = new Box2DDebugRenderer();
-//        debugMatrix = new Matrix4(camera.combined).scale(1/PPM,1/PPM,1f);
-
-        starfield = new Starfield(300, camera, rocket);
-    }
+    private RocketGame game;
 
     public GameState(GameStateManager gsm, Starfield starfield){
         super(gsm);
 
+        this.starfield = starfield;
+        this.starfield.rocket = rocket;
+
+        this.game = gsm.game;
+
         init();
 
         setupContactListener();
-
 //        debugRenderer = new Box2DDebugRenderer();
 //        debugMatrix = new Matrix4(camera.combined).scale(1/ Utils.PPM,1/Utils.PPM,1f);
-
-        this.starfield = starfield;
-        this.starfield.rocket = rocket;
     }
 
     @Override
     public void update(float dt) {
-        //step as much as possible
-//        world.step(Gdx.graphics.getDeltaTime(), 6, 2);
+        //locked at 60 fps
         world.step(1f/60f, 6, 2);
 
         //shoot missiles
@@ -256,9 +239,9 @@ public class GameState extends State {
 
         bgColor = new Color(0x0E103DFF);
 
-        missileSound = Gdx.audio.newSound(Gdx.files.internal("shoot.wav"));
-        explosionSound = Gdx.audio.newSound(Gdx.files.internal("explosion.wav"));
-        gameOverSound = Gdx.audio.newSound(Gdx.files.internal("gameover.wav"));
+        missileSound = game.manager.get("shoot.wav", Sound.class);
+        explosionSound = game.manager.get("explosion.wav", Sound.class);
+        gameOverSound = game.manager.get("gameover.wav", Sound.class);
     }
 
     //check bounds to keep rocket on screen

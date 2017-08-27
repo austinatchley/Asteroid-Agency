@@ -1,4 +1,4 @@
-package me.austinatchley;
+package me.austinatchley.Tools;
 
 public class Star {
     public float x;

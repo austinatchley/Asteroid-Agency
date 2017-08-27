@@ -9,7 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 
 import me.austinatchley.GameStateManager;
 
-import static me.austinatchley.Utils.BG_COLOR;
+import static me.austinatchley.Tools.Utils.BG_COLOR;
 
 public abstract class InterfaceState extends State {
     protected Skin skin;
