@@ -48,7 +48,7 @@ public abstract class SpaceObject {
 
     public void render(SpriteBatch batch){
         Vector2 pos = getPosition();
-        float rotation = (float) body.getAngle() / DEG2RAD;
+        float rotation = body.getAngle() / DEG2RAD;
         sprite.setPosition(pos.x - image.getWidth()/2f, pos.y - image.getHeight()/2f);
         sprite.setRotation(rotation);
 

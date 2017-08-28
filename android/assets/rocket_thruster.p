@@ -2,16 +2,16 @@ Rocket Thruster
 - Delay -
 active: false
 - Duration - 
-lowMin: 3000.0
-lowMax: 3000.0
+lowMin: 1000.0
+lowMax: 1000.0
 - Count - 
 min: 10
 max: 200
 - Emission - 
-lowMin: 20.0
-lowMax: 20.0
-highMin: 250.0
-highMax: 250.0
+lowMin: 100.0
+lowMax: 100.0
+highMin: 200.0
+highMax: 200.0
 relative: false
 scalingCount: 1
 scaling0: 1.0
@@ -103,9 +103,9 @@ active: false
 active: false
 - Tint - 
 colorsCount: 3
-colors0: 1.0
-colors1: 0.03529412
-colors2: 0.0
+colors0: 0.39215687
+colors1: 0.34509805
+colors2: 0.43137255
 timelineCount: 1
 timeline0: 0.0
 - Transparency - 
@@ -114,16 +114,24 @@ lowMax: 0.0
 highMin: 1.0
 highMax: 1.0
 relative: false
-scalingCount: 4
+scalingCount: 8
 scaling0: 0.0
 scaling1: 1.0
-scaling2: 0.75
-scaling3: 0.0
-timelineCount: 4
+scaling2: 0.8033708
+scaling3: 0.9831461
+scaling4: 0.8258427
+scaling5: 1.0
+scaling6: 0.6853933
+scaling7: 0.0
+timelineCount: 8
 timeline0: 0.0
-timeline1: 0.2
-timeline2: 0.8
-timeline3: 1.0
+timeline1: 0.09589041
+timeline2: 0.14883402
+timeline3: 0.1989026
+timeline4: 0.24554184
+timeline5: 0.2983539
+timeline6: 0.35596707
+timeline7: 0.6001372
 - Options - 
 attached: false
 continuous: false

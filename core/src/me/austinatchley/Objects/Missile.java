@@ -36,7 +36,6 @@ public class Missile extends SpaceObject {
         this.dx = dx;
         this.dy = dy;
 
-        //TODO: GET THIS TO APPLY MORE FORCE BY CREATING A CONVERSION FACTOR
         body.applyLinearImpulse(new Vector2(dx,dy), body.getWorldCenter(), true);
 //        body.setLinearVelocity(new Vector2(dx,dy));
     }

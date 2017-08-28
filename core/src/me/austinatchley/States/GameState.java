@@ -275,7 +275,7 @@ public class GameState extends State {
             enemy.move(Gdx.graphics.getDeltaTime());
             enemy.update();
 
-            enemy.yDir = -180f - (score * 2f);
+            enemy.yDir = -180f - (score * 10f);
 
             checkEnemyBounds(enemy);
 
