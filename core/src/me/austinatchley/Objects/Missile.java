@@ -16,13 +16,12 @@ import me.austinatchley.Tools.Utils;
 import static me.austinatchley.Tools.Utils.HEIGHT;
 import static me.austinatchley.Tools.Utils.WIDTH;
 
-
 public class Missile extends SpaceObject {
     Vector2 start;
-    float dx,dy;
+    float dx, dy;
     String tag;
 
-    public Missile(World world, Vector2 start){
+    public Missile(World world, Vector2 start) {
         super(world);
         image = new Texture("shot.png");
         sprite = new Sprite(image);
@@ -31,13 +30,13 @@ public class Missile extends SpaceObject {
         init();
     }
 
-    public Missile(World world, Vector2 start, float dx, float dy){
+    public Missile(World world, Vector2 start, float dx, float dy) {
         this(world, start);
         this.dx = dx;
         this.dy = dy;
 
-        body.applyLinearImpulse(new Vector2(dx,dy), body.getWorldCenter(), true);
-//        body.setLinearVelocity(new Vector2(dx,dy));
+        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
+        //        body.setLinearVelocity(new Vector2(dx,dy));
     }
 
     @Override
@@ -53,7 +52,7 @@ public class Missile extends SpaceObject {
         missileMassData.mass = 1f;
         body.setMassData(missileMassData);
         body.setUserData(tag);
-           body.setGravityScale(0f);
+        body.setGravityScale(0f);
 
         PolygonShape missileShape = new PolygonShape();
         Vector2 boxSize = Utils.p2m(image.getWidth() / 2, image.getHeight() / 2);
@@ -71,12 +70,14 @@ public class Missile extends SpaceObject {
         missileShape.dispose();
     }
 
-    public boolean isOutOfBounds(){
-        return getPosition().y < -sprite.getHeight() || getPosition().y > HEIGHT ||
-                getPosition().x < -sprite.getWidth() || getPosition().x > WIDTH;
+    public boolean isOutOfBounds() {
+        return getPosition().y < -sprite.getHeight()
+                || getPosition().y > HEIGHT
+                || getPosition().x < -sprite.getWidth()
+                || getPosition().x > WIDTH;
     }
 
-    public void flip(){
+    public void flip() {
         body.setTransform(body.getPosition(), MathUtils.PI);
     }
 

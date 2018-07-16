@@ -13,7 +13,7 @@ import me.austinatchley.Tools.Utils;
 
 public class Junk extends Obstacle {
 
-    public Junk(World world){
+    public Junk(World world) {
         super(world);
         image = new Texture("rocks.png");
         sprite = new Sprite(image);
@@ -27,12 +27,10 @@ public class Junk extends Obstacle {
         bodyDef.position.set(
                 Utils.p2m(
                         MathUtils.random(0, Utils.WIDTH - image.getWidth()),
-                        Utils.HEIGHT + image.getHeight()
-                )
-        );
+                        Utils.HEIGHT + image.getHeight()));
 
         body = world.createBody(bodyDef);
-        body.setLinearDamping(MathUtils.random(0f,3f));
+        body.setLinearDamping(MathUtils.random(0f, 3f));
         body.setAngularVelocity(MathUtils.random(-2f, 2f));
         body.setUserData("Junk");
 

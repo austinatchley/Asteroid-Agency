@@ -17,15 +17,14 @@ public class Asteroid extends SpaceObject {
     private static final int NUM_ASTEROID_SPRITES = 64;
     private Animation<TextureRegion> animation;
 
-
-    public Asteroid(World world){
+    public Asteroid(World world) {
         super(world);
         image = new Texture("meteorFull.png");
         sprite = new Sprite(image);
         init();
     }
 
-    public Asteroid(World world, Animation<TextureRegion> animation){
+    public Asteroid(World world, Animation<TextureRegion> animation) {
         this(world);
         this.animation = animation;
     }
@@ -36,12 +35,10 @@ public class Asteroid extends SpaceObject {
         asteroidBodyDef.position.set(
                 Utils.p2m(
                         MathUtils.random(0, Utils.WIDTH - image.getWidth()),
-                        Utils.HEIGHT + image.getHeight()
-                )
-        );
+                        Utils.HEIGHT + image.getHeight()));
 
         body = world.createBody(asteroidBodyDef);
-        body.setLinearDamping(MathUtils.random(0f,3f));
+        body.setLinearDamping(MathUtils.random(0f, 3f));
         body.setAngularVelocity(MathUtils.random(-5f, 5f));
 
         CircleShape asteroidShape = new CircleShape();

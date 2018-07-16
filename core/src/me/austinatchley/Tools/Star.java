@@ -9,7 +9,7 @@ public class Star {
     public float g;
     public float b;
 
-    public Star(float x, float y, float z, float r, float g, float b){
+    public Star(float x, float y, float z, float r, float g, float b) {
         this.x = x;
         this.y = y;
         this.z = z;

@@ -22,24 +22,26 @@ public class MenuState extends InterfaceState {
     private float elapsedTime;
     private boolean visible;
 
-    public MenuState(final GameStateManager gsm){
+    public MenuState(final GameStateManager gsm) {
         super(gsm);
 
         Label titleLabel = new Label("Asteroid Agency", skin, "title");
         table.add(titleLabel).spaceBottom(titleLabel.getPrefHeight() / 2f);
         table.row();
 
-        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
+        final Drawable buttonImage =
+                new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
         final ImageButton playButton = new ImageButton(buttonImage);
 
         table.add(playButton);
 
-        playButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                gsm.set(new GameState(gsm, starfield));
-            }
-        });
+        playButton.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        gsm.set(new GameState(gsm, starfield));
+                    }
+                });
         table.row();
 
         playLabel = new Label("Tap to Play", skin, "subtitle");
@@ -53,15 +55,14 @@ public class MenuState extends InterfaceState {
     }
 
     @Override
-    protected void handleInput() {
-    }
+    protected void handleInput() {}
 
     @Override
     public void update(float dt) {
         super.update(dt);
 
         elapsedTime += dt;
-        if(elapsedTime >= .4f){
+        if (elapsedTime >= .4f) {
             visible = !visible;
             playLabel.setVisible(visible);
             elapsedTime = 0;
@@ -69,7 +70,7 @@ public class MenuState extends InterfaceState {
     }
 
     @Override
-    public void render (SpriteBatch batch) {
+    public void render(SpriteBatch batch) {
         super.render(batch);
 
         starfield.render();

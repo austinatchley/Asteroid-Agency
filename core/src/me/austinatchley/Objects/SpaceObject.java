@@ -22,14 +22,14 @@ public abstract class SpaceObject {
     Sprite sprite;
     World world;
 
-    public SpaceObject(World world){
+    public SpaceObject(World world) {
         this.world = world;
     }
 
-    public void init(){
+    public void init() {
         BodyDef bodyDef = new BodyDef();
         bodyDef.type = BodyDef.BodyType.DynamicBody;
-        bodyDef.position.set(Utils.p2m(0,0));
+        bodyDef.position.set(Utils.p2m(0, 0));
 
         body = world.createBody(bodyDef);
 
@@ -46,72 +46,65 @@ public abstract class SpaceObject {
         fixture.setUserData("");
     }
 
-    public void render(SpriteBatch batch){
+    public void render(SpriteBatch batch) {
         Vector2 pos = getPosition();
         float rotation = body.getAngle() / DEG2RAD;
-        sprite.setPosition(pos.x - image.getWidth()/2f, pos.y - image.getHeight()/2f);
+        sprite.setPosition(pos.x - image.getWidth() / 2f, pos.y - image.getHeight() / 2f);
         sprite.setRotation(rotation);
 
         // Then we simply draw it as a normal sprite.
         sprite.draw(batch);
     }
 
-    public float getWidth(){
+    public float getWidth() {
         return image.getWidth();
     }
 
-    public float getHeight(){
-        if(image == null)
-            return 0f;
+    public float getHeight() {
+        if (image == null) return 0f;
         return image.getHeight();
     }
 
-    public Body getBody(){
+    public Body getBody() {
         return body;
     }
-
 
     /*
     Returns position of SpaceObject in pixels
      */
-    public Vector2 getPosition(){
-        if(body == null)
-            return null;
+    public Vector2 getPosition() {
+        if (body == null) return null;
         return Utils.m2p(body.getPosition());
     }
 
     /*
     Returns position of SpaceObject body in meters
      */
-    public Vector2 getBodyPosition(){
-        if(body == null)
-            return null;
+    public Vector2 getBodyPosition() {
+        if (body == null) return null;
         return body.getPosition();
     }
 
-    public float getAngle(){
-        if(body == null)
-            return 0f;
+    public float getAngle() {
+        if (body == null) return 0f;
         return body.getAngle();
     }
 
-    public void setTransform(Vector2 pos, float angle){
-        if(body == null)
-            return;
+    public void setTransform(Vector2 pos, float angle) {
+        if (body == null) return;
         body.setTransform(Utils.p2m(pos), angle);
     }
 
-    public void setTransform(float x, float y, float angle){
-        if(body == null)
-            return;
+    public void setTransform(float x, float y, float angle) {
+        if (body == null) return;
         body.setTransform(Utils.p2m(x, y), angle);
     }
 
-    public int scoreEffect(){
+    public int scoreEffect() {
         return 1;
     }
 
-    public void dispose(){
+    public void dispose() {
         image.dispose();
         world.destroyBody(body);
     }

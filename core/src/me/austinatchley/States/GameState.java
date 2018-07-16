@@ -1,6 +1,5 @@
 package me.austinatchley.States;
 
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.audio.Sound;
@@ -10,12 +9,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -41,8 +38,8 @@ import static me.austinatchley.Tools.Utils.*;
 
 public class GameState extends State {
 
-//    private Box2DDebugRenderer debugRenderer;
-//    private Matrix4 debugMatrix;
+    //private Box2DDebugRenderer debugRenderer;
+    //private Matrix4 debugMatrix;
 
     private World world;
     private Starfield starfield;
@@ -80,7 +77,7 @@ public class GameState extends State {
 
     private RocketGame game;
 
-    public GameState(GameStateManager gsm, Starfield starfield){
+    public GameState(GameStateManager gsm, Starfield starfield) {
         super(gsm);
 
         this.starfield = starfield;
@@ -91,49 +88,46 @@ public class GameState extends State {
         init();
 
         setupContactListener();
-//        debugRenderer = new Box2DDebugRenderer();
-//        debugMatrix = new Matrix4(camera.combined).scale(1/ Utils.PPM,1/Utils.PPM,1f);
+        //        debugRenderer = new Box2DDebugRenderer();
+        //        debugMatrix = new Matrix4(camera.combined).scale(1/ Utils.PPM,1/Utils.PPM,1f);
     }
 
     @Override
     public void update(float dt) {
-        //locked at 60 fps
-        world.step(1f/60f, 6, 2);
+        // locked at 60 fps
+        world.step(1f / 60f, 6, 2);
 
-        //shoot missiles
-        if(rocket.canShoot())
-            rocket.shootMissile(missileSound);
+        // shoot missiles
+        if (rocket.canShoot()) rocket.shootMissile(missileSound);
 
-        //destroy all the objects we need to
+        // destroy all the objects we need to
         cleanDestroyArray();
 
-        //only call handleInput on touch
-        if(isControlled())
-            handleInput();
-        else
-            starfield.useVelocity(false);
+        // only call handleInput on touch
+        if (isControlled()) handleInput();
+        else starfield.useVelocity(false);
 
         updateEnemies();
 
         checkRocketBounds();
 
-        //spawn asteroid every 2 seconds
+        // spawn asteroid every 2 seconds
         if (TimeUtils.nanoTime() - lastDropTime > 1000000000 + MathUtils.random(1000000000)
-            && asteroids.size < ASTEROID_LIMIT) {
+                && asteroids.size < ASTEROID_LIMIT) {
             spawnAsteroid();
         }
 
         if (TimeUtils.nanoTime() - lastJunkDropTime > 1400000000 + MathUtils.random(600000000)
-            && junks.size < ASTEROID_LIMIT) {
+                && junks.size < ASTEROID_LIMIT) {
             spawnJunk();
         }
 
-        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000){
-            if(totalEnemyNum % ENEMY_LIMIT == 0) {
+        if (TimeUtils.nanoTime() - lastEnemyTime > 1000000000) {
+            if (totalEnemyNum % ENEMY_LIMIT == 0) {
                 enemySpawnLocation = MathUtils.random((int) (WIDTH / rocket.getWidth()));
-//                System.out.println("diff pos " + enemySpawnLocation);
+                //                System.out.println("diff pos " + enemySpawnLocation);
             }
-            if(enemyNum <= ENEMY_LIMIT) {
+            if (enemyNum <= ENEMY_LIMIT) {
                 spawnEnemy(enemySpawnLocation, HEIGHT + rocket.getHeight(), 2);
                 enemyNum++;
                 totalEnemyNum++;
@@ -145,16 +139,18 @@ public class GameState extends State {
     }
 
     private boolean isControlled() {
-        if(IS_DESKTOP) {
-            return Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
-                    Gdx.input.isKeyPressed(Input.Keys.DOWN) ||Gdx.input.isKeyPressed(Input.Keys.UP);
+        if (IS_DESKTOP) {
+            return Gdx.input.isKeyPressed(Input.Keys.LEFT)
+                    || Gdx.input.isKeyPressed(Input.Keys.RIGHT)
+                    || Gdx.input.isKeyPressed(Input.Keys.DOWN)
+                    || Gdx.input.isKeyPressed(Input.Keys.UP);
         }
         return Gdx.input.isTouched();
     }
 
     @Override
     public void render(SpriteBatch batch) {
-        //background color
+        // background color
         Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
@@ -162,39 +158,36 @@ public class GameState extends State {
 
         batch.setProjectionMatrix(camera.combined);
 
-//        debugRenderer.render(world, debugMatrix);
+        //        debugRenderer.render(world, debugMatrix);
 
-        //update the stars
+        // update the stars
         starfield.render();
 
         batch.begin();
 
-        //draw rocket
+        // draw rocket
         rocket.render(batch);
 
-        for(Asteroid ast : asteroids)
-            ast.render(batch);
+        for (Asteroid ast : asteroids) ast.render(batch);
 
-        for(Enemy enemy : enemies)
-            enemy.render(batch);
+        for (Enemy enemy : enemies) enemy.render(batch);
 
-        for(Junk junk : junks)
-            junk.render(batch);
+        for (Junk junk : junks) junk.render(batch);
 
         Iterator<Missile> iterator = shots.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             Missile shot = iterator.next();
             shot.render(batch);
-            if(shot.isOutOfBounds()){
+            if (shot.isOutOfBounds()) {
                 shot.dispose();
                 iterator.remove();
             }
         }
 
-        //draw score and lives last so they are on top
+        // draw score and lives last so they are on top
         scoreLayout.setText(font, "Score: " + score);
         float scoreX = (WIDTH - scoreLayout.width) / 2f;
-        float scoreY = HEIGHT - scoreLayout.height * 5f/4f;
+        float scoreY = HEIGHT - scoreLayout.height * 5f / 4f;
 
         livesLayout.setText(font, "Lives: " + lives);
         float livesX = (WIDTH - livesLayout.width) / 2f;
@@ -203,7 +196,9 @@ public class GameState extends State {
         font.draw(batch, scoreLayout, scoreX, scoreY);
         font.draw(batch, livesLayout, livesX, livesY);
 
-        batch.draw(pauseButton, pauseLocation.x - pauseButton.getWidth(),
+        batch.draw(
+                pauseButton,
+                pauseLocation.x - pauseButton.getWidth(),
                 pauseLocation.y - pauseButton.getHeight());
         batch.end();
     }
@@ -224,10 +219,12 @@ public class GameState extends State {
 
         pauseButton = new Texture(PAUSE_BUTTON_PATH);
         pauseLocation = new Vector2(WIDTH, HEIGHT);
-        pauseBounds = new Rectangle(pauseLocation.x - pauseButton.getWidth(),
-                0,
-                pauseButton.getWidth(),
-                pauseButton.getHeight());
+        pauseBounds =
+                new Rectangle(
+                        pauseLocation.x - pauseButton.getWidth(),
+                        0,
+                        pauseButton.getWidth(),
+                        pauseButton.getHeight());
 
         score = INIT_SCORE;
         lives = INIT_LIVES;
@@ -242,34 +239,34 @@ public class GameState extends State {
         gameOverSound = game.manager.get(GAMEOVER_SOUND_PATH, Sound.class);
     }
 
-    //check bounds to keep rocket on screen
+    // check bounds to keep rocket on screen
     private void checkRocketBounds() {
-        //limit rocket position to screen
-        if(rocket.getPosition().x < 0) {
-            rocket.setTransform(0, rocket.getPosition().y,
-                    rocket.getBody().getAngle());
-        }
-        else if(rocket.getPosition().x > WIDTH - rocket.getWidth() / 2) {
-            rocket.setTransform(WIDTH - rocket.getWidth() / 2, rocket.getPosition().y,
+        // limit rocket position to screen
+        if (rocket.getPosition().x < 0) {
+            rocket.setTransform(0, rocket.getPosition().y, rocket.getBody().getAngle());
+        } else if (rocket.getPosition().x > WIDTH - rocket.getWidth() / 2) {
+            rocket.setTransform(
+                    WIDTH - rocket.getWidth() / 2,
+                    rocket.getPosition().y,
                     rocket.getBody().getAngle());
         }
     }
 
     private void checkBounds(Array bodies) {
-        //iterate through asteroids
+        // iterate through asteroids
         Iterator<SpaceObject> iter = ((Array<SpaceObject>) bodies).iterator();
-        while(iter.hasNext()){
+        while (iter.hasNext()) {
             SpaceObject body = iter.next();
-            //check to see if asteroid is below screen
+            // check to see if asteroid is below screen
             if (body.getPosition().y + body.getHeight() < 0) {
                 iter.remove();
             }
         }
     }
 
-    private void updateEnemies(){
+    private void updateEnemies() {
         Iterator<Enemy> iter = enemies.iterator();
-        while(iter.hasNext()) {
+        while (iter.hasNext()) {
             Enemy enemy = iter.next();
             enemy.move(Gdx.graphics.getDeltaTime());
             enemy.update();
@@ -278,154 +275,147 @@ public class GameState extends State {
 
             checkEnemyBounds(enemy);
 
-            if(enemy.getPosition().y < -2f * enemy.getHeight()) {
+            if (enemy.getPosition().y < -2f * enemy.getHeight()) {
                 enemyNum--;
                 enemy.dispose();
                 iter.remove();
-                if(totalEnemyNum % ENEMY_LIMIT == 1)
+                if (totalEnemyNum % ENEMY_LIMIT == 1)
                     enemySpeed = randomNumInRange(250f, 250f, true);
             }
         }
     }
 
-    //move enemies and check bounds
+    // move enemies and check bounds
     private void checkEnemyBounds(Enemy enemy) {
-        if(enemy.getPosition().x >= Gdx.graphics.getWidth())
-            enemy.xDir = -Math.abs(enemy.xDir);
+        if (enemy.getPosition().x >= Gdx.graphics.getWidth()) enemy.xDir = -Math.abs(enemy.xDir);
 
-        if(enemy.getPosition().x <= enemy.getWidth())
-            enemy.xDir = Math.abs(enemy.xDir);
+        if (enemy.getPosition().x <= enemy.getWidth()) enemy.xDir = Math.abs(enemy.xDir);
     }
 
     private void cleanDestroyArray() {
-        for(int i = destroyArray.size - 1; i >= 0; i--) {
+        for (int i = destroyArray.size - 1; i >= 0; i--) {
             destroyArray.get(i).dispose();
             destroyArray.removeIndex(i);
         }
     }
 
     private void setupContactListener() {
-        world.setContactListener(new ContactListener() {
-            String asteroidTag = "Asteroid";
-            String rocketTag = "Rocket";
-            String enemyTag = "Enemy";
-            String missileTag = "Missile";
-            String playerMissileTag = "PMissile";
-            String junkTag = "Junk";
+        world.setContactListener(
+                new ContactListener() {
+                    String asteroidTag = "Asteroid";
+                    String rocketTag = "Rocket";
+                    String enemyTag = "Enemy";
+                    String missileTag = "Missile";
+                    String playerMissileTag = "PMissile";
+                    String junkTag = "Junk";
 
-            @Override
-            public void beginContact(Contact contact) {
-                Fixture a = contact.getFixtureA();
-                Fixture b = contact.getFixtureB();
+                    @Override
+                    public void beginContact(Contact contact) {
+                        Fixture a = contact.getFixtureA();
+                        Fixture b = contact.getFixtureB();
 
-                if (asteroidTag.equals(a.getUserData()) &&
-                        rocketTag.equals(b.getBody().getUserData())) {
-                    for (Asteroid asteroid : asteroids) {
-                        if (a.getBody().equals(asteroid.getBody())) {
-                            destroyArray.add(asteroid);
-                            asteroids.removeValue(asteroid, false);
-                            score++;
-                            break;
-                        }
-                    }
-                } else if (asteroidTag.equals(b.getUserData()) &&
-                        rocketTag.equals(a.getBody().getUserData())) {
-                    for (Asteroid asteroid : asteroids) {
-                        if (b.getBody().equals(asteroid.getBody())) {
-                            destroyArray.add(asteroid);
-                            asteroids.removeValue(asteroid, false);
-                            score++;
-                            break;
-                        }
-                    }
-                } else if (rocketTag.equals(a.getBody().getUserData()) &&
-                        missileTag.equals(b.getUserData())) {
-                        for (Missile shot : shots) {
-                            if (b.getBody().equals(shot.getBody())) {
-                                long id = explosionSound.play();
-                                explosionSound.setPitch(id, .5f);
+                        if (asteroidTag.equals(a.getUserData())
+                                && rocketTag.equals(b.getBody().getUserData())) {
+                            for (Asteroid asteroid : asteroids) {
+                                if (a.getBody().equals(asteroid.getBody())) {
+                                    destroyArray.add(asteroid);
+                                    asteroids.removeValue(asteroid, false);
+                                    score++;
+                                    break;
+                                }
+                            }
+                        } else if (asteroidTag.equals(b.getUserData())
+                                && rocketTag.equals(a.getBody().getUserData())) {
+                            for (Asteroid asteroid : asteroids) {
+                                if (b.getBody().equals(asteroid.getBody())) {
+                                    destroyArray.add(asteroid);
+                                    asteroids.removeValue(asteroid, false);
+                                    score++;
+                                    break;
+                                }
+                            }
+                        } else if (rocketTag.equals(a.getBody().getUserData())
+                                && missileTag.equals(b.getUserData())) {
+                            for (Missile shot : shots) {
+                                if (b.getBody().equals(shot.getBody())) {
+                                    long id = explosionSound.play();
+                                    explosionSound.setPitch(id, .5f);
 
-                                destroyArray.add(shot);
-                                shots.removeValue(shot, false);
-                                loseLife();
-                                break;
+                                    destroyArray.add(shot);
+                                    shots.removeValue(shot, false);
+                                    loseLife();
+                                    break;
+                                }
+                            }
+                        } else if (rocketTag.equals(b.getBody().getUserData())
+                                && missileTag.equals(a.getUserData())) {
+                            for (Missile shot : shots) {
+                                if (a.getBody().equals(shot.getBody())) {
+                                    long id = explosionSound.play();
+                                    explosionSound.setPitch(id, .5f);
+
+                                    destroyArray.add(shot);
+                                    shots.removeValue(shot, false);
+                                    loseLife();
+                                    break;
+                                }
+                            }
+                        } else if (enemyTag.equals(a.getBody().getUserData())
+                                && playerMissileTag.equals(b.getUserData())) {
+                            for (Enemy enemy : enemies) {
+                                if (a.getBody().equals(enemy.getBody())) {
+                                    explosionSound.play();
+                                    destroyArray.add(enemy);
+                                    enemies.removeValue(enemy, false);
+                                    score++;
+                                    enemyNum--;
+                                    break;
+                                }
+                            }
+                        } else if (enemyTag.equals(b.getBody().getUserData())
+                                && playerMissileTag.equals(a.getUserData())) {
+                            for (Enemy enemy : enemies) {
+                                if (b.getBody().equals(enemy.getBody())) {
+                                    explosionSound.play();
+                                    destroyArray.add(enemy);
+                                    enemies.removeValue(enemy, false);
+                                    score++;
+                                    enemyNum--;
+                                    break;
+                                }
+                            }
+                        } else if (rocketTag.equals(a.getBody().getUserData())
+                                && junkTag.equals(b.getUserData())) {
+                            for (Junk junk : junks) {
+                                if (b.getBody().equals(junk.getBody())) {
+                                    destroyArray.add(junk);
+                                    junks.removeValue(junk, false);
+                                    loseLife();
+                                    break;
+                                }
+                            }
+                        } else if (rocketTag.equals(b.getBody().getUserData())
+                                && junkTag.equals(a.getUserData())) {
+                            for (Junk junk : junks) {
+                                if (a.getBody().equals(junk.getBody())) {
+                                    destroyArray.add(junk);
+                                    junks.removeValue(junk, false);
+                                    loseLife();
+                                    break;
+                                }
                             }
                         }
-                } else if (rocketTag.equals(b.getBody().getUserData()) &&
-                        missileTag.equals(a.getUserData())) {
-                        for (Missile shot : shots) {
-                            if (a.getBody().equals(shot.getBody())) {
-                                long id = explosionSound.play();
-                                explosionSound.setPitch(id, .5f);
-
-                                destroyArray.add(shot);
-                                shots.removeValue(shot, false);
-                                loseLife();
-                                break;
-                            }
-                        }
-                } else if (enemyTag.equals(a.getBody().getUserData()) &&
-                        playerMissileTag.equals(b.getUserData())) {
-                    for(Enemy enemy : enemies){
-                        if(a.getBody().equals(enemy.getBody())){
-                            explosionSound.play();
-                            destroyArray.add(enemy);
-                            enemies.removeValue(enemy, false);
-                            score++;
-                            enemyNum--;
-                            break;
-                        }
                     }
-                } else if (enemyTag.equals(b.getBody().getUserData()) &&
-                        playerMissileTag.equals(a.getUserData())) {
-                    for(Enemy enemy : enemies){
-                        if(b.getBody().equals(enemy.getBody())){
-                            explosionSound.play();
-                            destroyArray.add(enemy);
-                            enemies.removeValue(enemy, false);
-                            score++;
-                            enemyNum--;
-                            break;
-                        }
-                    }
-                } else if (rocketTag.equals(a.getBody().getUserData()) &&
-                        junkTag.equals(b.getUserData())) {
-                    for(Junk junk : junks){
-                        if(b.getBody().equals(junk.getBody())){
-                            destroyArray.add(junk);
-                            junks.removeValue(junk, false);
-                            loseLife();
-                            break;
-                        }
-                    }
-                } else if (rocketTag.equals(b.getBody().getUserData()) &&
-                        junkTag.equals(a.getUserData())) {
-                    for(Junk junk : junks){
-                        if(a.getBody().equals(junk.getBody())){
-                            destroyArray.add(junk);
-                            junks.removeValue(junk, false);
-                            loseLife();
-                            break;
-                        }
-                    }
-                }
-            }
 
-            @Override
-            public void endContact(Contact contact) {
+                    @Override
+                    public void endContact(Contact contact) {}
 
-            }
+                    @Override
+                    public void preSolve(Contact contact, Manifold oldManifold) {}
 
-            @Override
-            public void preSolve(Contact contact, Manifold oldManifold) {
-
-            }
-
-            @Override
-            public void postSolve(Contact contact, ContactImpulse impulse) {
-
-            }
-        });
+                    @Override
+                    public void postSolve(Contact contact, ContactImpulse impulse) {}
+                });
     }
 
     @Override
@@ -436,27 +426,26 @@ public class GameState extends State {
     }
 
     private void controls() {
-        if(IS_DESKTOP)
-            arrowControls();
-        else
-            touchControls();
+        if (IS_DESKTOP) arrowControls();
+        else touchControls();
     }
 
     private void touchControls() {
         Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
 
-        if(pauseBounds.contains(touchPos.x, touchPos.y)) {
-            //build a dummy starfield with no rocket for pause
+        if (pauseBounds.contains(touchPos.x, touchPos.y)) {
+            // build a dummy starfield with no rocket for pause
             Starfield dummy = new Starfield(400, camera, null);
             dummy.stars = this.starfield.stars;
             gsm.push(new PauseState(gsm, dummy));
         }
 
-
         camera.unproject(touchPos);
 
-        Vector2 targetPos = new Vector2(touchPos.x - (rocket.getWidth() / 1.5f),
-                touchPos.y - rocket.getHeight() / 2);
+        Vector2 targetPos =
+                new Vector2(
+                        touchPos.x - (rocket.getWidth() / 1.5f),
+                        touchPos.y - rocket.getHeight() / 2);
         Vector2 currentPos = new Vector2(rocket.getPosition().x, rocket.getPosition().y);
         Vector2 finalPos = currentPos.lerp(targetPos, 0.15f);
         rocket.moveTo(finalPos);
@@ -466,15 +455,10 @@ public class GameState extends State {
         float posX = rocket.getPosition().x;
         float posY = rocket.getPosition().y;
 
-        if(Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            posX -= MOVE_DIST;
-        if(Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            posX += MOVE_DIST;
-        if(Gdx.input.isKeyPressed(Input.Keys.DOWN))
-            posY -= MOVE_DIST;
-        if(Gdx.input.isKeyPressed(Input.Keys.UP))
-            posY += MOVE_DIST;
-
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) posX -= MOVE_DIST;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) posX += MOVE_DIST;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) posY -= MOVE_DIST;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) posY += MOVE_DIST;
 
         Vector2 newPos = new Vector2(posX, posY);
         Vector2 finalPos = rocket.getPosition().lerp(newPos, 0.45f);
@@ -500,28 +484,28 @@ public class GameState extends State {
         enemySpawned(enemy);
     }
 
-    private void spawnEnemy(int numX, float height){
+    private void spawnEnemy(int numX, float height) {
         Enemy enemy = new Enemy(world, numX, height);
         enemySpawned(enemy);
     }
 
-    private void spawnEnemy(int numX, float height, int numShots){
+    private void spawnEnemy(int numX, float height, int numShots) {
         Enemy enemy = new Enemy(world, numX, height, numShots, shots);
         enemySpawned(enemy);
     }
 
-    private void spawnEnemy(Vector2 spawnLocation){
+    private void spawnEnemy(Vector2 spawnLocation) {
         spawnEnemy(spawnLocation.x, spawnLocation.y);
     }
 
-    private void enemySpawned(Enemy enemy){
+    private void enemySpawned(Enemy enemy) {
         enemy.xDir = enemySpeed;
         enemies.add(enemy);
         lastEnemyTime = TimeUtils.nanoTime();
     }
 
     @Override
-    public void dispose () {
+    public void dispose() {
         rocket.dispose();
         gameOverSound.dispose();
         explosionSound.dispose();
@@ -530,7 +514,7 @@ public class GameState extends State {
         world.dispose();
     }
 
-    private void gameOver(){
+    private void gameOver() {
         gsm.tryHighScore(score);
         gameOverSound.play();
         gsm.set(new GameOverState(gsm, score));
@@ -539,8 +523,6 @@ public class GameState extends State {
     private void loseLife() {
         lives--;
 
-        if(lives <= 0)
-            gameOver();
+        if (lives <= 0) gameOver();
     }
 }
-

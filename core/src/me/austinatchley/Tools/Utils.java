@@ -6,7 +6,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class Utils {
-    public static final float PPM = 1/8f;
+    public static final float PPM = 1 / 8f;
 
     public static boolean IS_DESKTOP = false;
     public static int WIDTH = Gdx.graphics.getWidth();
@@ -40,12 +40,11 @@ public class Utils {
     @param  yMeters float y distance in meters
     @return Vector2 representation of distance in pixels
      */
-    public static Vector2 m2p(float xMeters, float yMeters){
+    public static Vector2 m2p(float xMeters, float yMeters) {
         return new Vector2(xMeters / PPM, yMeters / PPM);
     }
 
-
-    public static Vector2 m2p(Vector2 meters){
+    public static Vector2 m2p(Vector2 meters) {
         return new Vector2(meters.x / PPM, meters.y / PPM);
     }
 
@@ -55,21 +54,19 @@ public class Utils {
     @param  yPixels float y distance in pixels
     @return Vector2 representation of distance in meters
      */
-    public static Vector2 p2m(float xPixels, float yPixels){
+    public static Vector2 p2m(float xPixels, float yPixels) {
         return new Vector2(xPixels * PPM, yPixels * PPM);
     }
 
-    public static Vector2 p2m(Vector2 pixels){
+    public static Vector2 p2m(Vector2 pixels) {
         return new Vector2(pixels.x * PPM, pixels.y * PPM);
     }
 
     public static float randomNumInRange(float start, float range, boolean canBeNeg) {
         float rand = MathUtils.random(0, range) + start;
 
-        if(canBeNeg && MathUtils.random() > 0.5f)
-            rand *= -1;
+        if (canBeNeg && MathUtils.random() > 0.5f) rand *= -1;
 
         return rand;
     }
-
 }

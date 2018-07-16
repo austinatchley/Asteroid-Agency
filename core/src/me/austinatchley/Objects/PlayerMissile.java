@@ -12,17 +12,17 @@ import me.austinatchley.Tools.Utils;
 
 public class PlayerMissile extends Missile {
 
-    public PlayerMissile(World world, Vector2 start){
+    public PlayerMissile(World world, Vector2 start) {
         super(world, start);
         tag = "PMissile";
     }
 
-    public PlayerMissile(World world, Vector2 start, float dx, float dy){
+    public PlayerMissile(World world, Vector2 start, float dx, float dy) {
         this(world, start);
         this.dx = dx;
         this.dy = dy;
 
-        body.applyLinearImpulse(new Vector2(dx,dy), body.getWorldCenter(), true);
+        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
     }
 
     @Override

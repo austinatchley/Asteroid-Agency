@@ -28,57 +28,55 @@ public class GameStateManager {
     private static BitmapFont font;
     private static Skin skin;
 
-    public GameStateManager(RocketGame game){
+    public GameStateManager(RocketGame game) {
         this.game = game;
 
         states = new Stack<State>();
 
         pref = Gdx.app.getPreferences("PreferenceName");
 
-        if(!pref.contains(SCORE))
-            pref.putInteger(SCORE, 0);
+        if (!pref.contains(SCORE)) pref.putInteger(SCORE, 0);
 
         font = generateFont(me.austinatchley.Tools.Utils.DEFAULT_FONT_SIZE);
     }
 
-    public void push(State state){
+    public void push(State state) {
         states.push(state);
     }
 
-    public State pop(){
+    public State pop() {
         peek().dispose();
         return states.pop();
     }
 
-    public void set(State state){
+    public void set(State state) {
         states.pop();
         states.push(state);
     }
 
-    public State peek(){
+    public State peek() {
         return states.peek();
     }
 
-    public void update(float dt){
+    public void update(float dt) {
         states.peek().update(dt);
     }
 
-    public void render(SpriteBatch batch){
+    public void render(SpriteBatch batch) {
         states.peek().render(batch);
     }
 
-    public int getHighScore(){
+    public int getHighScore() {
         return pref.getInteger(SCORE);
     }
 
-    public void setHighScore(int score){
+    public void setHighScore(int score) {
         pref.putInteger(SCORE, score);
         pref.flush();
     }
 
-    public void tryHighScore(int score){
-        if(score > pref.getInteger(SCORE))
-            setHighScore(score);
+    public void tryHighScore(int score) {
+        if (score > pref.getInteger(SCORE)) setHighScore(score);
     }
 
     public void generateMusic(float volume) {
@@ -89,22 +87,22 @@ public class GameStateManager {
         gameMusic = music;
     }
 
-    public BitmapFont getFont(){
-        if(font == null)
-            font = generateFont(me.austinatchley.Tools.Utils.DEFAULT_FONT_SIZE);
+    public BitmapFont getFont() {
+        if (font == null) font = generateFont(me.austinatchley.Tools.Utils.DEFAULT_FONT_SIZE);
         return font;
     }
 
     public BitmapFont generateFont(int size) {
-        FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/FFF.TTF"));
-        FreeTypeFontGenerator.FreeTypeFontParameter parameter = new FreeTypeFontGenerator.FreeTypeFontParameter();
+        FreeTypeFontGenerator generator =
+                new FreeTypeFontGenerator(Gdx.files.internal("fonts/FFF.TTF"));
+        FreeTypeFontGenerator.FreeTypeFontParameter parameter =
+                new FreeTypeFontGenerator.FreeTypeFontParameter();
         parameter.size = size;
         return generator.generateFont(parameter);
     }
 
-    public Skin getSkin(){
-        if(skin == null)
-            generateSkin();
+    public Skin getSkin() {
+        if (skin == null) generateSkin();
         return skin;
     }
 
@@ -124,4 +122,3 @@ public class GameStateManager {
         skin = newSkin;
     }
 }
-

@@ -1,6 +1,5 @@
 package me.austinatchley.States;
 
-
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -13,7 +12,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Tools.Starfield;
-
 
 public class GameOverState extends InterfaceState {
     private Starfield starfield;
@@ -54,17 +52,19 @@ public class GameOverState extends InterfaceState {
         table.add(highScoreLabel).spaceBottom(titleLabel.getPrefHeight() / 2);
         table.row();
 
-        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
+        final Drawable buttonImage =
+                new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
         final ImageButton playButton = new ImageButton(buttonImage);
 
         table.add(playButton);
 
-        playButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                gsm.set(new GameState(gsm, starfield));
-            }
-        });
+        playButton.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        gsm.set(new GameState(gsm, starfield));
+                    }
+                });
         table.row();
 
         playLabel = new Label("Tap to Play Again", skin, "subtitle");
@@ -74,7 +74,7 @@ public class GameOverState extends InterfaceState {
     @Override
     protected void handleInput() {}
 
-    public GameOverState(GameStateManager gsm, int score){
+    public GameOverState(GameStateManager gsm, int score) {
         this(gsm);
         this.score = score;
         scoreLabel.setText("Score: " + score);
@@ -94,7 +94,6 @@ public class GameOverState extends InterfaceState {
         super.dispose();
     }
 
-
     @Override
     public void update(float dt) {
         super.update(dt);
@@ -102,7 +101,7 @@ public class GameOverState extends InterfaceState {
         elapsedTime += dt;
 
         // Create blinking effect for playLabel
-        if(elapsedTime >= .4f){
+        if (elapsedTime >= .4f) {
             visible = !visible;
             playLabel.setVisible(visible);
             elapsedTime = 0;

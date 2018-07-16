@@ -16,7 +16,7 @@ public abstract class InterfaceState extends State {
     protected Stage stage;
     protected Table table;
 
-    protected InterfaceState(final GameStateManager gsm){
+    protected InterfaceState(final GameStateManager gsm) {
         super(gsm);
 
         skin = gsm.getSkin();
@@ -27,7 +27,7 @@ public abstract class InterfaceState extends State {
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-//        table.setDebug(true);
+        //        table.setDebug(true);
     }
 
     @Override

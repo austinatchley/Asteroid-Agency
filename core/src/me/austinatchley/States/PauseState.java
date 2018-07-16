@@ -13,7 +13,6 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Tools.Starfield;
 
-
 public class PauseState extends InterfaceState {
     private Starfield starfield;
 
@@ -25,18 +24,20 @@ public class PauseState extends InterfaceState {
 
         table.row();
 
-        final Drawable buttonImage = new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
+        final Drawable buttonImage =
+                new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
         final ImageButton playButton = new ImageButton(buttonImage);
 
         table.add(playButton);
         table.row();
 
-        playButton.addListener(new ChangeListener() {
-            @Override
-            public void changed(ChangeEvent event, Actor actor) {
-                gsm.pop();
-            }
-        });
+        playButton.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        gsm.pop();
+                    }
+                });
 
         final Label playText = new Label("Press to Resume", skin, "h2");
 
@@ -50,8 +51,7 @@ public class PauseState extends InterfaceState {
     }
 
     @Override
-    protected void handleInput() {
-    }
+    protected void handleInput() {}
 
     @Override
     public void render(SpriteBatch batch) {

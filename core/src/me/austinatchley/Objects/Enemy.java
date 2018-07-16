@@ -33,9 +33,9 @@ public class Enemy extends SpaceObject {
 
     private Sound shotSound;
 
-    public Enemy(World world){
+    public Enemy(World world) {
         super(world);
-//        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
+        //        image = new Texture(Math.random() > .5f ? "flynnhead.png" : "dadhead.png");
         image = new Texture("spaceCraft1.png");
         sprite = new Sprite(image);
         spawnLocation = new Vector2(MathUtils.random(Utils.WIDTH), Utils.HEIGHT - OFFSET);
@@ -46,7 +46,7 @@ public class Enemy extends SpaceObject {
         init();
     }
 
-    public Enemy(World world, Vector2 spawnLocation){
+    public Enemy(World world, Vector2 spawnLocation) {
         super(world);
         image = new Texture("spaceCraft1.png");
         sprite = new Sprite(image);
@@ -57,25 +57,23 @@ public class Enemy extends SpaceObject {
         init();
     }
 
-    public Enemy(World world, int numX, float height){
+    public Enemy(World world, int numX, float height) {
         super(world);
         image = new Texture("spaceCraft1.png");
         sprite = new Sprite(image);
         shots = new Array<Missile>();
-        this.spawnLocation = new Vector2(Utils.p2m(
-                (numX + 1) * image.getWidth(),
-                height));
+        this.spawnLocation = new Vector2(Utils.p2m((numX + 1) * image.getWidth(), height));
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
         init();
     }
 
-    public Enemy(World world, int numX, float height, int shotLimit){
+    public Enemy(World world, int numX, float height, int shotLimit) {
         this(world, numX, height);
         this.shotLimit = shotLimit;
     }
 
-    public Enemy(World world, int numX, float height, int shotLimit, Array<Missile> shots){
+    public Enemy(World world, int numX, float height, int shotLimit, Array<Missile> shots) {
         this(world, numX, height, shotLimit);
         this.shots = shots;
     }
@@ -96,8 +94,7 @@ public class Enemy extends SpaceObject {
         filter.categoryBits = 0x0004;
         filter.maskBits = 0x0003;
 
-        for(Fixture fix : body.getFixtureList())
-            fix.setFilterData(filter);
+        for (Fixture fix : body.getFixtureList()) fix.setFilterData(filter);
 
         body.setUserData("Enemy");
     }
@@ -113,44 +110,42 @@ public class Enemy extends SpaceObject {
         sprite.draw(batch);
     }
 
-    public void update(){
-        if(canShoot())
-            shoot("fast", shotSound);
+    public void update() {
+        if (canShoot()) shoot("fast", shotSound);
     }
 
-    public void move(float dt){
-        setTransform(new Vector2(getPosition().x + dt*xDir,
-                getPosition().y + dt*yDir), body.getAngle());
+    public void move(float dt) {
+        setTransform(
+                new Vector2(getPosition().x + dt * xDir, getPosition().y + dt * yDir),
+                body.getAngle());
     }
 
-    public void shoot(String type, Sound shotSound){
+    public void shoot(String type, Sound shotSound) {
         shotSound.play();
 
         Missile shot;
-        if(type.equals("fast"))
-            shot = new Missile(world,
-                new Vector2(getPosition().x, getPosition().y),
-                0f,
-                -100f);
-        else if(type.equals("curvy"))
-            shot = new Missile(world,
-                    new Vector2(getPosition().x, getPosition().y),
-                    (float) (Math.random() * 100f) - 50f,
-                    -30f);
-        else
-            shot = new Missile(world,
-                    new Vector2(getPosition().x, getPosition().y),
-                    0f,
-                    -80f);
+        if (type.equals("fast"))
+            shot = new Missile(world, new Vector2(getPosition().x, getPosition().y), 0f, -100f);
+        else if (type.equals("curvy"))
+            shot =
+                    new Missile(
+                            world,
+                            new Vector2(getPosition().x, getPosition().y),
+                            (float) (Math.random() * 100f) - 50f,
+                            -30f);
+        else shot = new Missile(world, new Vector2(getPosition().x, getPosition().y), 0f, -80f);
 
         shots.add(shot);
         numShotsTaken++;
         lastShotTime = TimeUtils.nanoTime();
     }
 
-    public boolean canShoot(){
+    public boolean canShoot() {
         boolean result = (numShotsTaken == 0);
-        result = result || ((TimeUtils.nanoTime() - lastShotTime > 2000000000l) && (numShotsTaken <= shotLimit));
+        result =
+                result
+                        || ((TimeUtils.nanoTime() - lastShotTime > 2000000000l)
+                                && (numShotsTaken <= shotLimit));
         return isOnScreen() && result;
     }
 
@@ -159,7 +154,8 @@ public class Enemy extends SpaceObject {
         super.dispose();
     }
 
-    public boolean isOnScreen(){
-        return new Rectangle(0, 0, Utils.WIDTH, Utils.HEIGHT).contains(sprite.getBoundingRectangle());
+    public boolean isOnScreen() {
+        return new Rectangle(0, 0, Utils.WIDTH, Utils.HEIGHT)
+                .contains(sprite.getBoundingRectangle());
     }
 }

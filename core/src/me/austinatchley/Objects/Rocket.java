@@ -34,7 +34,7 @@ public class Rocket extends SpaceObject {
 
     PhysicsShapeCache physicsShapes;
 
-    public Rocket(World world){
+    public Rocket(World world) {
         super(world);
         image = new Texture("spaceCraft4.png");
         sprite = new Sprite(image);
@@ -76,25 +76,26 @@ public class Rocket extends SpaceObject {
         filter.categoryBits = 0x0002;
         filter.maskBits = 0x7fff;
 
-        for(Fixture fix : body.getFixtureList())
-            fix.setFilterData(filter);
+        for (Fixture fix : body.getFixtureList()) fix.setFilterData(filter);
     }
 
-    public void render(SpriteBatch batch){
+    public void render(SpriteBatch batch) {
         Vector2 pos = getPosition();
         float rotation = body.getAngle() / DEG2RAD;
 
         sprite.setPosition(pos.x, pos.y);
         sprite.setRotation(rotation);
 
-        if(thruster1.isComplete())
-            thruster1.reset();
+        if (thruster1.isComplete()) thruster1.reset();
 
-        if(thruster2.isComplete())
-            thruster2.reset();
+        if (thruster2.isComplete()) thruster2.reset();
 
-        thruster1.setPosition(sprite.getX() + sprite.getWidth() * 0.3f, sprite.getY() + sprite.getHeight() * 0.3f);
-        thruster2.setPosition(sprite.getX() + sprite.getWidth() * 0.7f, sprite.getY() + sprite.getHeight() * 0.3f);
+        thruster1.setPosition(
+                sprite.getX() + sprite.getWidth() * 0.3f,
+                sprite.getY() + sprite.getHeight() * 0.3f);
+        thruster2.setPosition(
+                sprite.getX() + sprite.getWidth() * 0.7f,
+                sprite.getY() + sprite.getHeight() * 0.3f);
 
         thruster1.getEmitters().first().getAngle().setLow(rotation - 90f);
         thruster1.getEmitters().first().getAngle().setHigh(rotation - 90f);
@@ -108,10 +109,10 @@ public class Rocket extends SpaceObject {
         thruster2.draw(batch);
 
         Iterator<Missile> iterator = shots.iterator();
-        while(iterator.hasNext()){
+        while (iterator.hasNext()) {
             Missile shot = iterator.next();
             shot.render(batch);
-            if(shot.isOutOfBounds()){
+            if (shot.isOutOfBounds()) {
                 shot.dispose();
                 iterator.remove();
             }
@@ -121,14 +122,14 @@ public class Rocket extends SpaceObject {
         sprite.draw(batch);
     }
 
-    public void rotateTowards(Vector2 target){
-        Vector2 toTarget = new Vector2(target.x - body.getPosition().x,
-                target.y - body.getPosition().y);
+    public void rotateTowards(Vector2 target) {
+        Vector2 toTarget =
+                new Vector2(target.x - body.getPosition().x, target.y - body.getPosition().y);
 
         float desiredAngle = MathUtils.atan2(-toTarget.x, toTarget.y);
-        float totalRotation =  desiredAngle - body.getAngle();
-        while ( totalRotation < -180 * DEG2RAD ) totalRotation += 360 * DEG2RAD;
-        while ( totalRotation >  180 * DEG2RAD ) totalRotation -= 360 * DEG2RAD;
+        float totalRotation = desiredAngle - body.getAngle();
+        while (totalRotation < -180 * DEG2RAD) totalRotation += 360 * DEG2RAD;
+        while (totalRotation > 180 * DEG2RAD) totalRotation -= 360 * DEG2RAD;
         float newAngle = body.getAngle() + Math.min(CHANGE, Math.max(-CHANGE, totalRotation));
 
         setTransform(body.getPosition(), newAngle);
@@ -136,31 +137,33 @@ public class Rocket extends SpaceObject {
 
     public void moveTo(Vector2 target) {
         lastPos = getPosition();
-        setTransform(target.x + Utils.PPM*image.getWidth()/4f, target.y, body.getAngle());
+        setTransform(target.x + Utils.PPM * image.getWidth() / 4f, target.y, body.getAngle());
         velocity.x = getPosition().x - lastPos.x;
         velocity.y = getPosition().y - lastPos.y;
     }
 
-    public void shootMissile(Sound missileSound){
+    public void shootMissile(Sound missileSound) {
         missileSound.play();
 
-        PlayerMissile shot = new PlayerMissile(world,
-                new Vector2(
-                        getPosition().x + image.getWidth() / 2f,
-                        getPosition().y + image.getHeight()),
-                0f,
-                600f);
+        PlayerMissile shot =
+                new PlayerMissile(
+                        world,
+                        new Vector2(
+                                getPosition().x + image.getWidth() / 2f,
+                                getPosition().y + image.getHeight()),
+                        0f,
+                        600f);
         shot.flip();
 
         shots.add(shot);
         lastShotTime = TimeUtils.nanoTime();
     }
 
-    public boolean canShoot(){
+    public boolean canShoot() {
         return TimeUtils.nanoTime() - lastShotTime > 250000000;
     }
 
-    public Vector2 getVelocity(){
+    public Vector2 getVelocity() {
         return velocity;
     }
 }

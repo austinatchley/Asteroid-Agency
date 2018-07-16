@@ -25,7 +25,7 @@ public class LoadingState extends State {
     private RocketGame game;
     private ShapeRenderer renderer;
 
-    public LoadingState(GameStateManager gsm, RocketGame game){
+    public LoadingState(GameStateManager gsm, RocketGame game) {
         super(gsm);
 
         this.game = game;
@@ -61,7 +61,7 @@ public class LoadingState extends State {
         Gdx.gl.glClearColor(BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, BG_COLOR.a);
         Gdx.gl.glClear(GL30.GL_COLOR_BUFFER_BIT);
 
-        if(game.manager.update()) {
+        if (game.manager.update()) {
             game.manager.finishLoading();
             gsm.generateMusic(.5f);
             gsm.generateSkin();
@@ -70,25 +70,18 @@ public class LoadingState extends State {
 
         float progress = game.manager.getProgress();
 
-
         renderer.begin();
         renderer.set(ShapeRenderer.ShapeType.Filled);
-        renderer.box(WIDTH/2 - 250,HEIGHT/2,0,progress*500, 40, 0);
+        renderer.box(WIDTH / 2 - 250, HEIGHT / 2, 0, progress * 500, 40, 0);
         renderer.end();
     }
 
     @Override
-    protected void handleInput() {
-
-    }
+    protected void handleInput() {}
 
     @Override
-    public void update(float dt) {
-
-    }
+    public void update(float dt) {}
 
     @Override
-    public void dispose() {
-
-    }
+    public void dispose() {}
 }
