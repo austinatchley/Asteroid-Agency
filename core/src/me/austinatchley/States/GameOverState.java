@@ -26,9 +26,22 @@ public class GameOverState extends InterfaceState {
     private float elapsedTime;
     private boolean visible;
 
-    public GameOverState(final GameStateManager gsm){
+    public GameOverState(final GameStateManager gsm) {
         super(gsm);
 
+        setupUITable(gsm);
+
+        starfield = new Starfield(400, camera, null);
+        starfield.useVelocity(false);
+
+        elapsedTime = 0f;
+        visible = true;
+
+        starfield = new Starfield(400, camera, null);
+        starfield.useVelocity(false);
+    }
+
+    private void setupUITable(final GameStateManager gsm) {
         final Label titleLabel = new Label("Game Over", skin, "title");
         table.add(titleLabel).spaceBottom(titleLabel.getPrefHeight() / 2f);
         table.row();
@@ -56,16 +69,6 @@ public class GameOverState extends InterfaceState {
 
         playLabel = new Label("Tap to Play Again", skin, "subtitle");
         table.add(playLabel).spaceTop(playLabel.getPrefHeight() / 2f);
-
-        starfield = new Starfield(400, camera, null);
-        starfield.useVelocity(false);
-
-        elapsedTime = 0f;
-        visible = true;
-
-        starfield = new Starfield(400, camera, null);
-
-        starfield.useVelocity(false);
     }
 
     @Override
@@ -74,7 +77,7 @@ public class GameOverState extends InterfaceState {
     public GameOverState(GameStateManager gsm, int score){
         this(gsm);
         this.score = score;
-         scoreLabel.setText("Score: " + score);
+        scoreLabel.setText("Score: " + score);
     }
 
     @Override
@@ -97,6 +100,8 @@ public class GameOverState extends InterfaceState {
         super.update(dt);
 
         elapsedTime += dt;
+
+        // Create blinking effect for playLabel
         if(elapsedTime >= .4f){
             visible = !visible;
             playLabel.setVisible(visible);

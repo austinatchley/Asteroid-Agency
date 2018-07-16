@@ -2,6 +2,7 @@ package me.austinatchley.Tools;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
 public class Utils {
@@ -24,6 +25,14 @@ public class Utils {
     public static final float MOVE_DIST = 25f;
 
     public static final String SCORE = "highScore";
+
+    public static final String PAUSE_BUTTON_PATH = "pause.png";
+    public static final String MISSILE_SOUND_PATH = "shoot.wav";
+    public static final String EXPLOSION_SOUND_PATH = "explosion.wav";
+    public static final String GAMEOVER_SOUND_PATH = "gameover.wav";
+
+    public static final int INIT_LIVES = 3;
+    public static final int INIT_SCORE = 0;
 
     /*
     Converts meters to pixels for use with LibGDX
@@ -52,6 +61,15 @@ public class Utils {
 
     public static Vector2 p2m(Vector2 pixels){
         return new Vector2(pixels.x * PPM, pixels.y * PPM);
+    }
+
+    public static float randomNumInRange(float start, float range, boolean canBeNeg) {
+        float rand = MathUtils.random(0, range) + start;
+
+        if(canBeNeg && MathUtils.random() > 0.5f)
+            rand *= -1;
+
+        return rand;
     }
 
 }

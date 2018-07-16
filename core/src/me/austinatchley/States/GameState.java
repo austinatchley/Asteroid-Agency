@@ -37,12 +37,7 @@ import me.austinatchley.Objects.SpaceObject;
 import me.austinatchley.RocketGame;
 import me.austinatchley.Tools.Starfield;
 
-import static me.austinatchley.Tools.Utils.ASTEROID_LIMIT;
-import static me.austinatchley.Tools.Utils.ENEMY_LIMIT;
-import static me.austinatchley.Tools.Utils.HEIGHT;
-import static me.austinatchley.Tools.Utils.IS_DESKTOP;
-import static me.austinatchley.Tools.Utils.MOVE_DIST;
-import static me.austinatchley.Tools.Utils.WIDTH;
+import static me.austinatchley.Tools.Utils.*;
 
 public class GameState extends State {
 
@@ -123,11 +118,13 @@ public class GameState extends State {
         checkRocketBounds();
 
         //spawn asteroid every 2 seconds
-        if (TimeUtils.nanoTime() - lastDropTime > 1000000000 + MathUtils.random(1000000000)&& asteroids.size < ASTEROID_LIMIT) {
+        if (TimeUtils.nanoTime() - lastDropTime > 1000000000 + MathUtils.random(1000000000)
+            && asteroids.size < ASTEROID_LIMIT) {
             spawnAsteroid();
         }
 
-        if (TimeUtils.nanoTime() - lastJunkDropTime > 1400000000 + MathUtils.random(600000000)  && junks.size < ASTEROID_LIMIT) {
+        if (TimeUtils.nanoTime() - lastJunkDropTime > 1400000000 + MathUtils.random(600000000)
+            && junks.size < ASTEROID_LIMIT) {
             spawnJunk();
         }
 
@@ -148,9 +145,10 @@ public class GameState extends State {
     }
 
     private boolean isControlled() {
-        if(IS_DESKTOP)
+        if(IS_DESKTOP) {
             return Gdx.input.isKeyPressed(Input.Keys.LEFT) || Gdx.input.isKeyPressed(Input.Keys.RIGHT) ||
                     Gdx.input.isKeyPressed(Input.Keys.DOWN) ||Gdx.input.isKeyPressed(Input.Keys.UP);
+        }
         return Gdx.input.isTouched();
     }
 
@@ -193,7 +191,7 @@ public class GameState extends State {
             }
         }
 
-        //draw score last to stay on top
+        //draw score and lives last so they are on top
         scoreLayout.setText(font, "Score: " + score);
         float scoreX = (WIDTH - scoreLayout.width) / 2f;
         float scoreY = HEIGHT - scoreLayout.height * 5f/4f;
@@ -224,32 +222,33 @@ public class GameState extends State {
 
         enemySpeed = randomNumInRange(250f, 250f, true);
 
-        pauseButton = new Texture("pause.png");
+        pauseButton = new Texture(PAUSE_BUTTON_PATH);
         pauseLocation = new Vector2(WIDTH, HEIGHT);
         pauseBounds = new Rectangle(pauseLocation.x - pauseButton.getWidth(),
                 0,
                 pauseButton.getWidth(),
                 pauseButton.getHeight());
 
-        score = 0;
-        lives = 3;
+        score = INIT_SCORE;
+        lives = INIT_LIVES;
         scoreLayout = new GlyphLayout();
         livesLayout = new GlyphLayout();
         font.setColor(new Color(0xD3BCC0FF));
 
         bgColor = new Color(0x0E103DFF);
 
-        missileSound = game.manager.get("shoot.wav", Sound.class);
-        explosionSound = game.manager.get("explosion.wav", Sound.class);
-        gameOverSound = game.manager.get("gameover.wav", Sound.class);
+        missileSound = game.manager.get(MISSILE_SOUND_PATH, Sound.class);
+        explosionSound = game.manager.get(EXPLOSION_SOUND_PATH, Sound.class);
+        gameOverSound = game.manager.get(GAMEOVER_SOUND_PATH, Sound.class);
     }
 
     //check bounds to keep rocket on screen
     private void checkRocketBounds() {
         //limit rocket position to screen
-        if(rocket.getPosition().x < 0)
+        if(rocket.getPosition().x < 0) {
             rocket.setTransform(0, rocket.getPosition().y,
                     rocket.getBody().getAngle());
+        }
         else if(rocket.getPosition().x > WIDTH - rocket.getWidth() / 2) {
             rocket.setTransform(WIDTH - rocket.getWidth() / 2, rocket.getPosition().y,
                     rocket.getBody().getAngle());
@@ -303,13 +302,6 @@ public class GameState extends State {
             destroyArray.get(i).dispose();
             destroyArray.removeIndex(i);
         }
-    }
-
-    private float randomNumInRange(float start, float range, boolean canBeNeg) {
-        float rand = MathUtils.random(0,range) + start;
-        if(MathUtils.random() > 0.5f)
-            rand *= -1;
-        return rand;
     }
 
     private void setupContactListener() {
@@ -536,7 +528,6 @@ public class GameState extends State {
         missileSound.dispose();
         pauseButton.dispose();
         world.dispose();
-
     }
 
     private void gameOver(){
@@ -546,7 +537,9 @@ public class GameState extends State {
     }
 
     private void loseLife() {
-        if(--lives <= 0)
+        lives--;
+
+        if(lives <= 0)
             gameOver();
     }
 }
