@@ -39,7 +39,7 @@ public class MenuState extends InterfaceState {
                 new ChangeListener() {
                     @Override
                     public void changed(ChangeEvent event, Actor actor) {
-                        gsm.set(new GameState(gsm, starfield));
+                        gsm.set(new InfoState(gsm, starfield, "welcome_title", "welcome_message"));
                     }
                 });
         table.row();

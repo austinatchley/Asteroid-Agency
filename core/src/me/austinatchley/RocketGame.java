@@ -7,6 +7,9 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
+import com.badlogic.gdx.utils.I18NBundle;
+
+import java.util.Locale;
 
 import me.austinatchley.States.LoadingState;
 import me.austinatchley.States.MenuState;
@@ -16,6 +19,8 @@ public class RocketGame extends Game {
     private GameStateManager gsm;
     SpriteBatch batch;
     BitmapFont font;
+
+    public I18NBundle strings;
 
     public AssetManager manager;
 
@@ -32,6 +37,9 @@ public class RocketGame extends Game {
         //		font = new BitmapFont(Gdx.files.internal("fonts/test.fnt"),
         //				Gdx.files.internal("fonts/test.png"),
         //				false);
+
+        strings =
+                I18NBundle.createBundle(Gdx.files.internal("strings/strings"), Locale.getDefault());
 
         gsm = new GameStateManager(this);
         gsm.push(new LoadingState(gsm, this));

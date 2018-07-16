@@ -125,7 +125,7 @@ public class Enemy extends SpaceObject {
 
         Missile shot;
         if (type.equals("fast"))
-            shot = new Missile(world, new Vector2(getPosition().x, getPosition().y), 0f, -100f);
+            shot = new Missile(world, new Vector2(getPosition().x, getPosition().y), 0f, yDir - 10f);
         else if (type.equals("curvy"))
             shot =
                     new Missile(
