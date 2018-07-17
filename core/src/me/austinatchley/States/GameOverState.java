@@ -40,6 +40,22 @@ public class GameOverState extends InterfaceState {
     }
 
     private void setupUITable(final GameStateManager gsm) {
+        final Drawable exitButtonImage =
+                new TextureRegionDrawable(new TextureRegion(new Texture("exitbutton.png")));
+        final ImageButton exitButton = new ImageButton(exitButtonImage);
+
+        table.add(exitButton).top().right();
+
+        exitButton.addListener(
+                new ChangeListener() {
+                    @Override
+                    public void changed(ChangeEvent event, Actor actor) {
+                        Gdx.app.exit();
+                        System.exit(0);
+                    }
+                });
+        table.row();
+
         final Label titleLabel = new Label("Game Over", skin, "title");
         table.add(titleLabel).spaceBottom(titleLabel.getPrefHeight() / 2f);
         table.row();
@@ -52,9 +68,9 @@ public class GameOverState extends InterfaceState {
         table.add(highScoreLabel).spaceBottom(titleLabel.getPrefHeight() / 2);
         table.row();
 
-        final Drawable buttonImage =
+        final Drawable playButtonImage =
                 new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
-        final ImageButton playButton = new ImageButton(buttonImage);
+        final ImageButton playButton = new ImageButton(playButtonImage);
 
         table.add(playButton);
 
