@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 
+import io.socket.client.IO;
+import io.socket.client.Socket;
+
 public class Utils {
     public static final float PPM = 1 / 8f;
 
@@ -68,5 +71,14 @@ public class Utils {
         if (canBeNeg && MathUtils.random() > 0.5f) rand *= -1;
 
         return rand;
+    }
+
+    public static void connectSocket(Socket socket, String address) {
+        try {
+            socket = IO.socket(address);
+            socket.connect();
+        } catch(Exception e) {
+            System.out.println(e);
+        }
     }
 }

@@ -1,0 +1,24 @@
+{
+  "name": "asteroid-agency",
+  "version": "1.0.0",
+  "description": "## About",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^4.16.3",
+    "socket.io": "^2.1.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/austinatchley/Asteroid-Agency.git"
+  },
+  "author": "Austin Atchley",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/austinatchley/Asteroid-Agency/issues"
+  },
+  "homepage": "https://github.com/austinatchley/Asteroid-Agency#readme"
+}
