@@ -63,8 +63,10 @@ public class LoadingState extends State {
 
         if (game.manager.update()) {
             game.manager.finishLoading();
+
             gsm.generateMusic(.5f);
             gsm.generateSkin();
+
             gsm.push(new MenuState(gsm));
         }
 

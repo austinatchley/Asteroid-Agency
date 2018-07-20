@@ -1,17 +1,21 @@
 package me.austinatchley.States;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.ImageButton;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.Align;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Tools.Starfield;
+import me.austinatchley.Tools.Utils;
 
 public class GameOverState extends InterfaceState {
     private Starfield starfield;
@@ -44,7 +48,11 @@ public class GameOverState extends InterfaceState {
                 new TextureRegionDrawable(new TextureRegion(new Texture("exitbutton.png")));
         final ImageButton exitButton = new ImageButton(exitButtonImage);
 
-        table.add(exitButton).top().right();
+        exitButton.setBounds(Utils.WIDTH - exitButton.getPrefWidth(),
+                Utils.HEIGHT - exitButton.getPrefHeight(),
+                exitButton.getPrefWidth(),
+                exitButton.getPrefHeight());
+        stage.addActor(exitButton);
 
         exitButton.addListener(
                 new ChangeListener() {
@@ -54,14 +62,17 @@ public class GameOverState extends InterfaceState {
                         System.exit(0);
                     }
                 });
-        table.row();
 
         final Label titleLabel = new Label("Game Over", skin, "title");
-        table.add(titleLabel).spaceBottom(titleLabel.getPrefHeight() / 2f);
+        table.add(titleLabel).expandX().center().padTop(
+                // Don't let the title go off the screen if the top is close
+                    -1f * Math.min(titleLabel.getPrefHeight() / 2f, exitButton.getPrefHeight())
+                ).spaceBottom(titleLabel.getPrefHeight() / 2f);
+
         table.row();
 
         scoreLabel = new Label("Score: ", skin, "text");
-        table.add(scoreLabel);
+        table.add(scoreLabel).expandX();
         table.row();
 
         final Label highScoreLabel = new Label("High Score: " + gsm.getHighScore(), skin, "text");
