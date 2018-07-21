@@ -27,16 +27,12 @@ public class Missile extends SpaceObject {
         sprite = new Sprite(image);
         this.start = start;
         this.tag = "Missile";
-        init();
     }
 
     public Missile(World world, Vector2 start, float dx, float dy) {
         this(world, start);
         this.dx = dx;
         this.dy = dy;
-
-        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
-        //        body.setLinearVelocity(new Vector2(dx,dy));
     }
 
     @Override
@@ -68,6 +64,9 @@ public class Missile extends SpaceObject {
         Fixture missileFixture = body.createFixture(missileFixtureDef);
         missileFixture.setUserData(tag);
         missileShape.dispose();
+
+        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
+        //        body.setLinearVelocity(new Vector2(dx,dy));
     }
 
     public boolean isOutOfBounds() {

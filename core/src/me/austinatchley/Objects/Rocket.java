@@ -35,8 +35,12 @@ public class Rocket extends SpaceObject {
     PhysicsShapeCache physicsShapes;
 
     public Rocket(World world) {
+        this(world, new Texture("spaceCraft4.png"));
+    }
+
+    public Rocket(World world, Texture texture) {
         super(world);
-        image = new Texture("spaceCraft4.png");
+        image = texture;
         sprite = new Sprite(image);
 
         velocity = new Vector2();
@@ -44,24 +48,8 @@ public class Rocket extends SpaceObject {
 
         thruster1 = new ParticleEffect();
         thruster2 = new ParticleEffect();
-        thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
-        thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
-
-        init();
-
-        shots = new ArrayList<Missile>();
-
-        thruster1.start();
-        thruster1.setPosition(body.getPosition().x, body.getPosition().y);
-        thruster1.getEmitters().first().getAngle().setLow(-85f);
-        thruster1.getEmitters().first().getAngle().setHigh(-95f);
-
-        thruster2.start();
-        thruster2.setPosition(body.getPosition().x, body.getPosition().y);
-        thruster2.getEmitters().first().getAngle().setLow(-85f);
-        thruster2.getEmitters().first().getAngle().setHigh(-95f);
     }
 
     public void init() {
@@ -77,6 +65,21 @@ public class Rocket extends SpaceObject {
         filter.maskBits = 0x7fff;
 
         for (Fixture fix : body.getFixtureList()) fix.setFilterData(filter);
+
+        shots = new ArrayList<Missile>();
+
+        thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+        thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+
+        thruster1.start();
+        thruster1.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster1.getEmitters().first().getAngle().setLow(-85f);
+        thruster1.getEmitters().first().getAngle().setHigh(-95f);
+
+        thruster2.start();
+        thruster2.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster2.getEmitters().first().getAngle().setLow(-85f);
+        thruster2.getEmitters().first().getAngle().setHigh(-95f);
     }
 
     public void render(SpriteBatch batch) {
@@ -153,6 +156,7 @@ public class Rocket extends SpaceObject {
                                 getPosition().y + image.getHeight()),
                         0f,
                         600f);
+        shot.init();
         shot.flip();
 
         shots.add(shot);

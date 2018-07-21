@@ -43,7 +43,6 @@ public class Enemy extends SpaceObject {
         numShotsTaken = 0;
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
-        init();
     }
 
     public Enemy(World world, Vector2 spawnLocation) {
@@ -124,17 +123,22 @@ public class Enemy extends SpaceObject {
         shotSound.play();
 
         Missile shot;
-        if (type.equals("fast"))
-            shot = new Missile(world, new Vector2(getPosition().x, getPosition().y), 0f, yDir - 10f);
-        else if (type.equals("curvy"))
-            shot =
-                    new Missile(
+        if (type.equals("fast")) {
+            shot = new Missile(world, new Vector2(getPosition().x, getPosition().y),
+                    0f, yDir - 10f);
+
+        } else if (type.equals("curvy")) {
+            shot = new Missile(
                             world,
                             new Vector2(getPosition().x, getPosition().y),
                             (float) (Math.random() * 100f) - 50f,
                             -30f);
-        else shot = new Missile(world, new Vector2(getPosition().x, getPosition().y), 0f, -80f);
+        } else {
+            shot = new Missile(world, new Vector2(getPosition().x, getPosition().y),
+                    0f, -80f);
+        }
 
+        shot.init();
         shots.add(shot);
         numShotsTaken++;
         lastShotTime = TimeUtils.nanoTime();

@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.Vector2;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import me.austinatchley.Objects.SpaceObject;
 
 public class Utils {
     public static final float PPM = 1 / 8f;
@@ -73,12 +74,14 @@ public class Utils {
         return rand;
     }
 
-    public static void connectSocket(Socket socket, String address) {
+    public static Socket connectSocket(String address) {
         try {
-            socket = IO.socket(address);
+            Socket socket = IO.socket(address);
             socket.connect();
+            return socket;
         } catch(Exception e) {
             System.out.println(e);
         }
+        return null;
     }
 }
