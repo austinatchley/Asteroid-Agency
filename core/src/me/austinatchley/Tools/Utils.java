@@ -81,6 +81,7 @@ public class Utils {
             return socket;
         } catch(Exception e) {
             System.out.println(e);
+            Gdx.app.error("Utils", "connectSocket() failed", e);
         }
         return null;
     }

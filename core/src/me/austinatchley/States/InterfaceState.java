@@ -27,7 +27,7 @@ public abstract class InterfaceState extends State {
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-        table.setDebug(true);
+//        table.setDebug(true);
     }
 
     @Override

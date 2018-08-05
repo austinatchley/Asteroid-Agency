@@ -75,7 +75,7 @@ public class MultiplayerState extends InterfaceState {
 
         serverTimer = 0f;
 
-        socket = Utils.connectSocket("http://localhost:8080");
+        socket = Utils.connectSocket("http://asteroid-agency.herokuapp.com:8080");
         configSocketEvents();
     }
 
