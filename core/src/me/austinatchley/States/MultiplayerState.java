@@ -18,6 +18,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -35,17 +36,17 @@ public class MultiplayerState extends InterfaceState {
     HashMap<String, Rocket> players;
 
     long lastUpdated;
-    HashMap<Rocket, HashMap<Long, Transform>> rocketTransformUpdates;
+    TreeMap<Long, HashMap<Rocket, Transform>> rocketTransformUpdates;
 
     // Set of SpaceObjects waiting to be spawned
     // Each SpawnPair entry contains a SpaceObject and a spawn location,
-    Set<SpawnPair> spawnGroup;
+    HashSet<SpawnPair> spawnGroup;
 
     // Set of SpaceObjects in the scene
-    Set<SpaceObject> activeGroup;
+    HashSet<SpaceObject> activeGroup;
 
     // Set of SpaceObjects waiting to be deleted
-    Set<SpaceObject> deleteGroup;
+    HashSet<SpaceObject> deleteGroup;
 
     Texture shipTex;
 
@@ -66,7 +67,7 @@ public class MultiplayerState extends InterfaceState {
         players = new HashMap<String, Rocket>();
 
         lastUpdated = System.currentTimeMillis();
-        rocketTransformUpdates = new HashMap<Rocket, HashMap<Long, Transform>>();
+        rocketTransformUpdates = new TreeMap<Long, HashMap<Rocket, Transform>>();
 
         spawnGroup = new HashSet<SpawnPair>();
         activeGroup = new HashSet<SpaceObject>();
@@ -114,34 +115,25 @@ public class MultiplayerState extends InterfaceState {
     public void update(float dt) {
         super.update(dt);
 
-        // For every rocket, choose the latest snapshot and set its transform
-        for (Map.Entry<Rocket, HashMap<Long, Transform>> rocketSet : rocketTransformUpdates.entrySet()) {
-            Rocket rocket = rocketSet.getKey();
-            HashMap<Long, Transform> map = rocketSet.getValue();
+        Map.Entry<Long, HashMap<Rocket, Transform>> mostRecentSnapshot = rocketTransformUpdates.firstEntry();
 
-            Vector2 bestPos = rocket.getPosition();
-            float bestAngle = rocket.getAngle();
-            long bestTime = 0;
+        if (mostRecentSnapshot != null) {
+            long timeStamp = mostRecentSnapshot.getKey();
+            Gdx.app.log("update", "chose update with delta time " + timeStamp + " ms");
 
-            for (Map.Entry<Long, Transform> snapshot : map.entrySet()) {
-                if (bestTime == 0 || snapshot.getKey() < bestTime) {
-                    bestTime = snapshot.getKey();
+            for (Map.Entry<Rocket, Transform> entry : mostRecentSnapshot.getValue().entrySet()) {
+                Rocket rocket = entry.getKey();
+                Vector2 pos = entry.getValue().getPosition();
+                float rotation = entry.getValue().getRotation();
+                Gdx.app.log("update", "(pos: " + pos.toString() + ", rot: " + rotation + ")");
 
-                    bestPos = snapshot.getValue().getPosition();
-                    bestAngle = snapshot.getValue().getRotation();
-                }
+                // This should be interpolated
+                rocket.setTransformLerp(pos, rotation);
             }
 
-            Gdx.app.log("update", "chose update with delta time " + bestTime +
-                    " ms and val (" + bestPos.toString() + ", " + bestAngle + ")");
-
-            // This should be interpolated
-            rocket.setTransform(bestPos, bestAngle);
-
-            map.clear();
+            rocketTransformUpdates.clear();
+            lastUpdated = System.currentTimeMillis();
         }
-
-        lastUpdated = System.currentTimeMillis();
     }
 
     private void spawn() {
@@ -287,6 +279,9 @@ public class MultiplayerState extends InterfaceState {
             public void call(Object... args) {
                 JSONArray data = (JSONArray) args[0];
                 try {
+                    HashMap<Rocket, Transform> rocketTransformMap = new HashMap<Rocket, Transform>();
+                    long timeStamp = System.currentTimeMillis() - lastUpdated;
+
                     for (int i = 0; i < data.length(); i++) {
                         String id = "";
                         float x = 0f;
@@ -297,23 +292,20 @@ public class MultiplayerState extends InterfaceState {
                             x = ((Double) data.getJSONObject(i).getDouble("x")).floatValue();
                             y = ((Double) data.getJSONObject(i).getDouble("y")).floatValue();
                         } catch(Exception e) {
-                            System.out.println("JSON error here");
+                            System.out.println("JSON parsing error");
                         }
 
                         Rocket player = players.get(id);
-                        if (player != null) {
-                            HashMap<Long, Transform> snapshotMap = rocketTransformUpdates.get(player);
-
-                            if (snapshotMap == null) {
-                                rocketTransformUpdates.put(player, new HashMap<Long, Transform>());
-                            } else {
-                                snapshotMap.put(System.currentTimeMillis() - lastUpdated,
-                                        new Transform(new Vector2(x, y), 0f));
-                            }
-                         } else {
+                        if (player == null) {
                             System.out.println("players.get(" + id + ") was null " + players);
+                            continue;
                         }
+
+                        rocketTransformMap.put(player, new Transform(new Vector2(x, y), 0f));
                     }
+
+                    rocketTransformUpdates.put(timeStamp, rocketTransformMap);
+
                 } catch(Exception e) {
                     Gdx.app.log("SocketIO", "Error in updatePlayers");
                     Gdx.app.log("SocketIO", e.getMessage());

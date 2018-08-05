@@ -3,16 +3,21 @@ package me.austinatchley;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.freetype.FreeTypeFontGenerator;
 import com.badlogic.gdx.graphics.g3d.utils.TextureProvider;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.I18NBundle;
+import com.badlogic.gdx.utils.viewport.FitViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 
 import java.util.Locale;
 
 import me.austinatchley.States.LoadingState;
 import me.austinatchley.States.MenuState;
+import me.austinatchley.Tools.Utils;
 
 public class RocketGame extends Game {
 
@@ -23,6 +28,9 @@ public class RocketGame extends Game {
     public I18NBundle strings;
 
     public AssetManager manager;
+
+    private OrthographicCamera camera;
+    private Stage stage;
 
     @Override
     public void create() {
@@ -38,18 +46,26 @@ public class RocketGame extends Game {
         //				Gdx.files.internal("fonts/test.png"),
         //				false);
 
-        strings =
-                I18NBundle.createBundle(Gdx.files.internal("strings/strings"), Locale.getDefault());
+        strings = I18NBundle.createBundle(
+                Gdx.files.internal("strings/strings"),
+                Locale.getDefault());
 
         gsm = new GameStateManager(this);
         gsm.push(new LoadingState(gsm, this));
+
+        camera = new OrthographicCamera(Utils.WIDTH, Utils.HEIGHT);
+        camera.translate(camera.viewportWidth/2, camera.viewportHeight/2);
     }
 
     @Override
     public void render() {
+//        batch.begin();
+//        batch.setProjectionMatrix(camera.combined);
+
         gsm.update(Gdx.graphics.getDeltaTime());
         gsm.render(batch);
-        super.render();
+
+//        batch.end();
     }
 
     @Override
@@ -57,5 +73,10 @@ public class RocketGame extends Game {
         batch.dispose();
         font.dispose();
         super.dispose();
+    }
+
+    @Override
+    public void resize(int width, int height) {
+        super.resize(width, height);
     }
 }

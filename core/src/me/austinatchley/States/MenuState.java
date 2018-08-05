@@ -1,5 +1,6 @@
 package me.austinatchley.States;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
 
 import me.austinatchley.GameStateManager;
 import me.austinatchley.Tools.Starfield;
+import me.austinatchley.Tools.Utils;
 
 public class MenuState extends InterfaceState {
 
@@ -32,6 +34,13 @@ public class MenuState extends InterfaceState {
         final Drawable buttonImage =
                 new TextureRegionDrawable(new TextureRegion(new Texture("playbutton.png")));
         final ImageButton playButton = new ImageButton(buttonImage);
+
+        Gdx.app.log("MenuState", "Title: ("
+                + titleLabel.getWidth() + ", "
+                + titleLabel.getHeight()
+                + ")\n\tPlay Button: ("
+                + playButton.getWidth() + ", "
+                + playButton.getHeight() + ")");
 
         table.add(playButton);
 

@@ -3,6 +3,7 @@ package me.austinatchley.Tools;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector;
 import com.badlogic.gdx.math.Vector2;
 
 import io.socket.client.IO;
@@ -84,5 +85,9 @@ public class Utils {
             Gdx.app.error("Utils", "connectSocket() failed", e);
         }
         return null;
+    }
+
+    public static float lerp(float last, float target, float t) {
+        return last * t + target * (1-t);
     }
 }

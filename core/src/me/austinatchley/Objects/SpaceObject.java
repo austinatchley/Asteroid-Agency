@@ -1,5 +1,6 @@
 package me.austinatchley.Objects;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -10,7 +11,13 @@ import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+import java.util.Queue;
+import java.util.Stack;
 
 import me.austinatchley.Tools.Utils;
 
@@ -22,6 +29,12 @@ public abstract class SpaceObject {
     Sprite sprite;
     World world;
 
+    long targetTime, lastTime;
+
+    // Buffer of object transforms, with the most recent stored at currentTransformIndex
+    int currentTransformIndex;
+    Transform[] transformBuffer;
+
     public SpaceObject(World world) {
         this.world = world;
     }
@@ -32,6 +45,11 @@ public abstract class SpaceObject {
         bodyDef.position.set(Utils.p2m(0, 0));
 
         body = world.createBody(bodyDef);
+
+        targetTime = System.currentTimeMillis();
+        lastTime = 0;
+        currentTransformIndex = 0;
+        transformBuffer = new Transform[5];
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(image.getWidth(), image.getHeight());
@@ -90,14 +108,42 @@ public abstract class SpaceObject {
         return body.getAngle();
     }
 
-    public void setTransform(Vector2 pos, float angle) {
-        if (body == null) return;
-        body.setTransform(Utils.p2m(pos), angle);
+    public void setTransformLerp(Vector2 pos, float rotation) {
+        if (transformBuffer == null) {
+            setTransform(pos, rotation);
+            return;
+        }
+
+        Transform lastTransform = transformBuffer[currentTransformIndex];
+        float t = 0f;
+
+        // If we don't have a previous snapshot, just set the transform
+        if (lastTransform == null) {
+            setTransform(pos, rotation);
+            return;
+        }
+
+        Vector2 newPos = lastTransform.getPosition().lerp(pos, t);
+        float newRotation = Utils.lerp(lastTransform.getRotation(), rotation, t);
+        Transform newTransform = new Transform(newPos, newRotation);
+
+        setTransform(newTransform);
+
+        currentTransformIndex = (currentTransformIndex + 1) % transformBuffer.length;
+        transformBuffer[currentTransformIndex] = newTransform;
     }
 
-    public void setTransform(float x, float y, float angle) {
+    public void setTransform(Transform transform) {
+        setTransform(transform.getPosition(), transform.getRotation());
+    }
+
+    public void setTransform(Vector2 pos, float rotation) {
         if (body == null) return;
-        body.setTransform(Utils.p2m(x, y), angle);
+        body.setTransform(Utils.p2m(pos), rotation);
+    }
+
+    public void setTransform(float x, float y, float rotation) {
+        setTransform(new Vector2(x, y), rotation);
     }
 
     public int scoreEffect() {
