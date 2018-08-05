@@ -39,6 +39,10 @@ public class Utils {
     public static final int INIT_LIVES = 3;
     public static final int INIT_SCORE = 0;
 
+    public static final int NETWORK_BUFFER_SIZE = 10;
+
+    public static final int DEADZONE = 10;
+
     /*
     Converts meters to pixels for use with LibGDX
     @param  xMeters float x distance in meters

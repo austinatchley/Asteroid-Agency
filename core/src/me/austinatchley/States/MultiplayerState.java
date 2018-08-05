@@ -5,9 +5,11 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
 import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.scenes.scene2d.Stage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,12 +19,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import me.austinatchley.GameStateManager;
+import me.austinatchley.Objects.Missile;
+import me.austinatchley.Objects.PlayerMissile;
 import me.austinatchley.Objects.Rocket;
 import me.austinatchley.Objects.SpaceObject;
 import me.austinatchley.Tools.SpawnPair;
@@ -35,23 +38,31 @@ public class MultiplayerState extends InterfaceState {
     Rocket player;
     HashMap<String, Rocket> players;
 
-    long lastUpdated;
-    TreeMap<Long, HashMap<Rocket, Transform>> rocketTransformUpdates;
+    long playersLastUpdated;
+    TreeMap<Long, HashMap<Rocket, Transform>> playersTransformUpdates;
 
     // Set of SpaceObjects waiting to be spawned
     // Each SpawnPair entry contains a SpaceObject and a spawn location,
-    HashSet<SpawnPair> spawnGroup;
+    private HashSet<SpawnPair> spawnGroup;
 
     // Set of SpaceObjects in the scene
-    HashSet<SpaceObject> activeGroup;
+    private HashSet<SpaceObject> activeGroup;
 
     // Set of SpaceObjects waiting to be deleted
-    HashSet<SpaceObject> deleteGroup;
+    private HashSet<SpaceObject> deleteGroup;
 
-    Texture shipTex;
+    // Set of ships firing
+    private HashSet<Rocket> firingGroup;
 
-    // Used to track when we need to update data from the server
-    private float serverTimer;
+    private Texture shipTexture;
+
+    // Used to prevent the player from moving before the ship's transform buffer is filled
+    private long spawnTimer;
+
+    // Set to true when the player has finished their spawnTimer cooldown
+    private boolean controllable;
+
+    private float prevAccelZ;
 
     // Used for input handling
     private enum InputAction {
@@ -66,16 +77,21 @@ public class MultiplayerState extends InterfaceState {
 
         players = new HashMap<String, Rocket>();
 
-        lastUpdated = System.currentTimeMillis();
-        rocketTransformUpdates = new TreeMap<Long, HashMap<Rocket, Transform>>();
+        playersLastUpdated = System.currentTimeMillis();
+        playersTransformUpdates = new TreeMap<Long, HashMap<Rocket, Transform>>();
 
         spawnGroup = new HashSet<SpawnPair>();
         activeGroup = new HashSet<SpaceObject>();
         deleteGroup = new HashSet<SpaceObject>();
 
-        shipTex = new Texture("spaceCraft4.png");
+        firingGroup = new HashSet<Rocket>();
 
-        serverTimer = 0f;
+        shipTexture = new Texture("spaceCraft4.png");
+
+        spawnTimer = 0l;
+        controllable = false;
+
+        prevAccelZ = 0f;
 
         socket = Utils.connectSocket("https://asteroid-agency.herokuapp.com");
 //        socket = Utils.connectSocket("http://localhost:3000");
@@ -91,18 +107,33 @@ public class MultiplayerState extends InterfaceState {
     public void render(SpriteBatch batch) {
         super.render(batch);
 
-        handleInput();
+        batch.end();
+
+        if (controllable) {
+            handleInput();
+        } else if (System.currentTimeMillis() - spawnTimer > 1000) {
+            controllable = true;
+        }
 
         batch.begin();
         for (SpaceObject obj : activeGroup) {
             obj.render(batch);
+
+            if (obj instanceof Missile) {
+                if (((Missile)obj).isOutOfBounds()) {
+                    deleteGroup.add(obj);
+                }
+            }
         }
         batch.end();
 
+        stage.act(Gdx.graphics.getDeltaTime());
         stage.draw();
 
         spawn();
         delete();
+
+        batch.begin();
     }
 
     @Override
@@ -115,25 +146,34 @@ public class MultiplayerState extends InterfaceState {
     public void update(float dt) {
         super.update(dt);
 
-        Map.Entry<Long, HashMap<Rocket, Transform>> mostRecentSnapshot = rocketTransformUpdates.firstEntry();
+        // The TreeSet is sorted, so we grab the first entry (most recent snapshot)
+        Map.Entry<Long, HashMap<Rocket, Transform>> mostRecentSnapshot = playersTransformUpdates.firstEntry();
 
         if (mostRecentSnapshot != null) {
-            long timeStamp = mostRecentSnapshot.getKey();
-            Gdx.app.log("update", "chose update with delta time " + timeStamp + " ms");
-
             for (Map.Entry<Rocket, Transform> entry : mostRecentSnapshot.getValue().entrySet()) {
                 Rocket rocket = entry.getKey();
+
                 Vector2 pos = entry.getValue().getPosition();
                 float rotation = entry.getValue().getRotation();
-                Gdx.app.log("update", "(pos: " + pos.toString() + ", rot: " + rotation + ")");
 
-                // This should be interpolated
+                // Interpolate the transform to smooth out any jerkiness from the server
                 rocket.setTransformLerp(pos, rotation);
             }
 
-            rocketTransformUpdates.clear();
-            lastUpdated = System.currentTimeMillis();
+            playersTransformUpdates.clear();
+            playersLastUpdated = System.currentTimeMillis();
         }
+
+        for (Rocket player : firingGroup) {
+            if (player.canShoot()) {
+                PlayerMissile missile = player.shootMissile(null);
+                activeGroup.add(missile);
+
+                firingGroup.remove(player);
+            }
+        }
+
+//        firingGroup.clear();
     }
 
     private void spawn() {
@@ -157,19 +197,96 @@ public class MultiplayerState extends InterfaceState {
 
     private void handleInput(float deltaTime) {
         if (player != null) {
-            InputAction dir = InputAction.INVALID;
+            InputAction dir;
 
-            if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-                dir = InputAction.LEFT;
-            }
-            if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-                dir = InputAction.RIGHT;
+            // all input should be accumulated to a Set and sent together
+            if (Utils.IS_DESKTOP) {
+                dir = handleKeyboard();
+            } else {
+                dir = handleTouch();
             }
 
             if (dir != InputAction.INVALID) {
                 sendInput(dir, deltaTime);
             }
         }
+    }
+
+    private InputAction handleKeyboard() {
+        InputAction dir = InputAction.INVALID;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            dir = InputAction.LEFT;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            dir = InputAction.RIGHT;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+            dir = InputAction.UP;
+        }
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+            dir = InputAction.DOWN;
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.SPACE)) {
+            dir = InputAction.FIRE;
+        }
+
+        return dir;
+    }
+
+    private InputAction handleTouch() {
+        InputAction dir = InputAction.INVALID;
+
+        float accelZ = Gdx.input.getAccelerometerZ();
+        if (prevAccelZ == 0f) {
+            prevAccelZ = accelZ;
+        } else if (Math.abs(accelZ - prevAccelZ) > 12f) { // make this a constant
+            dir = InputAction.FIRE;
+            Gdx.input.vibrate(120);
+
+            prevAccelZ = accelZ;
+        }
+
+        if (!Gdx.input.isTouched()) {
+            return dir;
+        }
+
+        Vector3 touchPos = new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0);
+
+        camera.unproject(touchPos);
+
+        Vector2 targetPos =
+                new Vector2(
+                        touchPos.x - (player.getWidth() / 1.5f),
+                        touchPos.y - player.getHeight() / 2);
+
+        Vector2 currentPos = player.getPosition();
+        if (currentPos == null) {
+            Gdx.app.log("handleTouch", "Player's position was null");
+            return dir;
+        }
+
+        Vector2 deltaPos = targetPos.sub(currentPos);
+
+        if (deltaPos.x < -Utils.DEADZONE) {
+            dir = InputAction.LEFT;
+        }
+        if (deltaPos.x > Utils.DEADZONE) {
+            dir = InputAction.RIGHT;
+        }
+
+        if (deltaPos.y < -Utils.DEADZONE) {
+            dir = InputAction.DOWN;
+        }
+        if (deltaPos.y > Utils.DEADZONE) {
+            dir = InputAction.UP;
+        }
+
+        Gdx.app.log("handleTouch", "deltaPos: " + deltaPos.toString());
+
+        return dir;
     }
 
     // Send the corresponding input request to the server
@@ -196,8 +313,11 @@ public class MultiplayerState extends InterfaceState {
             @Override
             public void call(Object... args) {
                 Gdx.app.log("SocketIO", "Connected");
-                player = new Rocket(world, shipTex);
+
+                player = new Rocket(world, shipTexture);
                 spawnGroup.add(new SpawnPair(player, new Vector2()));
+
+                spawnTimer = System.currentTimeMillis();
             }
         }).on("socketID", new Emitter.Listener() {
             @Override
@@ -219,7 +339,7 @@ public class MultiplayerState extends InterfaceState {
                     String id = data.getString("id");
                     Gdx.app.log("SocketIO", "New player connected: " + id );
 
-                    Rocket newRocket = new Rocket(world, shipTex);
+                    Rocket newRocket = new Rocket(world, shipTexture);
                     players.put(id, newRocket);
                     spawnGroup.add(new SpawnPair(newRocket, new Vector2()));
                 } catch(JSONException e) {
@@ -250,7 +370,7 @@ public class MultiplayerState extends InterfaceState {
                 JSONArray data = (JSONArray) args[0];
                 try {
                     for (int i = 0; i < data.length(); i++) {
-                        Rocket newRocket = new Rocket(world, shipTex);
+                        Rocket newRocket = new Rocket(world, shipTexture);
                         Vector2 position = new Vector2();
                         position.x = ((Double) data.getJSONObject(i).getDouble("x")).floatValue();
                         position.y = ((Double) data.getJSONObject(i).getDouble("y")).floatValue();
@@ -261,17 +381,15 @@ public class MultiplayerState extends InterfaceState {
                         players.put(id, newRocket);
                         spawnGroup.add(new SpawnPair(newRocket, position));
 
-                        Iterator<String> it = players.keySet().iterator();
-                        while (it.hasNext()) {
-                            Gdx.app.log("", "Players " + it.next());
-                        }
-
-//                        Gdx.app.log("","SpawnGroup " + spawnGroup);
                         Gdx.app.log("getPlayers", "id " + id + ", (x, y) = (" + position.x + ", " + position.y + ")");
                     }
+
+                    Iterator<String> it = players.keySet().iterator();
+                    while (it.hasNext()) {
+                        Gdx.app.log("", "Player " + it.next());
+                    }
                 } catch(Exception e) {
-                    Gdx.app.log("SocketIO", "Error getting new player ID");
-                    Gdx.app.log("SocketIO", e.getMessage());
+                    Gdx.app.error("SocketIO", "Error getting new player ID", e);
                 }
             }
         }).on("updatePlayers", new Emitter.Listener() {
@@ -280,36 +398,39 @@ public class MultiplayerState extends InterfaceState {
                 JSONArray data = (JSONArray) args[0];
                 try {
                     HashMap<Rocket, Transform> rocketTransformMap = new HashMap<Rocket, Transform>();
-                    long timeStamp = System.currentTimeMillis() - lastUpdated;
+                    long timeStamp = System.currentTimeMillis() - playersLastUpdated;
 
                     for (int i = 0; i < data.length(); i++) {
                         String id = "";
                         float x = 0f;
                         float y = 0f;
+                        boolean firing = false;
 
                         try {
                             id = data.getJSONObject(i).getString("id");
                             x = ((Double) data.getJSONObject(i).getDouble("x")).floatValue();
                             y = ((Double) data.getJSONObject(i).getDouble("y")).floatValue();
+                            firing = data.getJSONObject(i).getBoolean("firing");
                         } catch(Exception e) {
                             System.out.println("JSON parsing error");
                         }
 
                         Rocket player = players.get(id);
                         if (player == null) {
-                            System.out.println("players.get(" + id + ") was null " + players);
+                            Gdx.app.log("updatePlayers", "Received update for null players " + id + "\n" + players);
                             continue;
                         }
 
                         rocketTransformMap.put(player, new Transform(new Vector2(x, y), 0f));
+
+                        if (firing) {
+                            firingGroup.add(player);
+                        }
                     }
 
-                    rocketTransformUpdates.put(timeStamp, rocketTransformMap);
-
+                    playersTransformUpdates.put(timeStamp, rocketTransformMap);
                 } catch(Exception e) {
-                    Gdx.app.log("SocketIO", "Error in updatePlayers");
-                    Gdx.app.log("SocketIO", e.getMessage());
-                    System.out.println(e);
+                    Gdx.app.error("SocketIO", "Error in updatePlayers", e);
                 }
             }
         });

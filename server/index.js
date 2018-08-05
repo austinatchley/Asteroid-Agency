@@ -16,7 +16,6 @@ var players = [];
 
 
 // Utils
-
 const InputEnum = Object.freeze({
     INVALID: 0,
     LEFT: 1,
@@ -26,20 +25,50 @@ const InputEnum = Object.freeze({
     FIRE: 5
 });
 
-// Player
+const Bounds = Object.freeze({
+    xBoundLeft: -25,
+    xBoundRight: 1000,
+    yBoundBottom: 0,
+    yBoundTop: 500
+});
 
-function player(id, x, y) {
+// Player
+function player(id, x, y, firing) {
     "use strict";
 
     this.id = id;
     this.x = x;
     this.y = y;
+    this.firing = firing;
 }
 
 function fire(player) {
     "use strict";
 
-    return player;
+    player.firing = true;
+}
+
+function movePlayer(player, dx, dy) {
+    "use strict";
+
+    player.x += dx;
+    player.y += dy;
+
+    if (player.x < Bounds.xBoundLeft) {
+        player.x = Bounds.xBoundLeft;
+    }
+
+    if (player.x > Bounds.xBoundRight) {
+        player.x = Bounds.xBoundRight;
+    }
+
+    if (player.y < Bounds.yBoundBottom) {
+        player.y = Bounds.yBoundBottom;
+    }
+
+    if (player.y > Bounds.yBoundTop) {
+        player.y = Bounds.yBoundTop;
+    }
 }
 
 function handleInput(player, direction, dt) {
@@ -52,7 +81,7 @@ function handleInput(player, direction, dt) {
     var yMult = 0;
 
     if (direction === InputEnum.INVALID) {
-        console.log("invalid");
+        console.log("Invalid input");
         return;
     }
 
@@ -70,12 +99,10 @@ function handleInput(player, direction, dt) {
         console.log("Direction " + direction + " not recognized");
     }
 
-    console.log("xMult: " + xMult + ", yMult: " + yMult);
-
-    player.x += dx * xMult * dt;
-    player.y += dy * yMult * dt;
+    movePlayer(player, dx * xMult * dt, dy * yMult * dt);
 }
 
+// Socket.io
 io.on('connection', function (socket) {
     "use strict";
 
@@ -88,20 +115,25 @@ io.on('connection', function (socket) {
 
     socket.broadcast.emit('newPlayer', {id: socket.id});
 
-    players.push(new player(socket.id, 0, 0));
+    players.push(new player(socket.id, 0, 0, false));
 
     // Update player positions every 1/60 seconds
     var updates = setInterval(function () {
         socket.emit('updatePlayers', players);
+
+        players.forEach(function (player) {
+            player.firing = false;
+        });
     }, 16);
 
+    // Check  every 20 seconds to see if the player has been AFK for a minute
     var checkTimeOut = setInterval(function () {
         var date = new Date();
         var time = date.getTime();
 
-        console.log("Player last updated " + (time - lastUpdate) + " ago.");
-
         if ((new Date()).getTime() - lastUpdate > 60000) {
+            console.log("Player " + socket.id + " last updated " + (time - lastUpdate) + " ago. Timing out");
+
             var i;
             for (i = 0; i < players.length; i += 1) {
                 if (players[i].id === socket.id) {
@@ -113,7 +145,6 @@ io.on('connection', function (socket) {
     }, 20000);
 
     // Event Handlers
-
     socket.on('disconnect', function () {
         console.log('Player Disconnected');
 
@@ -131,9 +162,6 @@ io.on('connection', function (socket) {
     });
 
     socket.on('input', function (data, dt) {
-        console.log('Input Received from Player ' + socket.id);
-        console.log(players);
-
         var i;
         for (i = 0; i < players.length; i += 1) {
             if (players[i] !== "undefined") {
@@ -144,6 +172,5 @@ io.on('connection', function (socket) {
         }
 
         lastUpdate = (new Date()).getTime();
-        console.log("Updated at " + lastUpdate);
     });
 });

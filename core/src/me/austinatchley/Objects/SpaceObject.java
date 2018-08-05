@@ -29,14 +29,17 @@ public abstract class SpaceObject {
     Sprite sprite;
     World world;
 
-    long targetTime, lastTime;
-
     // Buffer of object transforms, with the most recent stored at currentTransformIndex
-    int currentTransformIndex;
-    Transform[] transformBuffer;
+    private int currentTransformIndex;
+    private Transform[] transformBuffer;
+    private long[] timeBuffer;
 
     public SpaceObject(World world) {
         this.world = world;
+
+        transformBuffer = new Transform[Utils.NETWORK_BUFFER_SIZE];
+        timeBuffer = new long[Utils.NETWORK_BUFFER_SIZE];
+        currentTransformIndex = 0;
     }
 
     public void init() {
@@ -45,11 +48,6 @@ public abstract class SpaceObject {
         bodyDef.position.set(Utils.p2m(0, 0));
 
         body = world.createBody(bodyDef);
-
-        targetTime = System.currentTimeMillis();
-        lastTime = 0;
-        currentTransformIndex = 0;
-        transformBuffer = new Transform[5];
 
         PolygonShape shape = new PolygonShape();
         shape.setAsBox(image.getWidth(), image.getHeight());
@@ -109,28 +107,34 @@ public abstract class SpaceObject {
     }
 
     public void setTransformLerp(Vector2 pos, float rotation) {
-        if (transformBuffer == null) {
-            setTransform(pos, rotation);
-            return;
-        }
-
         Transform lastTransform = transformBuffer[currentTransformIndex];
-        float t = 0f;
+        long lastTime = timeBuffer[currentTransformIndex];
 
-        // If we don't have a previous snapshot, just set the transform
-        if (lastTransform == null) {
-            setTransform(pos, rotation);
-            return;
+        int nextIndex = (currentTransformIndex + 1) % transformBuffer.length;
+        long longestTime = timeBuffer[nextIndex];
+
+        long targetTime = System.currentTimeMillis();
+        float alpha = 1;
+
+        if (longestTime != 0) {
+            alpha = ((float)(targetTime - lastTime)) / ((float)(lastTime - longestTime));
+
+            // Clamp alpha to [0, 1]
+            alpha = (alpha < 0) ? 0 : ((alpha < 1) ? alpha : 1);
         }
 
-        Vector2 newPos = lastTransform.getPosition().lerp(pos, t);
-        float newRotation = Utils.lerp(lastTransform.getRotation(), rotation, t);
-        Transform newTransform = new Transform(newPos, newRotation);
+        Transform newTransform = new Transform(pos, rotation);
+        if (lastTransform != null) {
+            Vector2 newPos = lastTransform.getPosition().lerp(pos, alpha);
+            float newRotation = Utils.lerp(lastTransform.getRotation(), rotation, alpha);
+            newTransform = new Transform(newPos, newRotation);
+        }
 
         setTransform(newTransform);
 
-        currentTransformIndex = (currentTransformIndex + 1) % transformBuffer.length;
+        currentTransformIndex = nextIndex;
         transformBuffer[currentTransformIndex] = newTransform;
+        timeBuffer[currentTransformIndex] = targetTime;
     }
 
     public void setTransform(Transform transform) {
@@ -151,7 +155,7 @@ public abstract class SpaceObject {
     }
 
     public void dispose() {
-        image.dispose();
+//        image.dispose();
 //        world.destroyBody(body);
     }
 }

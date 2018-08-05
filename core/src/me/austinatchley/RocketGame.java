@@ -12,6 +12,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.utils.I18NBundle;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.badlogic.gdx.utils.viewport.Viewport;
 
 import java.util.Locale;
 
@@ -28,9 +29,6 @@ public class RocketGame extends Game {
     public I18NBundle strings;
 
     public AssetManager manager;
-
-    private OrthographicCamera camera;
-    private Stage stage;
 
     @Override
     public void create() {
@@ -52,20 +50,12 @@ public class RocketGame extends Game {
 
         gsm = new GameStateManager(this);
         gsm.push(new LoadingState(gsm, this));
-
-        camera = new OrthographicCamera(Utils.WIDTH, Utils.HEIGHT);
-        camera.translate(camera.viewportWidth/2, camera.viewportHeight/2);
     }
 
     @Override
     public void render() {
-//        batch.begin();
-//        batch.setProjectionMatrix(camera.combined);
-
         gsm.update(Gdx.graphics.getDeltaTime());
         gsm.render(batch);
-
-//        batch.end();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package me.austinatchley.Objects;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
@@ -14,15 +15,19 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.austinatchley.Tools.Utils;
 
 import static me.austinatchley.Tools.Utils.HEIGHT;
+import static me.austinatchley.Tools.Utils.MISSILE_SOUND_PATH;
 import static me.austinatchley.Tools.Utils.WIDTH;
 
 public class Missile extends SpaceObject {
+    Sound missileSound;
+
     Vector2 start;
     float dx, dy;
     String tag;
 
     public Missile(World world, Vector2 start) {
         super(world);
+
         image = new Texture("shot.png");
         sprite = new Sprite(image);
         this.start = start;

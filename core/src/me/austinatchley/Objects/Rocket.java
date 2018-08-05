@@ -32,10 +32,18 @@ public class Rocket extends SpaceObject {
     private Vector2 velocity;
     private Vector2 lastPos;
 
+    private boolean manageShots;
+
     PhysicsShapeCache physicsShapes;
 
     public Rocket(World world) {
         this(world, new Texture("spaceCraft4.png"));
+    }
+
+    public Rocket(World world, boolean manageShots) {
+        this(world);
+
+        this.manageShots = manageShots;
     }
 
     public Rocket(World world, Texture texture) {
@@ -46,10 +54,18 @@ public class Rocket extends SpaceObject {
         velocity = new Vector2();
         lastPos = new Vector2();
 
+        manageShots = false;
+
         thruster1 = new ParticleEffect();
         thruster2 = new ParticleEffect();
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
+    }
+
+    public Rocket(World world, Texture texture, boolean manageShots) {
+        this(world, texture);
+
+        this.manageShots = manageShots;
     }
 
     public void init() {
@@ -66,7 +82,9 @@ public class Rocket extends SpaceObject {
 
         for (Fixture fix : body.getFixtureList()) fix.setFilterData(filter);
 
-        shots = new ArrayList<Missile>();
+        if (manageShots) {
+            shots = new ArrayList<Missile>();
+        }
 
         thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
         thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
@@ -111,13 +129,15 @@ public class Rocket extends SpaceObject {
         thruster2.update(Gdx.graphics.getDeltaTime());
         thruster2.draw(batch);
 
-        Iterator<Missile> iterator = shots.iterator();
-        while (iterator.hasNext()) {
-            Missile shot = iterator.next();
-            shot.render(batch);
-            if (shot.isOutOfBounds()) {
-                shot.dispose();
-                iterator.remove();
+        if (manageShots) {
+            Iterator<Missile> iterator = shots.iterator();
+            while (iterator.hasNext()) {
+                Missile shot = iterator.next();
+                shot.render(batch);
+                if (shot.isOutOfBounds()) {
+                    shot.dispose();
+                    iterator.remove();
+                }
             }
         }
 
@@ -145,8 +165,10 @@ public class Rocket extends SpaceObject {
         velocity.y = getPosition().y - lastPos.y;
     }
 
-    public void shootMissile(Sound missileSound) {
-        missileSound.play();
+    public PlayerMissile shootMissile(Sound missileSound) {
+        if (missileSound != null) {
+            missileSound.play();
+        }
 
         PlayerMissile shot =
                 new PlayerMissile(
@@ -159,8 +181,13 @@ public class Rocket extends SpaceObject {
         shot.init();
         shot.flip();
 
-        shots.add(shot);
+        if (manageShots) {
+            shots.add(shot);
+        }
+
         lastShotTime = TimeUtils.nanoTime();
+
+        return shot;
     }
 
     public boolean canShoot() {
