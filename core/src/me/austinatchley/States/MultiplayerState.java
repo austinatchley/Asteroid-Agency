@@ -5,10 +5,9 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Box2D;
+import com.badlogic.gdx.physics.box2d.Transform;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,18 +19,13 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import io.socket.client.SocketIOException;
+import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import me.austinatchley.GameStateManager;
-
-import io.socket.client.Socket;
-import io.socket.client.IO;
-
 import me.austinatchley.Objects.Rocket;
 import me.austinatchley.Objects.SpaceObject;
-
-import me.austinatchley.Tools.Utils;
 import me.austinatchley.Tools.SpawnPair;
+import me.austinatchley.Tools.Utils;
 
 public class MultiplayerState extends InterfaceState {
     private Socket socket;
@@ -39,6 +33,9 @@ public class MultiplayerState extends InterfaceState {
 
     Rocket player;
     HashMap<String, Rocket> players;
+
+    long lastUpdated;
+    HashMap<Rocket, HashMap<Long, Transform>> rocketTransformUpdates;
 
     // Set of SpaceObjects waiting to be spawned
     // Each SpawnPair entry contains a SpaceObject and a spawn location,
@@ -53,7 +50,7 @@ public class MultiplayerState extends InterfaceState {
     Texture shipTex;
 
     // Used to track when we need to update data from the server
-    float serverTimer;
+    private float serverTimer;
 
     // Used for input handling
     private enum InputAction {
@@ -67,6 +64,10 @@ public class MultiplayerState extends InterfaceState {
         world = new World(new Vector2(0, -100f), true);
 
         players = new HashMap<String, Rocket>();
+
+        lastUpdated = System.currentTimeMillis();
+        rocketTransformUpdates = new HashMap<Rocket, HashMap<Long, Transform>>();
+
         spawnGroup = new HashSet<SpawnPair>();
         activeGroup = new HashSet<SpaceObject>();
         deleteGroup = new HashSet<SpaceObject>();
@@ -75,7 +76,8 @@ public class MultiplayerState extends InterfaceState {
 
         serverTimer = 0f;
 
-        socket = Utils.connectSocket("http://asteroid-agency.herokuapp.com:8080");
+        socket = Utils.connectSocket("https://asteroid-agency.herokuapp.com");
+//        socket = Utils.connectSocket("http://localhost:3000");
         configSocketEvents();
     }
 
@@ -111,6 +113,35 @@ public class MultiplayerState extends InterfaceState {
     @Override
     public void update(float dt) {
         super.update(dt);
+
+        // For every rocket, choose the latest snapshot and set its transform
+        for (Map.Entry<Rocket, HashMap<Long, Transform>> rocketSet : rocketTransformUpdates.entrySet()) {
+            Rocket rocket = rocketSet.getKey();
+            HashMap<Long, Transform> map = rocketSet.getValue();
+
+            Vector2 bestPos = rocket.getPosition();
+            float bestAngle = rocket.getAngle();
+            long bestTime = 0;
+
+            for (Map.Entry<Long, Transform> snapshot : map.entrySet()) {
+                if (bestTime == 0 || snapshot.getKey() < bestTime) {
+                    bestTime = snapshot.getKey();
+
+                    bestPos = snapshot.getValue().getPosition();
+                    bestAngle = snapshot.getValue().getRotation();
+                }
+            }
+
+            Gdx.app.log("update", "chose update with delta time " + bestTime +
+                    " ms and val (" + bestPos.toString() + ", " + bestAngle + ")");
+
+            // This should be interpolated
+            rocket.setTransform(bestPos, bestAngle);
+
+            map.clear();
+        }
+
+        lastUpdated = System.currentTimeMillis();
     }
 
     private void spawn() {
@@ -137,17 +168,9 @@ public class MultiplayerState extends InterfaceState {
             InputAction dir = InputAction.INVALID;
 
             if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-//                Vector2 newTransform = player.getPosition();
-//                newTransform.x -= 200.f * deltaTime;
-
-//                player.setTransform(newTransform, player.getAngle());
                 dir = InputAction.LEFT;
             }
             if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
-//                Vector2 newTransform = player.getPosition();
-//                newTransform.x += 200.f * deltaTime;
-
-//                player.setTransform(newTransform, player.getAngle());
                 dir = InputAction.RIGHT;
             }
 
@@ -157,12 +180,12 @@ public class MultiplayerState extends InterfaceState {
         }
     }
 
+    // Send the corresponding input request to the server
     private void sendInput(InputAction dir, float deltaTime) {
-        // Send the corresponding input request to the server
         try {
             JSONObject dirObj;
             try {
-                System.out.println("pressed direction " + dir.ordinal());
+                System.out.println("pressed direction " + dir);
                 dirObj = new JSONObject().put("direction", dir.ordinal())
                                           .put("dt", deltaTime);
 
@@ -276,26 +299,20 @@ public class MultiplayerState extends InterfaceState {
                         } catch(Exception e) {
                             System.out.println("JSON error here");
                         }
-//                        Gdx.app.log("JSON","id: " + id + ", x: " + x + ", y: " + y);
 
+                        Rocket player = players.get(id);
+                        if (player != null) {
+                            HashMap<Long, Transform> snapshotMap = rocketTransformUpdates.get(player);
 
-                        Rocket correctPlayer = players.get(id);
-                        if (correctPlayer != null) {
-                            correctPlayer.setTransform(x, y, 0f);
+                            if (snapshotMap == null) {
+                                rocketTransformUpdates.put(player, new HashMap<Long, Transform>());
+                            } else {
+                                snapshotMap.put(System.currentTimeMillis() - lastUpdated,
+                                        new Transform(new Vector2(x, y), 0f));
+                            }
                          } else {
-                            System.out.println("players.get(id) was null " + players);
+                            System.out.println("players.get(" + id + ") was null " + players);
                         }
-
-                        /*Rocket newRocket = new Rocket(world, shipTex);
-                        Vector2 position = new Vector2();
-                        position.x = ((Double) data.getJSONObject(i).getDouble("x")).floatValue();
-                        position.y = ((Double) data.getJSONObject(i).getDouble("y")).floatValue();
-
-                        String id = data.getJSONObject(i).getString("id");
-                        Gdx.app.log("SocketIO", "Found player " + id);
-
-                        players.put(id, newRocket);
-                        spawnGroup.add(new SpawnPair(newRocket, position));*/
                     }
                 } catch(Exception e) {
                     Gdx.app.log("SocketIO", "Error in updatePlayers");
