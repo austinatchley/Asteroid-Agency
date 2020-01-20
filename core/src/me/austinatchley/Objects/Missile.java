@@ -1,5 +1,6 @@
 package me.austinatchley.Objects;
 
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
@@ -14,29 +15,29 @@ import com.badlogic.gdx.physics.box2d.World;
 import me.austinatchley.Tools.Utils;
 
 import static me.austinatchley.Tools.Utils.HEIGHT;
+import static me.austinatchley.Tools.Utils.MISSILE_SOUND_PATH;
 import static me.austinatchley.Tools.Utils.WIDTH;
 
 public class Missile extends SpaceObject {
+    Sound missileSound;
+
     Vector2 start;
     float dx, dy;
     String tag;
 
     public Missile(World world, Vector2 start) {
         super(world);
+
         image = new Texture("shot.png");
         sprite = new Sprite(image);
         this.start = start;
         this.tag = "Missile";
-        init();
     }
 
     public Missile(World world, Vector2 start, float dx, float dy) {
         this(world, start);
         this.dx = dx;
         this.dy = dy;
-
-        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
-        //        body.setLinearVelocity(new Vector2(dx,dy));
     }
 
     @Override
@@ -68,6 +69,9 @@ public class Missile extends SpaceObject {
         Fixture missileFixture = body.createFixture(missileFixtureDef);
         missileFixture.setUserData(tag);
         missileShape.dispose();
+
+        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
+        //        body.setLinearVelocity(new Vector2(dx,dy));
     }
 
     public boolean isOutOfBounds() {

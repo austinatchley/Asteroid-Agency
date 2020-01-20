@@ -16,9 +16,10 @@ public class AndroidLauncher extends AndroidApplication {
 		super.onCreate(savedInstanceState);
 
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
+		config.useAccelerometer = true;
 		config.useGyroscope = false;
-		config.useAccelerometer = false;
 		config.useCompass = false;
+
 		initialize(new RocketGame(), config);
 
 //		AdView adView = new AdView(this, AdSize.BANNER, "");

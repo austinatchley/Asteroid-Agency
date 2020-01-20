@@ -63,7 +63,9 @@ public class GameStateManager {
     }
 
     public void render(SpriteBatch batch) {
+        batch.begin();
         states.peek().render(batch);
+        batch.end();
     }
 
     public int getHighScore() {

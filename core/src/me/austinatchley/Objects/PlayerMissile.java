@@ -21,8 +21,6 @@ public class PlayerMissile extends Missile {
         this(world, start);
         this.dx = dx;
         this.dy = dy;
-
-        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
     }
 
     @Override
@@ -37,7 +35,7 @@ public class PlayerMissile extends Missile {
         MassData missileMassData = new MassData();
         missileMassData.mass = 1f;
         body.setMassData(missileMassData);
-        body.setUserData("PMissile");
+        body.setUserData(tag);
         body.setGravityScale(0f);
 
         PolygonShape missileShape = new PolygonShape();
@@ -49,7 +47,9 @@ public class PlayerMissile extends Missile {
         missileFixtureDef.isSensor = true;
 
         Fixture missileFixture = body.createFixture(missileFixtureDef);
-        missileFixture.setUserData("PMissile");
+        missileFixture.setUserData(tag);
         missileShape.dispose();
+
+        body.applyLinearImpulse(new Vector2(dx, dy), body.getWorldCenter(), true);
     }
 }

@@ -17,7 +17,6 @@ public class Junk extends Obstacle {
         super(world);
         image = new Texture("rocks.png");
         sprite = new Sprite(image);
-        init();
     }
 
     @Override

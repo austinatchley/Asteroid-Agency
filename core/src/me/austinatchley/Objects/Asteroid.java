@@ -21,7 +21,6 @@ public class Asteroid extends SpaceObject {
         super(world);
         image = new Texture("meteorGem.png");
         sprite = new Sprite(image);
-        init();
     }
 
     public Asteroid(World world, Animation<TextureRegion> animation) {

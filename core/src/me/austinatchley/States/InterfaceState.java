@@ -1,6 +1,7 @@
 package me.austinatchley.States;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -16,18 +17,22 @@ public abstract class InterfaceState extends State {
     protected Stage stage;
     protected Table table;
 
+    protected Color bgColor;
+
     protected InterfaceState(final GameStateManager gsm) {
         super(gsm);
 
         skin = gsm.getSkin();
 
-        stage = new Stage();
+        stage = new Stage(viewport);
         Gdx.input.setInputProcessor(stage);
 
         table = new Table();
         table.setFillParent(true);
         stage.addActor(table);
-        table.setDebug(true);
+//        table.setDebug(true);
+
+        bgColor = BG_COLOR;
     }
 
     @Override
@@ -37,8 +42,11 @@ public abstract class InterfaceState extends State {
 
     @Override
     public void render(SpriteBatch batch) {
-        Gdx.gl.glClearColor(BG_COLOR.r, BG_COLOR.g, BG_COLOR.b, BG_COLOR.a);
+        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+        camera.update();
+        batch.setProjectionMatrix(camera.combined);
     }
 
     @Override

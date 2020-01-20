@@ -36,7 +36,7 @@ import me.austinatchley.Tools.Starfield;
 
 import static me.austinatchley.Tools.Utils.*;
 
-public class GameState extends State {
+public class GameState extends InterfaceState {
 
     //private Box2DDebugRenderer debugRenderer;
     //private Matrix4 debugMatrix;
@@ -150,13 +150,9 @@ public class GameState extends State {
 
     @Override
     public void render(SpriteBatch batch) {
-        // background color
-        Gdx.gl.glClearColor(bgColor.r, bgColor.g, bgColor.b, bgColor.a);
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        super.render(batch);
 
-        camera.update();
-
-        batch.setProjectionMatrix(camera.combined);
+        batch.end();
 
         //        debugRenderer.render(world, debugMatrix);
 
@@ -200,14 +196,14 @@ public class GameState extends State {
                 pauseButton,
                 pauseLocation.x - pauseButton.getWidth(),
                 pauseLocation.y - pauseButton.getHeight());
-        batch.end();
     }
 
     private void init() {
         Box2D.init();
         world = new World(new Vector2(0, -100f), true);
 
-        rocket = new Rocket(world);
+        rocket = new Rocket(world, true);
+        rocket.init();
 
         asteroids = new Array<Asteroid>();
         enemies = new Array<Enemy>();
@@ -422,12 +418,22 @@ public class GameState extends State {
     protected void handleInput() {
         starfield.useVelocity(true);
 
-        controls();
+        if (IS_DESKTOP) arrowControls();
+        else            touchControls();
     }
 
-    private void controls() {
-        if (IS_DESKTOP) arrowControls();
-        else touchControls();
+    private void arrowControls() {
+        float posX = rocket.getPosition().x;
+        float posY = rocket.getPosition().y;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) posX -= MOVE_DIST;
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) posX += MOVE_DIST;
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) posY -= MOVE_DIST;
+        if (Gdx.input.isKeyPressed(Input.Keys.UP)) posY += MOVE_DIST;
+
+        Vector2 newPos = new Vector2(posX, posY);
+        Vector2 finalPos = rocket.getPosition().lerp(newPos, 0.45f);
+        rocket.setTransform(finalPos, rocket.getBody().getAngle());
     }
 
     private void touchControls() {
@@ -451,22 +457,9 @@ public class GameState extends State {
         rocket.moveTo(finalPos);
     }
 
-    private void arrowControls() {
-        float posX = rocket.getPosition().x;
-        float posY = rocket.getPosition().y;
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) posX -= MOVE_DIST;
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) posX += MOVE_DIST;
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) posY -= MOVE_DIST;
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) posY += MOVE_DIST;
-
-        Vector2 newPos = new Vector2(posX, posY);
-        Vector2 finalPos = rocket.getPosition().lerp(newPos, 0.45f);
-        rocket.setTransform(finalPos, rocket.getBody().getAngle());
-    }
-
     private void spawnAsteroid() {
         Asteroid asteroid = new Asteroid(world);
+        asteroid.init();
 
         asteroids.add(asteroid);
         lastDropTime = TimeUtils.nanoTime();
@@ -474,6 +467,7 @@ public class GameState extends State {
 
     private void spawnJunk() {
         Junk junk = new Junk(world);
+        junk.init();
 
         junks.add(junk);
         lastJunkDropTime = TimeUtils.nanoTime();
@@ -481,16 +475,22 @@ public class GameState extends State {
 
     private void spawnEnemy(float x, float y) {
         Enemy enemy = new Enemy(world, new Vector2(x, y));
+        enemy.init();
+
         enemySpawned(enemy);
     }
 
     private void spawnEnemy(int numX, float height) {
         Enemy enemy = new Enemy(world, numX, height);
+        enemy.init();
+
         enemySpawned(enemy);
     }
 
     private void spawnEnemy(int numX, float height, int numShots) {
         Enemy enemy = new Enemy(world, numX, height, numShots, shots);
+        enemy.init();
+
         enemySpawned(enemy);
     }
 

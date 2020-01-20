@@ -1,7 +1,9 @@
 package me.austinatchley.desktop;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
+import com.badlogic.gdx.tools.texturepacker.TexturePacker;
 
 import me.austinatchley.RocketGame;
 import me.austinatchley.Tools.Utils;
@@ -13,16 +15,25 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
 
-		config.fullscreen = true;
-        config.width = WIDTH;
-        config.height = HEIGHT;
+
+        int actualWidth  = 540;
+        int actualHeight = 960;
+
+        if (actualWidth > WIDTH || actualHeight > HEIGHT) {
+            actualWidth = (int)(actualWidth / ((float)actualHeight / HEIGHT));
+            actualHeight = HEIGHT;
+        }
+
+		config.fullscreen = false;
+        config.width = actualWidth;
+        config.height = actualHeight;
 		config.title = "Asteroid Agency";
 		config.resizable = false;
 
 		new LwjglApplication(new RocketGame(), config);
 
-		Utils.HEIGHT = HEIGHT;
-		Utils.WIDTH = WIDTH;
+		Utils.WIDTH = actualWidth;
+		Utils.HEIGHT = actualHeight;
 		Utils.IS_DESKTOP = true;
 	}
 }

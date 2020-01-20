@@ -32,36 +32,40 @@ public class Rocket extends SpaceObject {
     private Vector2 velocity;
     private Vector2 lastPos;
 
+    private boolean manageShots;
+
     PhysicsShapeCache physicsShapes;
 
     public Rocket(World world) {
+        this(world, new Texture("spaceCraft4.png"));
+    }
+
+    public Rocket(World world, boolean manageShots) {
+        this(world);
+
+        this.manageShots = manageShots;
+    }
+
+    public Rocket(World world, Texture texture) {
         super(world);
-        image = new Texture("spaceCraft4.png");
+        image = texture;
         sprite = new Sprite(image);
 
         velocity = new Vector2();
         lastPos = new Vector2();
 
+        manageShots = false;
+
         thruster1 = new ParticleEffect();
         thruster2 = new ParticleEffect();
-        thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
-        thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
 
         physicsShapes = new PhysicsShapeCache("rocket_body.xml");
+    }
 
-        init();
+    public Rocket(World world, Texture texture, boolean manageShots) {
+        this(world, texture);
 
-        shots = new ArrayList<Missile>();
-
-        thruster1.start();
-        thruster1.setPosition(body.getPosition().x, body.getPosition().y);
-        thruster1.getEmitters().first().getAngle().setLow(-85f);
-        thruster1.getEmitters().first().getAngle().setHigh(-95f);
-
-        thruster2.start();
-        thruster2.setPosition(body.getPosition().x, body.getPosition().y);
-        thruster2.getEmitters().first().getAngle().setLow(-85f);
-        thruster2.getEmitters().first().getAngle().setHigh(-95f);
+        this.manageShots = manageShots;
     }
 
     public void init() {
@@ -77,6 +81,23 @@ public class Rocket extends SpaceObject {
         filter.maskBits = 0x7fff;
 
         for (Fixture fix : body.getFixtureList()) fix.setFilterData(filter);
+
+        if (manageShots) {
+            shots = new ArrayList<Missile>();
+        }
+
+        thruster1.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+        thruster2.load(Gdx.files.internal("rocket_thruster.p"), Gdx.files.internal(""));
+
+        thruster1.start();
+        thruster1.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster1.getEmitters().first().getAngle().setLow(-85f);
+        thruster1.getEmitters().first().getAngle().setHigh(-95f);
+
+        thruster2.start();
+        thruster2.setPosition(body.getPosition().x, body.getPosition().y);
+        thruster2.getEmitters().first().getAngle().setLow(-85f);
+        thruster2.getEmitters().first().getAngle().setHigh(-95f);
     }
 
     public void render(SpriteBatch batch) {
@@ -108,13 +129,15 @@ public class Rocket extends SpaceObject {
         thruster2.update(Gdx.graphics.getDeltaTime());
         thruster2.draw(batch);
 
-        Iterator<Missile> iterator = shots.iterator();
-        while (iterator.hasNext()) {
-            Missile shot = iterator.next();
-            shot.render(batch);
-            if (shot.isOutOfBounds()) {
-                shot.dispose();
-                iterator.remove();
+        if (manageShots) {
+            Iterator<Missile> iterator = shots.iterator();
+            while (iterator.hasNext()) {
+                Missile shot = iterator.next();
+                shot.render(batch);
+                if (shot.isOutOfBounds()) {
+                    shot.dispose();
+                    iterator.remove();
+                }
             }
         }
 
@@ -142,8 +165,10 @@ public class Rocket extends SpaceObject {
         velocity.y = getPosition().y - lastPos.y;
     }
 
-    public void shootMissile(Sound missileSound) {
-        missileSound.play();
+    public PlayerMissile shootMissile(Sound missileSound) {
+        if (missileSound != null) {
+            missileSound.play();
+        }
 
         PlayerMissile shot =
                 new PlayerMissile(
@@ -153,10 +178,16 @@ public class Rocket extends SpaceObject {
                                 getPosition().y + image.getHeight()),
                         0f,
                         600f);
+        shot.init();
         shot.flip();
 
-        shots.add(shot);
+        if (manageShots) {
+            shots.add(shot);
+        }
+
         lastShotTime = TimeUtils.nanoTime();
+
+        return shot;
     }
 
     public boolean canShoot() {
