@@ -2,11 +2,11 @@
 
 ## About
 
-Written in Java, using LibGDX as the base game framework, Scene2D for UI, and Box2D for physics. This project was created purely for the fun of writing a simple game, so I probably won't be able to work on it as much as I would like.
+Written in Java, using LibGDX as the base game framework, Scene2D for UI, and Box2D for physics. This project was created mainly to build familiarity with the LibGDX framework.
 
 ![Screen Shot](screenshot.png)
 
-The name of the game is to smash as many asteroids as possible! This must be done while avoiding the green space junk and enemy fire.
+The objective: smash as many asteroids as possible! This must be done while avoiding the green space junk and enemy fire.
 
 ## Build Instructions
 
